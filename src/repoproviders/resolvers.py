@@ -31,6 +31,9 @@ class GitHubResolver:
             # Handle <user|org>/<repo>/<tree|blob>/<ref>(/<possible-path>)
             # Note: We ignore any paths specified here, as we only care about the repo
             return Git(repo=str(url.with_path(f"{parts[0]}/{parts[1]}")), ref=parts[3])
+        else:
+            # This is not actually a valid GitHub URL we support
+            return None
 
 
 class DoiResolver:
