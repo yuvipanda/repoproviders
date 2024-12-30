@@ -62,6 +62,13 @@ class DoiResolver:
             doi = url.path
         elif url.scheme in ("http", "https") and url.host in ("doi.org", "www.doi.org", "hdl.handle.net"):
             doi = url.path.lstrip("/")
+        elif url.scheme == "" and url.path.startswith("10."):
+            # Handles in general are defined as <naming-authority>/<handle> (https://datatracker.ietf.org/doc/html/rfc3650#section-3)
+            # however, this is far too broad, as even a file path like `hello/world` will satisfy it. Eventually, could find a list
+            # of registered handle prefixes to validate the `<naming-authority>` part. In the meantime, we only check for a `10.` prefix,
+            # which is for the most popular kind of handle - a DOI.
+            # This is only for convenience - in cases when the user pastes in a DOI but doesn't actually say doi:.
+            doi = url.path
         else:
             # Not a DOI or handle
             return None
