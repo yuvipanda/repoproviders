@@ -10,10 +10,20 @@ class Git:
     ref: str
 
 class ImmutableGit(Git):
+    """
+    Same as Git, but marked to be fully resolved. This implies:
+
+    1. The repository exists, and can be contacted
+    2. If ref was a branch or tag, it has been resolved into an immutable commit sha
+    3. If ref *looks* like a sha, we assume it exists (without testing it)
+    """
     pass
 
 @dataclass
 class NotFound:
+    """
+    Resolver recognizes this question, but while resolving determined it does not exist
+    """
     pass
 
 @dataclass
@@ -91,9 +101,11 @@ class ImmutableGitResolver:
         retcode = await proc.wait()
         if retcode:
             # `git` may follow redirects here, so the repo we pass may not always be the repo we
-            # get back
+            # get back. So we loosely check for a 'not found' message.
             if re.match(r"fatal: repository '(.+)' not found", stderr):
                 return NotFound()
+
+            # If it's another error, let's raise it directly
             raise RuntimeError(
                 f"Unable to run git ls-remote to resolve {question}: {stderr}"
             )
