@@ -33,7 +33,10 @@ classifiers = [
 # TODO: add keywords
 keywords = []
 # TODO: add dependencies
-dependencies = []
+dependencies = [
+    "yarl",
+    "aiohttp"
+]
 
 [project.urls]
 Homepage = "https://github.com/yuvipanda/repoproviders"
@@ -65,6 +68,7 @@ source = "vcs"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = ["raises"]
+asyncio_mode = "auto"
 
 [tool.coverage.paths]
 source = [
@@ -179,6 +183,7 @@ extra-dependencies = [
     "pytest-raises",
     "pytest-randomly",
     "pytest-xdist",
+    "pytest-asyncio"
 ]
 
 [[tool.hatch.envs.test.matrix]]
