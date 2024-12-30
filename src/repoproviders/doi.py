@@ -4,13 +4,6 @@ import aiohttp
 from .resolvers import NotFound
 
 @dataclass
-class NotFound:
-    """
-    Resolver recognizes this question, but while resolving determined it does not exist
-    """
-    pass
-
-@dataclass
 class Doi:
     url: str
 
