@@ -4,7 +4,6 @@
 
 Detect, resolve and fetch repositories of content
 
-
 [API Documentation](./api/modules.rst)
 
 ## Copyright
