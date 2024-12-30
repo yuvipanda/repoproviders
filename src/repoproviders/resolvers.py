@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+import re
+import asyncio
 from yarl import URL
 import aiohttp
 
@@ -6,6 +8,9 @@ import aiohttp
 class Git:
     repo: str
     ref: str
+
+class ImmutableGit(Git):
+    pass
 
 @dataclass
 class NotFound:
@@ -16,7 +21,7 @@ class Doi:
     url: str
 
 class GitHubResolver:
-    def resolve(self, url: URL) -> Git | None:
+    async def resolve(self, url: URL) -> Git | None:
         if url.host != 'github.com' and url.host != 'www.github.com':
             # TODO: Allow configuring for GitHub enterprise
             return None
@@ -41,7 +46,7 @@ class DoiResolver:
     A *handle* resolver, called a Doi resolver because that's the most common handle
     """
 
-    async def resolve(self, url: URL):
+    async def resolve(self, url: URL) -> Doi | NotFound | None:
         # Check if this is a valid doi or handle
         if url.scheme in ("doi", "hdl"):
             doi = url.path
@@ -75,6 +80,37 @@ class DoiResolver:
                 # Some other kind of failure, let's propagate our error up
                 resp.raise_for_status()
 
+
+class ImmutableGitResolver:
+    async def resolve(self, question: Git) -> ImmutableGit | NotFound | None:
+        command = ["git", "ls-remote", "--", question.repo, question.ref]
+        proc = await asyncio.create_subprocess_exec(
+                *command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+            )
+        stdout, stderr = [s.decode().strip() for s in await proc.communicate()]
+        retcode = await proc.wait()
+        if retcode:
+            # `git` may follow redirects here, so the repo we pass may not always be the repo we
+            # get back
+            if re.match(r"fatal: repository '(.+)' not found", stderr):
+                return NotFound()
+            raise RuntimeError(
+                f"Unable to run git ls-remote to resolve {question}: {stderr}"
+            )
+
+        if stdout == "":
+            # The remote repo exists, and we can talk to it. But no *ref* with the given name
+            # exists. We check if this looks like a commit sha, and if it is, assume it exists.
+            # FIXME: Decide if we just do this check *before* trying ls-remotes? Faster, but it means
+            # we can't guarantee that the repo itself exists
+            if re.match(r"[0-9a-f]{40}", question.ref):
+                resolved_ref = question.ref
+            else:
+                return NotFound()
+        else:
+            resolved_ref = stdout.split("\t", 1)[0]
+
+        return ImmutableGit(question.repo, resolved_ref)
 
 def resolve(question: str, recursive: bool):
     pass
