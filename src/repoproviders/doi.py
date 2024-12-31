@@ -1,12 +1,11 @@
 import json
 import os
 from dataclasses import dataclass
-from typing import List
 
 import aiohttp
 from yarl import URL
 
-from .base import NotFound, Resolver
+from .base import NotFound
 
 
 @dataclass
@@ -20,31 +19,28 @@ class DataverseDataset:
     persistentId: str
 
 
-class DoiResolver(Resolver):
+class DoiResolver:
     """
     A *handle* resolver, called a Doi resolver because that's the most common handle
     """
 
-    def supports_handling(self) -> List[type]:
-        return [URL]
-
-    async def resolve(self, url: URL) -> Doi | NotFound | None:
+    async def resolve(self, question: URL) -> Doi | NotFound | None:
         # Check if this is a valid doi or handle
-        if url.scheme in ("doi", "hdl"):
-            doi = url.path
-        elif url.scheme in ("http", "https") and url.host in (
+        if question.scheme in ("doi", "hdl"):
+            doi = question.path
+        elif question.scheme in ("http", "https") and question.host in (
             "doi.org",
             "www.doi.org",
             "hdl.handle.net",
         ):
-            doi = url.path.lstrip("/")
-        elif url.scheme == "" and url.path.startswith("10."):
+            doi = question.path.lstrip("/")
+        elif question.scheme == "" and question.path.startswith("10."):
             # Handles in general are defined as <naming-authority>/<handle> (https://datatracker.ietf.org/doc/html/rfc3650#section-3)
             # however, this is far too broad, as even a file path like `hello/world` will satisfy it. Eventually, could find a list
             # of registered handle prefixes to validate the `<naming-authority>` part. In the meantime, we only check for a `10.` prefix,
             # which is for the most popular kind of handle - a DOI.
             # This is only for convenience - in cases when the user pastes in a DOI but doesn't actually say doi:.
-            doi = url.path
+            doi = question.path
         else:
             # Not a DOI or handle
             return None
@@ -74,7 +70,7 @@ class DoiResolver(Resolver):
                 resp.raise_for_status()
 
 
-class DataverseResolver(Resolver):
+class DataverseResolver:
     def __init__(self):
         # Get a list of installation URLs for known dataverse installations
         data_file = os.path.join(os.path.dirname(__file__), "dataverse.json")
@@ -114,9 +110,6 @@ class DataverseResolver(Resolver):
 
         data = (await resp.json())["data"]
         return data["datasetVersion"]["datasetPersistentId"]
-
-    def supports_handling(self) -> List[type]:
-        return [Doi, URL]
 
     async def resolve(self, question: URL | Doi) -> DataverseDataset | NotFound | None:
         if isinstance(question, URL):

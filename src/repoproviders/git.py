@@ -1,11 +1,10 @@
 import asyncio
 import re
 from dataclasses import dataclass
-from typing import List
 
 from yarl import URL
 
-from .base import NotFound, Resolver
+from .base import NotFound
 
 
 @dataclass
@@ -26,11 +25,7 @@ class ImmutableGit(Git):
     pass
 
 
-class GitHubResolver(Resolver):
-
-    def supports_handling(self) -> List[type]:
-        return [URL]
-
+class GitHubResolver:
     async def resolve(self, question: URL) -> Git | None:
         if question.host != "github.com" and question.host != "www.github.com":
             # TODO: Allow configuring for GitHub enterprise
@@ -55,10 +50,7 @@ class GitHubResolver(Resolver):
             return None
 
 
-class ImmutableGitResolver(Resolver):
-    def supports_handling(self) -> List[type]:
-        return [Git]
-
+class ImmutableGitResolver:
     async def resolve(self, question: Git) -> ImmutableGit | NotFound | None:
         command = ["git", "ls-remote", "--", question.repo, question.ref]
         proc = await asyncio.create_subprocess_exec(

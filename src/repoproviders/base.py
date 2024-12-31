@@ -1,6 +1,5 @@
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import List
+from typing import Any, Protocol
 
 
 @dataclass
@@ -12,11 +11,6 @@ class NotFound:
     pass
 
 
-class Resolver(ABC):
-    @abstractmethod
-    def supports_handling(self) -> List[type]:
-        pass
-
-    @abstractmethod
-    async def resolve(self, question):
+class SupportsResolve(Protocol):
+    async def resolve(self, question: Any) -> Any:
         pass

@@ -1,23 +1,31 @@
-from typing import Any, List
+import inspect
+import types
+import typing
+from typing import Any
 
 from yarl import URL
 
-from .base import Resolver
+from .base import SupportsResolve
 from .doi import DataverseResolver, DoiResolver
 from .git import GitHubResolver, ImmutableGitResolver
 
-ALL_RESOLVERS: List[Resolver] = [
+ALL_RESOLVERS: list[SupportsResolve] = [
     GitHubResolver(),
     DoiResolver(),
     DataverseResolver(),
     ImmutableGitResolver(),
 ]
 
-RESOLVER_BY_TYPE: dict[type, list[Resolver]] = {}
+RESOLVER_BY_TYPE: dict[type, list[SupportsResolve]] = {}
 for R in ALL_RESOLVERS:
-    supported_types = R.supports_handling()
-    for t in supported_types:
-        RESOLVER_BY_TYPE.setdefault(t, []).append(R)
+    annotations = inspect.get_annotations(R.resolve)
+    supported_types = annotations["question"]
+    if isinstance(supported_types, type):
+        # Only supports a single type
+        RESOLVER_BY_TYPE.setdefault(supported_types, []).append(R)
+    elif isinstance(supported_types, types.UnionType):
+        for t in typing.get_args(supported_types):
+            RESOLVER_BY_TYPE.setdefault(t, []).append(R)
 
 
 async def resolve(question: str | Any, recursive: bool) -> list | None:
