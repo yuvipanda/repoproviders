@@ -58,6 +58,13 @@ from repoproviders.git import Git, GitHubResolver, ImmutableGit, ImmutableGitRes
                 ref="b912433bfae541972c83529359f4181ef0fe9b67",
             ),
         ),
+        (
+            "https://github.com/yuvipanda/does-not-exist-e43",
+            Git(
+                repo="https://github.com/yuvipanda/does-not-exist-e43",
+                ref="HEAD"
+            ),
+        ),
     ),
 )
 async def test_github(url, expected):
@@ -89,6 +96,15 @@ async def test_github(url, expected):
                 "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
             ),
         ),
+        # Repo doesn't exist
+        (
+            Git(
+                repo="https://github.com/yuvipanda/does-not-exist-e43",
+                ref="HEAD"
+            ),
+            NotFound(),
+        ),
+        # Ref doesn't exist
         (
             Git(
                 "https://github.com/jupyterhub/zero-to-jupyterhub-k8s", "does-not-exist"

@@ -61,7 +61,7 @@ class ImmutableGitResolver:
         if retcode:
             # `git` may follow redirects here, so the repo we pass may not always be the repo we
             # get back. So we loosely check for a 'not found' message.
-            if re.match(r"fatal: repository '(.+)' not found", stderr):
+            if re.search(r"fatal: repository '(.+)' not found", stderr, re.MULTILINE):
                 return NotFound()
 
             # If it's another error, let's raise it directly
