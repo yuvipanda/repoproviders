@@ -1,13 +1,17 @@
-from dataclasses import dataclass
-import re
 import asyncio
+import re
+from dataclasses import dataclass
+
 from yarl import URL
+
 from .resolvers import NotFound
+
 
 @dataclass
 class Git:
     repo: str
     ref: str
+
 
 class ImmutableGit(Git):
     """
@@ -17,21 +21,23 @@ class ImmutableGit(Git):
     2. If ref was a branch or tag, it has been resolved into an immutable commit sha
     3. If ref *looks* like a sha, we assume it exists (without testing it)
     """
+
     pass
+
 
 class GitHubResolver:
     async def resolve(self, url: URL) -> Git | None:
-        if url.host != 'github.com' and url.host != 'www.github.com':
+        if url.host != "github.com" and url.host != "www.github.com":
             # TODO: Allow configuring for GitHub enterprise
             return None
 
         # Split the URL into parts, discarding empty parts to account for leading and trailing slashes
-        parts = [p for p in url.path.split('/') if p.strip() != ""]
+        parts = [p for p in url.path.split("/") if p.strip() != ""]
         if len(parts) == 2:
             # Handle <user|org>/<repo>
             # Reconstruct the URL so we normalize any
             return Git(repo=str(url.with_path(f"{parts[0]}/{parts[1]}")), ref="HEAD")
-        elif len(parts) >=4 and parts[2] in ("tree", "blob"):
+        elif len(parts) >= 4 and parts[2] in ("tree", "blob"):
             # Handle <user|org>/<repo>/<tree|blob>/<ref>(/<possible-path>)
             # Note: We ignore any paths specified here, as we only care about the repo
             return Git(repo=str(url.with_path(f"{parts[0]}/{parts[1]}")), ref=parts[3])
@@ -44,8 +50,8 @@ class ImmutableGitResolver:
     async def resolve(self, question: Git) -> ImmutableGit | NotFound | None:
         command = ["git", "ls-remote", "--", question.repo, question.ref]
         proc = await asyncio.create_subprocess_exec(
-                *command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-            )
+            *command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+        )
         stdout, stderr = [s.decode().strip() for s in await proc.communicate()]
         retcode = await proc.wait()
         if retcode:
@@ -72,6 +78,7 @@ class ImmutableGitResolver:
             resolved_ref = stdout.split("\t", 1)[0]
 
         return ImmutableGit(question.repo, resolved_ref)
+
 
 def resolve(question: str, recursive: bool):
     pass
