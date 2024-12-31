@@ -1,10 +1,11 @@
 import asyncio
 import re
 from dataclasses import dataclass
+from typing import List
 
 from yarl import URL
 
-from .resolvers import NotFound
+from .base import NotFound, Resolver
 
 
 @dataclass
@@ -25,28 +26,39 @@ class ImmutableGit(Git):
     pass
 
 
-class GitHubResolver:
-    async def resolve(self, url: URL) -> Git | None:
-        if url.host != "github.com" and url.host != "www.github.com":
+class GitHubResolver(Resolver):
+
+    def supports_handling(self) -> List[type]:
+        return [URL]
+
+    async def resolve(self, question: URL) -> Git | None:
+        if question.host != "github.com" and question.host != "www.github.com":
             # TODO: Allow configuring for GitHub enterprise
             return None
 
         # Split the URL into parts, discarding empty parts to account for leading and trailing slashes
-        parts = [p for p in url.path.split("/") if p.strip() != ""]
+        parts = [p for p in question.path.split("/") if p.strip() != ""]
         if len(parts) == 2:
             # Handle <user|org>/<repo>
             # Reconstruct the URL so we normalize any
-            return Git(repo=str(url.with_path(f"{parts[0]}/{parts[1]}")), ref="HEAD")
+            return Git(
+                repo=str(question.with_path(f"{parts[0]}/{parts[1]}")), ref="HEAD"
+            )
         elif len(parts) >= 4 and parts[2] in ("tree", "blob"):
             # Handle <user|org>/<repo>/<tree|blob>/<ref>(/<possible-path>)
             # Note: We ignore any paths specified here, as we only care about the repo
-            return Git(repo=str(url.with_path(f"{parts[0]}/{parts[1]}")), ref=parts[3])
+            return Git(
+                repo=str(question.with_path(f"{parts[0]}/{parts[1]}")), ref=parts[3]
+            )
         else:
             # This is not actually a valid GitHub URL we support
             return None
 
 
-class ImmutableGitResolver:
+class ImmutableGitResolver(Resolver):
+    def supports_handling(self) -> List[type]:
+        return [Git]
+
     async def resolve(self, question: Git) -> ImmutableGit | NotFound | None:
         command = ["git", "ls-remote", "--", question.repo, question.ref]
         proc = await asyncio.create_subprocess_exec(
@@ -78,7 +90,3 @@ class ImmutableGitResolver:
             resolved_ref = stdout.split("\t", 1)[0]
 
         return ImmutableGit(question.repo, resolved_ref)
-
-
-def resolve(question: str, recursive: bool):
-    pass

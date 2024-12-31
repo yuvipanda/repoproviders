@@ -1,11 +1,12 @@
 import json
 import os
 from dataclasses import dataclass
+from typing import List
 
 import aiohttp
 from yarl import URL
 
-from .resolvers import NotFound
+from .base import NotFound, Resolver
 
 
 @dataclass
@@ -19,10 +20,13 @@ class DataverseDataset:
     persistentId: str
 
 
-class DoiResolver:
+class DoiResolver(Resolver):
     """
     A *handle* resolver, called a Doi resolver because that's the most common handle
     """
+
+    def supports_handling(self) -> List[type]:
+        return [URL]
 
     async def resolve(self, url: URL) -> Doi | NotFound | None:
         # Check if this is a valid doi or handle
@@ -70,7 +74,7 @@ class DoiResolver:
                 resp.raise_for_status()
 
 
-class DataverseResolver:
+class DataverseResolver(Resolver):
     def __init__(self):
         # Get a list of installation URLs for known dataverse installations
         data_file = os.path.join(os.path.dirname(__file__), "dataverse.json")
@@ -111,7 +115,14 @@ class DataverseResolver:
         data = (await resp.json())["data"]
         return data["datasetVersion"]["datasetPersistentId"]
 
-    async def resolve(self, url: URL) -> DataverseDataset | NotFound | None:
+    def supports_handling(self) -> List[type]:
+        return [Doi, URL]
+
+    async def resolve(self, question: URL | Doi) -> DataverseDataset | NotFound | None:
+        if isinstance(question, URL):
+            url = question
+        elif isinstance(question, Doi):
+            url = URL(question.url)
         # Check if URL is under one of the installation URLs we have.
         installation = next(
             (
@@ -125,7 +136,6 @@ class DataverseResolver:
         )
         if installation is None:
             return None
-
         path = url.path
         qs = url.query
 
