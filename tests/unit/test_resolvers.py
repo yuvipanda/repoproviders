@@ -10,6 +10,8 @@ from repoproviders.doi import (
     FigshareDataset,
     FigshareInstallation,
     FigshareResolver,
+    ImmutableFigshareDataset,
+    ImmutableFigshareResolver,
     ZenodoDataset,
     ZenodoResolver,
 )
@@ -312,3 +314,56 @@ async def test_zenodo(url, expected):
 async def test_figshare(url, expected):
     fs = FigshareResolver()
     assert await fs.resolve(URL(url)) == expected
+
+
+@pytest.mark.parametrize(
+    ("question", "expected"),
+    (
+        (
+            FigshareDataset(
+                FigshareInstallation(
+                    URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")
+                ),
+                9782777,
+                None,
+            ),
+            ImmutableFigshareDataset(
+                FigshareInstallation(
+                    URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")
+                ),
+                9782777,
+                3,
+            ),
+        ),
+        (
+            FigshareDataset(
+                FigshareInstallation(
+                    URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")
+                ),
+                9782777,
+                2,
+            ),
+            ImmutableFigshareDataset(
+                FigshareInstallation(
+                    URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")
+                ),
+                9782777,
+                2,
+            ),
+        ),
+        # Non existent things
+        (
+            FigshareDataset(
+                FigshareInstallation(
+                    URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")
+                ),
+                97827778384384634634634863463434343,
+                None,
+            ),
+            NotFound()
+        ),
+    ),
+)
+async def test_immutable_figshare(question, expected):
+    ifs = ImmutableFigshareResolver()
+    assert await ifs.resolve(question) == expected
