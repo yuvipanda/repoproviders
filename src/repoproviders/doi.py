@@ -39,7 +39,9 @@ class FigshareDataset:
 
 
 @dataclass
-class ImmutableFigshareDataset(FigshareDataset):
+class ImmutableFigshareDataset:
+    installation: FigshareInstallation
+    articleId: int
     # version will always be present when immutable
     version: int
 
@@ -305,7 +307,7 @@ class FigshareResolver:
             return None
 
 
-class ImmutableFigshareResolver(FigshareResolver):
+class ImmutableFigshareResolver:
     async def resolve(
         self, question: FigshareDataset
     ) -> ImmutableFigshareDataset | NotFound | None:
