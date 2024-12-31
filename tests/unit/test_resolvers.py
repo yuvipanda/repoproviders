@@ -1,8 +1,8 @@
 import pytest
 from yarl import URL
 
-from repoproviders.base import NotFound
-from repoproviders.doi import (
+from repoproviders.resolvers.base import NotFound
+from repoproviders.resolvers.doi import (
     DataverseDataset,
     DataverseResolver,
     Doi,
@@ -15,7 +15,7 @@ from repoproviders.doi import (
     ZenodoDataset,
     ZenodoResolver,
 )
-from repoproviders.git import Git, GitHubResolver, ImmutableGit, ImmutableGitResolver
+from repoproviders.resolvers.git import Git, GitHubResolver, ImmutableGit, ImmutableGitResolver
 
 
 @pytest.mark.parametrize(

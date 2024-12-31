@@ -1,8 +1,8 @@
 import pytest
 from yarl import URL
 
-from repoproviders.base import NotFound
-from repoproviders.doi import (
+from repoproviders.resolvers.base import NotFound
+from repoproviders.resolvers.doi import (
     DataverseDataset,
     Doi,
     FigshareDataset,
@@ -10,7 +10,7 @@ from repoproviders.doi import (
     ImmutableFigshareDataset,
     ZenodoDataset,
 )
-from repoproviders.git import Git, ImmutableGit
+from repoproviders.resolvers.git import Git, ImmutableGit
 from repoproviders.resolvers import resolve
 
 
