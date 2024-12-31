@@ -2,7 +2,7 @@ import pytest
 from yarl import URL
 
 from repoproviders.base import NotFound
-from repoproviders.doi import DataverseDataset, DataverseResolver, Doi, DoiResolver, ZenodoDataset, ZenodoResolver
+from repoproviders.doi import DataverseDataset, DataverseResolver, Doi, DoiResolver, FigshareResolver, ZenodoDataset, ZenodoResolver, FigshareDataset
 from repoproviders.git import Git, GitHubResolver, ImmutableGit, ImmutableGitResolver
 
 
@@ -226,3 +226,24 @@ async def test_dataverse(url, expected):
 async def test_zenodo(url, expected):
     zr = ZenodoResolver()
     assert await zr.resolve(URL(url)) == expected
+
+@pytest.mark.parametrize(
+    ("url", "expected"),
+    (
+        ("https://example.com/something", None),
+        # A non-dataset URL
+        ("https://figshare.com/browse", None),
+        # A non-dataset URL that looks suspiciously like a dataset URL
+        ("https://figshare.com/collections/Risk_reduction_in_SARS-CoV-2_infection_and_reinfection_conferred_by_humoral_antibody_levels_among_essential_workers_during_Omicron_predominance/7605487", None),
+        # Some old school URLs
+        ("https://figshare.com/articles/title/9782777", FigshareDataset("https://figshare.com/", 9782777, None)),
+        ("https://figshare.com/articles/title/9782777/2", FigshareDataset("https://figshare.com/", 9782777, 2)),
+        # New style URLs
+        ("https://figshare.com/articles/code/Binder-ready_openSenseMap_Analysis/9782777", FigshareDataset("https://figshare.com/", 9782777, None)),
+        ("https://figshare.com/articles/code/Binder-ready_openSenseMap_Analysis/9782777/3", FigshareDataset("https://figshare.com/", 9782777, 3))
+
+    )
+)
+async def test_figshare(url, expected):
+    fs = FigshareResolver()
+    assert await fs.resolve(URL(url)) == expected
