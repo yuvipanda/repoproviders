@@ -209,6 +209,7 @@ async def test_doi(url, expected):
             NotFound(),
         ),
         ("https://dataverse.harvard.edu/api/access/datafile/0", NotFound()),
+        ("https://dataverse.harvard.edu/blaaaah", NotFound()),
         (
             "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/not-found",
             NotFound(),
