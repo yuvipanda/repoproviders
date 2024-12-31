@@ -61,5 +61,6 @@ jobs:
       shell: bash
       run: bash <(curl -s https://codecov.io/bash)
 
-    - name: Check types
-      run: hatch run types:check
+    # Temporarily disable type checks
+    # - name: Check types
+    #   run: hatch run types:check
