@@ -60,10 +60,7 @@ from repoproviders.git import Git, GitHubResolver, ImmutableGit, ImmutableGitRes
         ),
         (
             "https://github.com/yuvipanda/does-not-exist-e43",
-            Git(
-                repo="https://github.com/yuvipanda/does-not-exist-e43",
-                ref="HEAD"
-            ),
+            Git(repo="https://github.com/yuvipanda/does-not-exist-e43", ref="HEAD"),
         ),
     ),
 )
@@ -98,10 +95,7 @@ async def test_github(url, expected):
         ),
         # Repo doesn't exist
         (
-            Git(
-                repo="https://github.com/yuvipanda/does-not-exist-e43",
-                ref="HEAD"
-            ),
+            Git(repo="https://github.com/yuvipanda/does-not-exist-e43", ref="HEAD"),
             NotFound(),
         ),
         # Ref doesn't exist
@@ -377,7 +371,7 @@ async def test_figshare(url, expected):
                 97827778384384634634634863463434343,
                 None,
             ),
-            NotFound()
+            NotFound(),
         ),
     ),
 )
