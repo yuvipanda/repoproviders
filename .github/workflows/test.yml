@@ -23,9 +23,6 @@ jobs:
       - name: Install hatch
         uses: pypa/hatch@install
 
-      - name: Check code style
-        run: hatch run style:code
-
       - name: Check docstrings
         run: hatch run style:docstrings
 

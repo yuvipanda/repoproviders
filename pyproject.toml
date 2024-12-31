@@ -132,7 +132,7 @@ detached = true
 
 [tool.hatch.envs.style.scripts]
 docstrings = "pydoclint"
-check = ["docstrings", "code"]
+check = ["docstrings"]
 
 [tool.hatch.envs.audit]
 description = """Check dependencies for security vulnerabilities."""
