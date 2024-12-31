@@ -45,6 +45,9 @@ Homepage = "https://github.com/yuvipanda/repoproviders"
 Documentation = "https://repoproviders.readthedocs.io"
 Download = "https://pypi.org/project/repoproviders/#files"
 
+[project.scripts]
+repoproviders = "repoproviders.__main__:cli_entrypoint"
+
 [project.optional-dependencies]
 dev = [
     "hatch",
