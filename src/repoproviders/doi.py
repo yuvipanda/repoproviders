@@ -25,11 +25,20 @@ class ZenodoDataset:
     recordId: str
 
 @dataclass
+class FigshareInstallation:
+    url: URL
+    apiUrl: URL
+
+@dataclass
 class FigshareDataset:
-    installationUrl: str
+    installation: FigshareInstallation
     articleId: int
     version: int | None
 
+@dataclass
+class ImmutableFigshareDataset(FigshareDataset):
+    # version will always be present when immutable
+    version: int
 
 class DoiResolver:
     """
@@ -246,28 +255,29 @@ class FigshareResolver:
     def __init__(self):
         # FIXME: Determine this dynamically in the future
         # Figshare can be on custom domains: https://figshare.com/blog/Figshare_now_available_on_custom_domains/461
-        # Although I don't know any custom domains with figshare right now
         self.installations = [
-            URL("https://figshare.com/"),
+            FigshareInstallation(URL("https://figshare.com"), URL("https://api.figshare.com/v2/"))
         ]
+
     async def resolve(self, question: URL | Doi) -> FigshareDataset | None:
         if isinstance(question, URL):
             url = question
         elif isinstance(question, Doi):
             url = URL(question.url)
 
+
         installation = next(
             (
                 installation
                 for installation in self.installations
                 # Intentionally don't check for scheme validity, to support interchangeable http and https URLs
-                if installation.host == url.host
+                if installation.url.host == url.host
                 # Check for base URL, to support installations on base URL other than /
-                and url.path.startswith(installation.path)
+                and url.path.startswith(installation.url.path)
                 and (
                     # After the base URL, the URL structure should start with either record or records
-                    url.path[len(installation.path) :].startswith("articles/")
-                    or url.path[len(installation.path) :].startswith("account/articles/")
+                    url.path[len(installation.url.path) :].startswith("articles/")
+                    or url.path[len(installation.url.path) :].startswith("account/articles/")
                 )
             ),
             None,
@@ -280,8 +290,8 @@ class FigshareResolver:
         # If not, treat it as article ID only
         parts = url.path.split('/')
         if parts[-1].isdigit() and parts[-2].isdigit():
-            return FigshareDataset(str(installation), int(parts[-2]), int(parts[-1]))
+            return FigshareDataset(installation, int(parts[-2]), int(parts[-1]))
         elif parts[-1].isdigit():
-            return FigshareDataset(str(installation), int(parts[-1]), None)
+            return FigshareDataset(installation, int(parts[-1]), None)
         else:
             return None

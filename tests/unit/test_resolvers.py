@@ -2,7 +2,7 @@ import pytest
 from yarl import URL
 
 from repoproviders.base import NotFound
-from repoproviders.doi import DataverseDataset, DataverseResolver, Doi, DoiResolver, FigshareResolver, ZenodoDataset, ZenodoResolver, FigshareDataset
+from repoproviders.doi import DataverseDataset, DataverseResolver, Doi, DoiResolver, FigshareResolver, ZenodoDataset, ZenodoResolver, FigshareDataset, FigshareInstallation
 from repoproviders.git import Git, GitHubResolver, ImmutableGit, ImmutableGitResolver
 
 
@@ -236,11 +236,11 @@ async def test_zenodo(url, expected):
         # A non-dataset URL that looks suspiciously like a dataset URL
         ("https://figshare.com/collections/Risk_reduction_in_SARS-CoV-2_infection_and_reinfection_conferred_by_humoral_antibody_levels_among_essential_workers_during_Omicron_predominance/7605487", None),
         # Some old school URLs
-        ("https://figshare.com/articles/title/9782777", FigshareDataset("https://figshare.com/", 9782777, None)),
-        ("https://figshare.com/articles/title/9782777/2", FigshareDataset("https://figshare.com/", 9782777, 2)),
+        ("https://figshare.com/articles/title/9782777", FigshareDataset(FigshareInstallation(URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")), 9782777, None)),
+        ("https://figshare.com/articles/title/9782777/2", FigshareDataset(FigshareInstallation(URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")), 9782777, 2)),
         # New style URLs
-        ("https://figshare.com/articles/code/Binder-ready_openSenseMap_Analysis/9782777", FigshareDataset("https://figshare.com/", 9782777, None)),
-        ("https://figshare.com/articles/code/Binder-ready_openSenseMap_Analysis/9782777/3", FigshareDataset("https://figshare.com/", 9782777, 3))
+        ("https://figshare.com/articles/code/Binder-ready_openSenseMap_Analysis/9782777", FigshareDataset(FigshareInstallation(URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")), 9782777, None)),
+        ("https://figshare.com/articles/code/Binder-ready_openSenseMap_Analysis/9782777/3", FigshareDataset(FigshareInstallation(URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")), 9782777, 3)),
 
     )
 )

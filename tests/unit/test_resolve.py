@@ -2,7 +2,7 @@ import pytest
 from yarl import URL
 
 from repoproviders.base import NotFound
-from repoproviders.doi import DataverseDataset, Doi, ZenodoDataset, FigshareDataset
+from repoproviders.doi import DataverseDataset, Doi, ZenodoDataset, FigshareDataset, FigshareInstallation
 from repoproviders.git import Git, ImmutableGit
 from repoproviders.resolvers import resolve
 
@@ -229,7 +229,8 @@ async def test_norecurse(url, expected):
             "https://doi.org/10.6084/m9.figshare.9782777.v3",
             [
                 Doi("https://figshare.com/articles/Binder-ready_openSenseMap_Analysis/9782777/3"),
-                FigshareDataset("https://figshare.com/", 9782777, 3)
+                FigshareDataset(
+                    FigshareInstallation(URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")) , 9782777, 3)
             ]
         )
     ),
