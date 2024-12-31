@@ -2,7 +2,14 @@ import pytest
 from yarl import URL
 
 from repoproviders.base import NotFound
-from repoproviders.doi import DataverseDataset, Doi, ZenodoDataset, FigshareDataset, FigshareInstallation
+from repoproviders.doi import (
+    DataverseDataset,
+    Doi,
+    FigshareDataset,
+    FigshareInstallation,
+    ImmutableFigshareDataset,
+    ZenodoDataset,
+)
 from repoproviders.git import Git, ImmutableGit
 from repoproviders.resolvers import resolve
 
@@ -222,17 +229,54 @@ async def test_norecurse(url, expected):
             "10.5281/zenodo.3232985",
             [
                 Doi("https://zenodo.org/record/3232985"),
-                ZenodoDataset("https://zenodo.org/", "3232985")
-            ]
+                ZenodoDataset("https://zenodo.org/", "3232985"),
+            ],
         ),
         (
             "https://doi.org/10.6084/m9.figshare.9782777.v3",
             [
-                Doi("https://figshare.com/articles/Binder-ready_openSenseMap_Analysis/9782777/3"),
+                Doi(
+                    "https://figshare.com/articles/Binder-ready_openSenseMap_Analysis/9782777/3"
+                ),
                 FigshareDataset(
-                    FigshareInstallation(URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")) , 9782777, 3)
-            ]
-        )
+                    FigshareInstallation(
+                        URL("https://figshare.com/"),
+                        URL("https://api.figshare.com/v2/"),
+                    ),
+                    9782777,
+                    3,
+                ),
+                ImmutableFigshareDataset(
+                    FigshareInstallation(
+                        URL("https://figshare.com/"),
+                        URL("https://api.figshare.com/v2/"),
+                    ),
+                    9782777,
+                    3,
+                ),
+            ],
+        ),
+        (
+            "https://figshare.com/articles/Binder-ready_openSenseMap_Analysis/9782777",
+            [
+                FigshareDataset(
+                    FigshareInstallation(
+                        URL("https://figshare.com/"),
+                        URL("https://api.figshare.com/v2/"),
+                    ),
+                    9782777,
+                    None,
+                ),
+                ImmutableFigshareDataset(
+                    FigshareInstallation(
+                        URL("https://figshare.com/"),
+                        URL("https://api.figshare.com/v2/"),
+                    ),
+                    9782777,
+                    3,
+                ),
+            ],
+        ),
     ),
 )
 async def test_recurse(url, expected):

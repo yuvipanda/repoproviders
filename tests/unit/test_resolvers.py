@@ -2,7 +2,17 @@ import pytest
 from yarl import URL
 
 from repoproviders.base import NotFound
-from repoproviders.doi import DataverseDataset, DataverseResolver, Doi, DoiResolver, FigshareResolver, ZenodoDataset, ZenodoResolver, FigshareDataset, FigshareInstallation
+from repoproviders.doi import (
+    DataverseDataset,
+    DataverseResolver,
+    Doi,
+    DoiResolver,
+    FigshareDataset,
+    FigshareInstallation,
+    FigshareResolver,
+    ZenodoDataset,
+    ZenodoResolver,
+)
 from repoproviders.git import Git, GitHubResolver, ImmutableGit, ImmutableGitResolver
 
 
@@ -207,6 +217,7 @@ async def test_dataverse(url, expected):
     dv = DataverseResolver()
     assert await dv.resolve(URL(url)) == expected
 
+
 @pytest.mark.parametrize(
     ("url", "expected"),
     (
@@ -214,18 +225,34 @@ async def test_dataverse(url, expected):
         # A non-dataset URL
         ("https://data.caltech.edu/communities", None),
         # Simple /record and /records
-        ("https://zenodo.org/record/3232985", ZenodoDataset("https://zenodo.org/", "3232985")),
-        ("https://zenodo.org/records/3232985", ZenodoDataset("https://zenodo.org/", "3232985")),
+        (
+            "https://zenodo.org/record/3232985",
+            ZenodoDataset("https://zenodo.org/", "3232985"),
+        ),
+        (
+            "https://zenodo.org/records/3232985",
+            ZenodoDataset("https://zenodo.org/", "3232985"),
+        ),
         # Note we normalize output to have the HTTPS URL, even if we're passed in the HTTP URL
-        ("http://zenodo.org/record/3232985", ZenodoDataset("https://zenodo.org/", "3232985")),
-        ("https://zenodo.org/records/3232985", ZenodoDataset("https://zenodo.org/", "3232985")),
+        (
+            "http://zenodo.org/record/3232985",
+            ZenodoDataset("https://zenodo.org/", "3232985"),
+        ),
+        (
+            "https://zenodo.org/records/3232985",
+            ZenodoDataset("https://zenodo.org/", "3232985"),
+        ),
         # A non-zenodo URL
-        ("https://data.caltech.edu/records/996aw-mf266", ZenodoDataset("https://data.caltech.edu/", "996aw-mf266"))
-    )
+        (
+            "https://data.caltech.edu/records/996aw-mf266",
+            ZenodoDataset("https://data.caltech.edu/", "996aw-mf266"),
+        ),
+    ),
 )
 async def test_zenodo(url, expected):
     zr = ZenodoResolver()
     assert await zr.resolve(URL(url)) == expected
+
 
 @pytest.mark.parametrize(
     ("url", "expected"),
@@ -234,15 +261,53 @@ async def test_zenodo(url, expected):
         # A non-dataset URL
         ("https://figshare.com/browse", None),
         # A non-dataset URL that looks suspiciously like a dataset URL
-        ("https://figshare.com/collections/Risk_reduction_in_SARS-CoV-2_infection_and_reinfection_conferred_by_humoral_antibody_levels_among_essential_workers_during_Omicron_predominance/7605487", None),
+        (
+            "https://figshare.com/collections/Risk_reduction_in_SARS-CoV-2_infection_and_reinfection_conferred_by_humoral_antibody_levels_among_essential_workers_during_Omicron_predominance/7605487",
+            None,
+        ),
         # Some old school URLs
-        ("https://figshare.com/articles/title/9782777", FigshareDataset(FigshareInstallation(URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")), 9782777, None)),
-        ("https://figshare.com/articles/title/9782777/2", FigshareDataset(FigshareInstallation(URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")), 9782777, 2)),
+        (
+            "https://figshare.com/articles/title/9782777",
+            FigshareDataset(
+                FigshareInstallation(
+                    URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")
+                ),
+                9782777,
+                None,
+            ),
+        ),
+        (
+            "https://figshare.com/articles/title/9782777/2",
+            FigshareDataset(
+                FigshareInstallation(
+                    URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")
+                ),
+                9782777,
+                2,
+            ),
+        ),
         # New style URLs
-        ("https://figshare.com/articles/code/Binder-ready_openSenseMap_Analysis/9782777", FigshareDataset(FigshareInstallation(URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")), 9782777, None)),
-        ("https://figshare.com/articles/code/Binder-ready_openSenseMap_Analysis/9782777/3", FigshareDataset(FigshareInstallation(URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")), 9782777, 3)),
-
-    )
+        (
+            "https://figshare.com/articles/code/Binder-ready_openSenseMap_Analysis/9782777",
+            FigshareDataset(
+                FigshareInstallation(
+                    URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")
+                ),
+                9782777,
+                None,
+            ),
+        ),
+        (
+            "https://figshare.com/articles/code/Binder-ready_openSenseMap_Analysis/9782777/3",
+            FigshareDataset(
+                FigshareInstallation(
+                    URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")
+                ),
+                9782777,
+                3,
+            ),
+        ),
+    ),
 )
 async def test_figshare(url, expected):
     fs = FigshareResolver()

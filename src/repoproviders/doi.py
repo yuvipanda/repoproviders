@@ -24,10 +24,12 @@ class ZenodoDataset:
     installationUrl: str
     recordId: str
 
+
 @dataclass
 class FigshareInstallation:
     url: URL
     apiUrl: URL
+
 
 @dataclass
 class FigshareDataset:
@@ -35,10 +37,12 @@ class FigshareDataset:
     articleId: int
     version: int | None
 
+
 @dataclass
 class ImmutableFigshareDataset(FigshareDataset):
     # version will always be present when immutable
     version: int
+
 
 class DoiResolver:
     """
@@ -251,12 +255,15 @@ class ZenodoResolver:
 
         return ZenodoDataset(str(installation), url.name)
 
+
 class FigshareResolver:
     def __init__(self):
         # FIXME: Determine this dynamically in the future
         # Figshare can be on custom domains: https://figshare.com/blog/Figshare_now_available_on_custom_domains/461
         self.installations = [
-            FigshareInstallation(URL("https://figshare.com"), URL("https://api.figshare.com/v2/"))
+            FigshareInstallation(
+                URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")
+            )
         ]
 
     async def resolve(self, question: URL | Doi) -> FigshareDataset | None:
@@ -264,7 +271,6 @@ class FigshareResolver:
             url = question
         elif isinstance(question, Doi):
             url = URL(question.url)
-
 
         installation = next(
             (
@@ -277,7 +283,9 @@ class FigshareResolver:
                 and (
                     # After the base URL, the URL structure should start with either record or records
                     url.path[len(installation.url.path) :].startswith("articles/")
-                    or url.path[len(installation.url.path) :].startswith("account/articles/")
+                    or url.path[len(installation.url.path) :].startswith(
+                        "account/articles/"
+                    )
                 )
             ),
             None,
@@ -288,10 +296,42 @@ class FigshareResolver:
         # Figshare article IDs are integers, and so are version IDs
         # If last two segments of the URL are integers, treat them as article ID and version ID
         # If not, treat it as article ID only
-        parts = url.path.split('/')
+        parts = url.path.split("/")
         if parts[-1].isdigit() and parts[-2].isdigit():
             return FigshareDataset(installation, int(parts[-2]), int(parts[-1]))
         elif parts[-1].isdigit():
             return FigshareDataset(installation, int(parts[-1]), None)
         else:
             return None
+
+
+class ImmutableFigshareResolver(FigshareResolver):
+    async def resolve(
+        self, question: FigshareDataset
+    ) -> ImmutableFigshareDataset | NotFound | None:
+        if question.version is not None:
+            # Version already specified, just return
+            return ImmutableFigshareDataset(
+                question.installation, question.articleId, question.version
+            )
+
+        api_url = (
+            question.installation.apiUrl
+            / "articles"
+            / str(question.articleId)
+            / "versions"
+        )
+
+        async with aiohttp.ClientSession() as session:
+            resp = await session.get(api_url)
+
+        if resp.status == 404:
+            return NotFound()
+        elif resp.status == 200:
+            data = await resp.json()
+            return ImmutableFigshareDataset(
+                question.installation, question.articleId, data[-1]["version"]
+            )
+        else:
+            # All other status codes should raise an error
+            resp.raise_for_status()

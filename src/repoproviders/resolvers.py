@@ -6,7 +6,13 @@ from typing import Any
 from yarl import URL
 
 from .base import SupportsResolve
-from .doi import DataverseResolver, DoiResolver, ZenodoResolver, FigshareResolver
+from .doi import (
+    DataverseResolver,
+    DoiResolver,
+    FigshareResolver,
+    ImmutableFigshareResolver,
+    ZenodoResolver,
+)
 from .git import GitHubResolver, ImmutableGitResolver
 
 ALL_RESOLVERS: list[SupportsResolve] = [
@@ -14,6 +20,7 @@ ALL_RESOLVERS: list[SupportsResolve] = [
     DoiResolver(),
     ZenodoResolver(),
     FigshareResolver(),
+    ImmutableFigshareResolver(),
     DataverseResolver(),
     ImmutableGitResolver(),
 ]
