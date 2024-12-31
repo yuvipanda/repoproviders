@@ -2,7 +2,7 @@ import pytest
 from yarl import URL
 
 from repoproviders.base import NotFound
-from repoproviders.doi import DataverseDataset, Doi
+from repoproviders.doi import DataverseDataset, Doi, ZenodoDataset
 from repoproviders.git import Git, ImmutableGit
 from repoproviders.resolvers import resolve
 
@@ -218,25 +218,13 @@ async def test_norecurse(url, expected):
                 ),
             ],
         ),
-        # # Three DOI resolution URLs
-        # (
-        #     "https://doi.org/10.7910/DVN/6ZXAGT/3YRRYJ",
-        #     DataverseDataset(
-        #         "https://dataverse.harvard.edu", "doi:10.7910/DVN/6ZXAGT/3YRRYJ"
-        #     ),
-        # ),
-        # (
-        #     "https://www.doi.org/10.7910/DVN/6ZXAGT/3YRRYJ",
-        #     DataverseDataset(
-        #         "https://dataverse.harvard.edu", "doi:10.7910/DVN/6ZXAGT/3YRRYJ"
-        #     ),
-        # ),
-        # (
-        #     "https://hdl.handle.net/10.7910/DVN/6ZXAGT/3YRRYJ",
-        #     DataverseDataset(
-        #         "https://dataverse.harvard.edu", "doi:10.7910/DVN/6ZXAGT/3YRRYJ"
-        #     ),
-        # ),
+        (
+            "10.5281/zenodo.3232985",
+            [
+                Doi("https://zenodo.org/record/3232985"),
+                ZenodoDataset("https://zenodo.org/", "3232985")
+            ]
+        )
     ),
 )
 async def test_recurse(url, expected):

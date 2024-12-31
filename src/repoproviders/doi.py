@@ -19,6 +19,12 @@ class DataverseDataset:
     persistentId: str
 
 
+@dataclass
+class ZenodoDataset:
+    installationUrl: str
+    recordId: str
+
+
 class DoiResolver:
     """
     A *handle* resolver, called a Doi resolver because that's the most common handle
@@ -188,3 +194,44 @@ class DataverseResolver:
 
         # If we are here, it means the persistent_id is a dataset id, and we don't need to do anything else!
         return DataverseDataset(str(installation), persistent_id)
+
+
+class ZenodoResolver:
+    """
+    A resolver for datasets hosted on https://inveniosoftware.org/ (such as Zenodo)
+    """
+
+    def __init__(self):
+        # FIXME: Determine this dynamically in the future
+        self.installations = [
+            URL("https://sandbox.zenodo.org/"),
+            URL("https://zenodo.org/"),
+            URL("https://data.caltech.edu/"),
+        ]
+
+    async def resolve(self, question: URL | Doi) -> ZenodoDataset | None:
+        if isinstance(question, URL):
+            url = question
+        elif isinstance(question, Doi):
+            url = URL(question.url)
+
+        installation = next(
+            (
+                installation
+                for installation in self.installations
+                # Intentionally don't check for scheme validity, to support interchangeable http and https URLs
+                if installation.host == url.host
+                # Check for base URL, to support installations on base URL other than /
+                and url.path.startswith(installation.path)
+                and (
+                    # After the base URL, the URL structure should start with either record or records
+                    url.path[len(installation.path) :].startswith("record/")
+                    or url.path[len(installation.path) :].startswith("records/")
+                )
+            ),
+            None,
+        )
+        if installation is None:
+            return None
+
+        return ZenodoDataset(str(installation), url.name)

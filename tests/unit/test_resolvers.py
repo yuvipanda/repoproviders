@@ -2,7 +2,7 @@ import pytest
 from yarl import URL
 
 from repoproviders.base import NotFound
-from repoproviders.doi import DataverseDataset, DataverseResolver, Doi, DoiResolver
+from repoproviders.doi import DataverseDataset, DataverseResolver, Doi, DoiResolver, ZenodoDataset, ZenodoResolver
 from repoproviders.git import Git, GitHubResolver, ImmutableGit, ImmutableGitResolver
 
 
@@ -206,3 +206,23 @@ async def test_doi(url, expected):
 async def test_dataverse(url, expected):
     dv = DataverseResolver()
     assert await dv.resolve(URL(url)) == expected
+
+@pytest.mark.parametrize(
+    ("url", "expected"),
+    (
+        ("https://example.com/something", None),
+        # A non-dataset URL
+        ("https://data.caltech.edu/communities", None),
+        # Simple /record and /records
+        ("https://zenodo.org/record/3232985", ZenodoDataset("https://zenodo.org/", "3232985")),
+        ("https://zenodo.org/records/3232985", ZenodoDataset("https://zenodo.org/", "3232985")),
+        # Note we normalize output to have the HTTPS URL, even if we're passed in the HTTP URL
+        ("http://zenodo.org/record/3232985", ZenodoDataset("https://zenodo.org/", "3232985")),
+        ("https://zenodo.org/records/3232985", ZenodoDataset("https://zenodo.org/", "3232985")),
+        # A non-zenodo URL
+        ("https://data.caltech.edu/records/996aw-mf266", ZenodoDataset("https://data.caltech.edu/", "996aw-mf266"))
+    )
+)
+async def test_zenodo(url, expected):
+    zr = ZenodoResolver()
+    assert await zr.resolve(URL(url)) == expected
