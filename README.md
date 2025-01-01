@@ -8,7 +8,9 @@
 
 _Detect, resolve and fetch repositories of content_
 
-## Example
+## Examples
+
+You can try these out with a `pip install repoproviders`.
 
 ```shell
 # Resolve a GitHub reference
