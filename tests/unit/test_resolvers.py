@@ -190,24 +190,24 @@ async def test_doi(url, expected):
         # A dataset citation returns the dataset correctly
         (
             "https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/TJCLKP",
-            DataverseDataset("https://dataverse.harvard.edu", "doi:10.7910/DVN/TJCLKP"),
+            DataverseDataset(URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/TJCLKP"),
         ),
         (
             "https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/TJCLKP",
-            DataverseDataset("https://dataverse.harvard.edu", "doi:10.7910/DVN/TJCLKP"),
+            DataverseDataset(URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/TJCLKP"),
         ),
         # Asking for specific files should give us the whole dataset they are a part of
         (
             "https://dataverse.harvard.edu/api/access/datafile/3323458",
-            DataverseDataset("https://dataverse.harvard.edu", "doi:10.7910/DVN/3MJ7IR"),
+            DataverseDataset(URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/3MJ7IR"),
         ),
         (
             "https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ",
-            DataverseDataset("https://dataverse.harvard.edu", "doi:10.7910/DVN/6ZXAGT"),
+            DataverseDataset(URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/6ZXAGT"),
         ),
         (
             "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ",
-            DataverseDataset("https://dataverse.harvard.edu", "doi:10.7910/DVN/6ZXAGT"),
+            DataverseDataset(URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/6ZXAGT"),
         ),
         # Asking for datasets that don't exist should return NotFound
         (
@@ -240,30 +240,30 @@ async def test_dataverse(url, expected):
         # Simple /record and /records
         (
             "https://zenodo.org/record/3232985",
-            ZenodoDataset("https://zenodo.org/", "3232985"),
+            ZenodoDataset(URL("https://zenodo.org/"), "3232985"),
         ),
         (
             "https://zenodo.org/records/3232985",
-            ZenodoDataset("https://zenodo.org/", "3232985"),
+            ZenodoDataset(URL("https://zenodo.org/"), "3232985"),
         ),
         # Note we normalize output to have the HTTPS URL, even if we're passed in the HTTP URL
         (
             "http://zenodo.org/record/3232985",
-            ZenodoDataset("https://zenodo.org/", "3232985"),
+            ZenodoDataset(URL("https://zenodo.org/"), "3232985"),
         ),
         (
             "https://zenodo.org/records/3232985",
-            ZenodoDataset("https://zenodo.org/", "3232985"),
+            ZenodoDataset(URL("https://zenodo.org/"), "3232985"),
         ),
         # A non-zenodo URL
         (
             "https://data.caltech.edu/records/996aw-mf266",
-            ZenodoDataset("https://data.caltech.edu/", "996aw-mf266"),
+            ZenodoDataset(URL("https://data.caltech.edu/"), "996aw-mf266"),
         ),
         # A doi reference
         (
             "https://zenodo.org/doi/10.5281/zenodo.805993",
-            ZenodoDataset(installationUrl='https://zenodo.org/', recordId='14007206')
+            ZenodoDataset(URL('https://zenodo.org/'), recordId='14007206')
         ),
         # A doi reference to a bad doi
         (

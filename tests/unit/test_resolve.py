@@ -167,7 +167,7 @@ async def test_norecurse(url, expected):
                     "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
                 ),
                 DataverseDataset(
-                    "https://dataverse.harvard.edu", "doi:10.7910/DVN/6ZXAGT"
+                    URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/6ZXAGT"
                 ),
             ],
         ),
@@ -178,7 +178,7 @@ async def test_norecurse(url, expected):
                 Doi(
                     "https://data.cimmyt.org/dataset.xhtml?persistentId=hdl:11529/10016"
                 ),
-                DataverseDataset("http://data.cimmyt.org/", "hdl:11529/10016"),
+                DataverseDataset(URL("http://data.cimmyt.org/"), "hdl:11529/10016"),
             ],
         ),
         # For convenience, we do accept DOIs without a scheme
@@ -189,7 +189,7 @@ async def test_norecurse(url, expected):
                     "https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/6ZXAGT"
                 ),
                 DataverseDataset(
-                    "https://dataverse.harvard.edu", "doi:10.7910/DVN/6ZXAGT"
+                    URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/6ZXAGT"
                 ),
             ],
         ),
@@ -229,7 +229,7 @@ async def test_norecurse(url, expected):
             "10.5281/zenodo.3232985",
             [
                 Doi("https://zenodo.org/record/3232985"),
-                ZenodoDataset("https://zenodo.org/", "3232985"),
+                ZenodoDataset(URL("https://zenodo.org/"), "3232985"),
             ],
         ),
         (
@@ -282,7 +282,7 @@ async def test_norecurse(url, expected):
             "https://doi.org/10.5281/zenodo.805993",
             [
                 Doi(url='https://zenodo.org/doi/10.5281/zenodo.805993'),
-                ZenodoDataset(installationUrl='https://zenodo.org/', recordId='14007206')
+                ZenodoDataset(URL('https://zenodo.org/'), '14007206')
             ]
         )
     ),

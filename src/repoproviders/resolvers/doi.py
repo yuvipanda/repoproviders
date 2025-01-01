@@ -15,13 +15,13 @@ class Doi:
 
 @dataclass
 class DataverseDataset:
-    installationUrl: str
+    installationUrl: URL
     persistentId: str
 
 
 @dataclass
 class ZenodoDataset:
-    installationUrl: str
+    installationUrl: URL
     recordId: str
 
 
@@ -214,7 +214,7 @@ class DataverseResolver:
                 resp.raise_for_status()
 
         # If we are here, it means the persistent_id is a dataset id, and we don't need to do anything else!
-        return DataverseDataset(str(installation), persistent_id)
+        return DataverseDataset(installation, persistent_id)
 
 
 class ZenodoResolver:
@@ -278,7 +278,7 @@ class ZenodoResolver:
         else:
             # URL is /record or /records
             # Record ID is the last part of the URL path
-            return ZenodoDataset(str(installation), url.name)
+            return ZenodoDataset(installation, url.name)
 
 
 class FigshareResolver:
