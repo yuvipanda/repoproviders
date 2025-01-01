@@ -8,6 +8,38 @@
 
 _Detect, resolve and fetch repositories of content_
 
+## Example
+
+```shell
+# Resolve a GitHub reference
+➜ repoproviders resolve https://github.com/yuvipanda/requirements
+Git(repo='https://github.com/yuvipanda/requirements', ref='HEAD')
+ImmutableGit(repo='https://github.com/yuvipanda/requirements', ref='5a8737831f74a97bf71a7c4e1500fa0223b13d0d')
+
+# Resolve a GitHub reference to a specific branch based on a URL
+➜ repoproviders resolve https://github.com/yuvipanda/requirements/tree/master
+Git(repo='https://github.com/yuvipanda/requirements', ref='master')
+ImmutableGit(repo='https://github.com/yuvipanda/requirements', ref='5a8737831f74a97bf71a7c4e1500fa0223b13d0d')
+
+# Resolve a DOI
+➜ repoproviders resolve 10.1126/science.aar3646
+Doi(url='https://www.science.org/doi/10.1126/science.aar3646')
+
+# Resolve a DOI that points to another resolver we support (Dataverse)
+➜ repoproviders resolve 10.7910/DVN/6ZXAGT
+Doi(url='https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/6ZXAGT')
+DataverseDataset(installationUrl='https://dataverse.harvard.edu', persistentId='doi:10.7910/DVN/6ZXAGT')```
+
+# Resolve a Zenodo DOI
+➜ repoproviders resolve 10.5281/zenodo.805993
+Doi(url='https://zenodo.org/doi/10.5281/zenodo.805993')
+ZenodoDataset(installationUrl='https://zenodo.org/', recordId='14007206')
+
+# Resolve a Zenodo URL directly
+➜ repoproviders resolve https://zenodo.org/records/14007206
+ZenodoDataset(installationUrl='https://zenodo.org/', recordId='14007206')
+```
+
 ## Copyright
 
 - Copyright © 2024 Yuvi Panda.
