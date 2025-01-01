@@ -15,7 +15,12 @@ from repoproviders.resolvers.doi import (
     ZenodoDataset,
     ZenodoResolver,
 )
-from repoproviders.resolvers.git import Git, GitHubResolver, ImmutableGit, ImmutableGitResolver
+from repoproviders.resolvers.git import (
+    Git,
+    GitHubResolver,
+    ImmutableGit,
+    ImmutableGitResolver,
+)
 
 
 @pytest.mark.parametrize(
@@ -190,24 +195,34 @@ async def test_doi(url, expected):
         # A dataset citation returns the dataset correctly
         (
             "https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/TJCLKP",
-            DataverseDataset(URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/TJCLKP"),
+            DataverseDataset(
+                URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/TJCLKP"
+            ),
         ),
         (
             "https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/TJCLKP",
-            DataverseDataset(URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/TJCLKP"),
+            DataverseDataset(
+                URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/TJCLKP"
+            ),
         ),
         # Asking for specific files should give us the whole dataset they are a part of
         (
             "https://dataverse.harvard.edu/api/access/datafile/3323458",
-            DataverseDataset(URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/3MJ7IR"),
+            DataverseDataset(
+                URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/3MJ7IR"
+            ),
         ),
         (
             "https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ",
-            DataverseDataset(URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/6ZXAGT"),
+            DataverseDataset(
+                URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/6ZXAGT"
+            ),
         ),
         (
             "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ",
-            DataverseDataset(URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/6ZXAGT"),
+            DataverseDataset(
+                URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/6ZXAGT"
+            ),
         ),
         # Asking for datasets that don't exist should return NotFound
         (
@@ -263,13 +278,10 @@ async def test_dataverse(url, expected):
         # A doi reference
         (
             "https://zenodo.org/doi/10.5281/zenodo.805993",
-            ZenodoDataset(URL('https://zenodo.org/'), recordId='14007206')
+            ZenodoDataset(URL("https://zenodo.org/"), recordId="14007206"),
         ),
         # A doi reference to a bad doi
-        (
-            "https://zenodo.org/doi/10.5281/zdo.805993",
-            NotFound()
-        )
+        ("https://zenodo.org/doi/10.5281/zdo.805993", NotFound()),
     ),
 )
 async def test_zenodo(url, expected):

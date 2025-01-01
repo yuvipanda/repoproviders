@@ -256,7 +256,6 @@ class ZenodoResolver:
         if installation is None:
             return None
 
-
         # For URLs of form https://zenodo.org/doi/<doi>, the record_id can be resolved by making a
         # HEAD request and following it. This is absolutely *unideal* - you would really instead want
         # to make an API call. But I can't seem to find anything in the REST API that would let me give

@@ -1,6 +1,7 @@
 import pytest
 from yarl import URL
 
+from repoproviders.resolvers import resolve
 from repoproviders.resolvers.base import NotFound
 from repoproviders.resolvers.doi import (
     DataverseDataset,
@@ -11,7 +12,6 @@ from repoproviders.resolvers.doi import (
     ZenodoDataset,
 )
 from repoproviders.resolvers.git import Git, ImmutableGit
-from repoproviders.resolvers import resolve
 
 
 @pytest.mark.parametrize(
@@ -281,10 +281,10 @@ async def test_norecurse(url, expected):
         (
             "https://doi.org/10.5281/zenodo.805993",
             [
-                Doi(url='https://zenodo.org/doi/10.5281/zenodo.805993'),
-                ZenodoDataset(URL('https://zenodo.org/'), '14007206')
-            ]
-        )
+                Doi(url="https://zenodo.org/doi/10.5281/zenodo.805993"),
+                ZenodoDataset(URL("https://zenodo.org/"), "14007206"),
+            ],
+        ),
     ),
 )
 async def test_recurse(url, expected):

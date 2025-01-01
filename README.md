@@ -12,7 +12,7 @@ _Detect, resolve and fetch repositories of content_
 
 You can try these out with a `pip install repoproviders`.
 
-```shell
+````shell
 # Resolve a GitHub reference
 ➜ repoproviders resolve https://github.com/yuvipanda/requirements
 Git(repo='https://github.com/yuvipanda/requirements', ref='HEAD')
@@ -40,7 +40,7 @@ ZenodoDataset(installationUrl='https://zenodo.org/', recordId='14007206')
 # Resolve a Zenodo URL directly
 ➜ repoproviders resolve https://zenodo.org/records/14007206
 ZenodoDataset(installationUrl='https://zenodo.org/', recordId='14007206')
-```
+````
 
 ## Copyright
 

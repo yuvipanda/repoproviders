@@ -1,1 +1,1 @@
-from .resolver import resolve # pragma: noqa
+from .resolver import resolve  # pragma: noqa
