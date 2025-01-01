@@ -18,6 +18,8 @@ class DataverseFetcher:
         resp.raise_for_status()
 
         if not output_path.parent.exists():
+            # Leave the exist_ok=True here despite the check, to handle possible
+            # race conditions in the future if we ever parallelize this
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
         with open(output_path, "wb") as f:
