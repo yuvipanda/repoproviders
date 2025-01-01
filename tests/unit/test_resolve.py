@@ -277,6 +277,14 @@ async def test_norecurse(url, expected):
                 ),
             ],
         ),
+        # A zenodo doi that uses the /doi redirect
+        (
+            "https://doi.org/10.5281/zenodo.805993",
+            [
+                Doi(url='https://zenodo.org/doi/10.5281/zenodo.805993'),
+                ZenodoDataset(installationUrl='https://zenodo.org/', recordId='14007206')
+            ]
+        )
     ),
 )
 async def test_recurse(url, expected):

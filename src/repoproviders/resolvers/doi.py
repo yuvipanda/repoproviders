@@ -230,7 +230,7 @@ class ZenodoResolver:
             URL("https://data.caltech.edu/"),
         ]
 
-    async def resolve(self, question: URL | Doi) -> ZenodoDataset | None:
+    async def resolve(self, question: URL | Doi) -> ZenodoDataset | NotFound | None:
         if isinstance(question, URL):
             url = question
         elif isinstance(question, Doi):
@@ -248,6 +248,7 @@ class ZenodoResolver:
                     # After the base URL, the URL structure should start with either record or records
                     url.path[len(installation.path) :].startswith("record/")
                     or url.path[len(installation.path) :].startswith("records/")
+                    or url.path[len(installation.path) :].startswith("doi/")
                 )
             ),
             None,
@@ -255,7 +256,29 @@ class ZenodoResolver:
         if installation is None:
             return None
 
-        return ZenodoDataset(str(installation), url.name)
+
+        # For URLs of form https://zenodo.org/doi/<doi>, the record_id can be resolved by making a
+        # HEAD request and following it. This is absolutely *unideal* - you would really instead want
+        # to make an API call. But I can't seem to find anything in the REST API that would let me give
+        # it a DOI and return a record_id.
+        if url.path[len(installation.path) :].startswith("doi/"):
+            url_parts = url.path.split("/")
+            if len(url_parts) != 4:
+                # Not a correctly formatted DOI
+                return NotFound()
+
+            async with aiohttp.ClientSession() as session:
+                resp = await session.head(url)
+
+            if resp.status == 404:
+                return NotFound()
+            redirect_location = resp.headers["Location"]
+
+            return await self.resolve(URL(redirect_location))
+        else:
+            # URL is /record or /records
+            # Record ID is the last part of the URL path
+            return ZenodoDataset(str(installation), url.name)
 
 
 class FigshareResolver:

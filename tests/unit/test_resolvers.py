@@ -260,6 +260,16 @@ async def test_dataverse(url, expected):
             "https://data.caltech.edu/records/996aw-mf266",
             ZenodoDataset("https://data.caltech.edu/", "996aw-mf266"),
         ),
+        # A doi reference
+        (
+            "https://zenodo.org/doi/10.5281/zenodo.805993",
+            ZenodoDataset(installationUrl='https://zenodo.org/', recordId='14007206')
+        ),
+        # A doi reference to a bad doi
+        (
+            "https://zenodo.org/doi/10.5281/zdo.805993",
+            NotFound()
+        )
     ),
 )
 async def test_zenodo(url, expected):
