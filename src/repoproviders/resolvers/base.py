@@ -8,8 +8,6 @@ class NotFound:
     Resolver recognizes this question, but while resolving determined it does not exist
     """
 
-    pass
-
 
 class SupportsResolve(Protocol):
     async def resolve(self, question: Any) -> Any:

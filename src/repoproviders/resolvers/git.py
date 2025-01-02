@@ -22,8 +22,6 @@ class ImmutableGit(Git):
     3. If ref *looks* like a sha, we assume it exists (without testing it)
     """
 
-    pass
-
 
 class GitHubResolver:
     async def resolve(self, question: URL) -> Git | None:

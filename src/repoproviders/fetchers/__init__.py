@@ -1,1 +1,1 @@
-from .fetcher import fetch
+from .fetcher import fetch  # noqa: F401
