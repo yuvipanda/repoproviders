@@ -1,10 +1,12 @@
 import hashlib
-import pytest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from repoproviders.resolvers import resolve
+import pytest
+
 from repoproviders.fetchers import fetch
+from repoproviders.resolvers import resolve
+
 
 @pytest.mark.parametrize(
     ("questions", "md5tree"),
