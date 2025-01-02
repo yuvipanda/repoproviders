@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 
 import aiohttp
-from yarl import URL
 
 from ..resolvers.doi import DataverseDataset
 from ..utils import download_file
@@ -32,6 +31,4 @@ class DataverseFetcher:
 
                 file_path = Path(os.path.join(f.get("directoryLabel", ""), file_name))
 
-                await download_file(
-                    session, file_download_url, output_dir / file_path
-                )
+                await download_file(session, file_download_url, output_dir / file_path)

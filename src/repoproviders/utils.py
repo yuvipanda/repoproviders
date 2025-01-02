@@ -1,10 +1,10 @@
-import aiohttp
-from yarl import URL
 from pathlib import Path
 
-async def download_file(
-    session: aiohttp.ClientSession, url: URL, output_path: Path
-):
+import aiohttp
+from yarl import URL
+
+
+async def download_file(session: aiohttp.ClientSession, url: URL, output_path: Path):
     # Read in 4k chunks
     CHUNK_SIZE = 4 * 1024
     resp = await session.get(url)
