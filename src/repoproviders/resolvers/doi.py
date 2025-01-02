@@ -95,6 +95,8 @@ class DoiResolver:
             else:
                 # Some other kind of failure, let's propagate our error up
                 resp.raise_for_status()
+                # This should not actually be reached, but the explicit return None makes mypy happy
+                return None
 
 
 class DataverseResolver:
@@ -173,21 +175,23 @@ class DataverseResolver:
         elif path.startswith("/api/access/datafile"):
             # What we have here is an entity id, which we can use to get a persistentId
             file_id = os.path.basename(path)
-            persistent_id = await self.get_dataset_id_from_file_id(
-                installation, file_id
-            )
-            if persistent_id is None:
+            pid_maybe = await self.get_dataset_id_from_file_id(installation, file_id)
+            if pid_maybe is None:
                 return NotFound()
+            else:
+                persistent_id = pid_maybe
 
             # We know persistent_id is a dataset, because we asked the API!
             verified_dataset = True
         elif path.startswith("/file.xhtml"):
             file_persistent_id = qs["persistentId"]
-            persistent_id = await self.get_dataset_id_from_file_id(
+            pid_maybe = await self.get_dataset_id_from_file_id(
                 installation, file_persistent_id
             )
-            if persistent_id is None:
+            if pid_maybe is None:
                 return NotFound()
+            else:
+                persistent_id = pid_maybe
             # We know persistent_id is a dataset, because we asked the API!
             verified_dataset = True
         else:
@@ -203,12 +207,14 @@ class DataverseResolver:
 
             if resp.status == 404:
                 # This persistent id is *not* a dataset. Maybe it's a file?
-                persistent_id = await self.get_dataset_id_from_file_id(
+                pid_maybe = await self.get_dataset_id_from_file_id(
                     installation, persistent_id
                 )
-                if persistent_id is None:
+                if pid_maybe is None:
                     # This is not a file either, so this citation doesn't exist
                     return NotFound()
+                else:
+                    persistent_id = pid_maybe
             else:
                 # Any other errors should propagate
                 resp.raise_for_status()
@@ -359,3 +365,5 @@ class ImmutableFigshareResolver:
         else:
             # All other status codes should raise an error
             resp.raise_for_status()
+            # This should not actually be reached, but the explicit return None makes mypy happy
+            return None
