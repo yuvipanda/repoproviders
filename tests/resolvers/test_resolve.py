@@ -225,6 +225,33 @@ async def test_norecurse(url, expected):
                 ),
             ],
         ),
+        # Git URLs that recurse into ImmutableGit
+        (
+            "git+https://github.com/jupyterhub/zero-to-jupyterhub-k8s@f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+            [
+                Git(
+                    "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+                    "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+                ),
+                ImmutableGit(
+                    "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+                    "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+                ),
+            ],
+        ),
+        (
+            "git+https://github.com/jupyterhub/zero-to-jupyterhub-k8s@0.8.0",
+            [
+                Git(
+                    "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+                    "0.8.0",
+                ),
+                ImmutableGit(
+                    "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+                    "ada2170a2181ae1760d85eab74e5264d0c6bb67f",
+                ),
+            ],
+        ),
         (
             "10.5281/zenodo.3232985",
             [

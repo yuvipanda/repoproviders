@@ -33,7 +33,10 @@ class ImmutableGit:
 
 class GitHubResolver:
     async def resolve(self, question: URL) -> Git | None:
-        if question.host != "github.com" and question.host != "www.github.com":
+        # git+<scheme> urls are handled by a different resolver
+        if question.scheme not in ("http", "https") or (
+            question.host != "github.com" and question.host != "www.github.com"
+        ):
             # TODO: Allow configuring for GitHub enterprise
             return None
 
@@ -88,3 +91,34 @@ class ImmutableGitResolver:
             resolved_ref = stdout.split("\t", 1)[0]
 
         return ImmutableGit(question.repo, resolved_ref)
+
+
+class GitUrlResolver:
+    """
+    Resolves raw git URLs
+
+    URL structure is inspired by what `pip` supports: https://pip.pypa.io/en/stable/topics/vcs-support/#git
+    """
+
+    async def resolve(self, question: URL) -> Git | None:
+        # List of supported protocols is from https://pip.pypa.io/en/stable/topics/vcs-support/#git
+        if question.scheme not in (
+            "git+https",
+            "git+ssh",
+            "git",
+            "git+file",
+            "git+http",
+            "git+git",
+        ):
+            return None
+
+        repo = question.with_scheme(question.scheme.replace("git+", ""))
+
+        if "@" in question.path:
+            parts = question.path.split("@", 1)
+            ref = parts[1]
+            repo = repo.with_path(parts[0])
+        else:
+            ref = "HEAD"
+
+        return Git(str(repo), ref)

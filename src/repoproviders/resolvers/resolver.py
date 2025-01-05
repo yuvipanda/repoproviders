@@ -13,10 +13,11 @@ from .doi import (
     ImmutableFigshareResolver,
     ZenodoResolver,
 )
-from .git import GitHubResolver, ImmutableGitResolver
+from .git import GitHubResolver, GitUrlResolver, ImmutableGitResolver
 
 ALL_RESOLVERS: list[SupportsResolve] = [
     GitHubResolver(),
+    GitUrlResolver(),
     DoiResolver(),
     ZenodoResolver(),
     FigshareResolver(),
