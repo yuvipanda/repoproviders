@@ -12,8 +12,11 @@ class Git:
     repo: str
     ref: str
 
+    immutable = False
 
-class ImmutableGit(Git):
+
+@dataclass
+class ImmutableGit:
     """
     Same as Git, but marked to be fully resolved. This implies:
 
@@ -21,6 +24,11 @@ class ImmutableGit(Git):
     2. If ref was a branch or tag, it has been resolved into an immutable commit sha
     3. If ref *looks* like a sha, we assume it exists (without testing it)
     """
+
+    repo: str
+    ref: str
+
+    immutable = True
 
 
 class GitHubResolver:

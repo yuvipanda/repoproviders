@@ -12,17 +12,27 @@ from .base import NotFound
 class Doi:
     url: str
 
+    # This needs further investigation
+    immutable = False
+
 
 @dataclass
 class DataverseDataset:
     installationUrl: URL
     persistentId: str
 
+    # Dataverse Datasets also have versions, which are not represented here.
+    immutable = False
+
 
 @dataclass
 class ZenodoDataset:
     installationUrl: URL
     recordId: str
+
+    # Zenodo records are immutable: https://help.zenodo.org/docs/deposit/about-records/#life-cycle
+    # When a new version is published, it gets its own record id!
+    immutable = True
 
 
 @dataclass
@@ -37,6 +47,9 @@ class FigshareDataset:
     articleId: int
     version: int | None
 
+    # Figshare articles have versions, and here we don't know if this one does or not
+    immutable = False
+
 
 @dataclass
 class ImmutableFigshareDataset:
@@ -44,6 +57,9 @@ class ImmutableFigshareDataset:
     articleId: int
     # version will always be present when immutable
     version: int
+
+    # We *know* there's a version here
+    immutable = True
 
 
 class DoiResolver:
@@ -265,7 +281,8 @@ class ZenodoResolver:
         # For URLs of form https://zenodo.org/doi/<doi>, the record_id can be resolved by making a
         # HEAD request and following it. This is absolutely *unideal* - you would really instead want
         # to make an API call. But I can't seem to find anything in the REST API that would let me give
-        # it a DOI and return a record_id.
+        # it a DOI and return a record_id. And these dois can resolve to *different* records over time,
+        # so let's actively resolve them here to match the ZenodoDataset's immutable property
         if url.path[len(installation.path) :].startswith("doi/"):
             url_parts = url.path.split("/")
             if len(url_parts) != 4:

@@ -5,7 +5,7 @@ from typing import Any
 
 from yarl import URL
 
-from .base import SupportsResolve
+from .base import Repo, SupportsResolve
 from .doi import (
     DataverseResolver,
     DoiResolver,
@@ -37,7 +37,7 @@ for R in ALL_RESOLVERS:
             RESOLVER_BY_TYPE.setdefault(t, []).append(R)
 
 
-async def resolve(question: str | Any, recursive: bool) -> list | None:
+async def resolve(question: str | Any, recursive: bool) -> list[Repo] | None:
     if isinstance(question, str):
         question = URL(question)
 
