@@ -8,7 +8,7 @@ from yarl import URL
 from .base import NotFound
 
 
-@dataclass
+@dataclass(frozen=True)
 class Doi:
     url: str
 
@@ -16,7 +16,7 @@ class Doi:
     immutable = False
 
 
-@dataclass
+@dataclass(frozen=True)
 class DataverseDataset:
     installationUrl: URL
     persistentId: str
@@ -25,7 +25,7 @@ class DataverseDataset:
     immutable = False
 
 
-@dataclass
+@dataclass(frozen=True)
 class ZenodoDataset:
     installationUrl: URL
     recordId: str
@@ -35,13 +35,13 @@ class ZenodoDataset:
     immutable = True
 
 
-@dataclass
+@dataclass(frozen=True)
 class FigshareInstallation:
     url: URL
     apiUrl: URL
 
 
-@dataclass
+@dataclass(frozen=True)
 class FigshareDataset:
     installation: FigshareInstallation
     articleId: int
@@ -51,7 +51,7 @@ class FigshareDataset:
     immutable = False
 
 
-@dataclass
+@dataclass(frozen=True)
 class ImmutableFigshareDataset:
     installation: FigshareInstallation
     articleId: int

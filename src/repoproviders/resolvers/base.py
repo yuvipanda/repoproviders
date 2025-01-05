@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any, Protocol
 
 
-@dataclass
+@dataclass(frozen=True)
 class NotFound:
     """
     Resolver recognizes this question, but while resolving determined it does not exist

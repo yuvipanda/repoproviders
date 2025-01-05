@@ -7,7 +7,7 @@ from yarl import URL
 from .base import NotFound
 
 
-@dataclass
+@dataclass(frozen=True)
 class Git:
     repo: str
     ref: str
@@ -15,7 +15,7 @@ class Git:
     immutable = False
 
 
-@dataclass
+@dataclass(frozen=True)
 class ImmutableGit:
     """
     Same as Git, but marked to be fully resolved. This implies:
