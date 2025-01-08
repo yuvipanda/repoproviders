@@ -5,7 +5,7 @@ from typing import Any
 
 from yarl import URL
 
-from .base import NotFound, Repo, SupportsResolve
+from .base import DoesNotExist, Exists, MaybeExists, SupportsResolve
 from .doi import (
     DataverseResolver,
     DoiResolver,
@@ -38,11 +38,13 @@ for R in ALL_RESOLVERS:
             RESOLVER_BY_TYPE.setdefault(t, []).append(R)
 
 
-async def resolve(question: str | Any, recursive: bool) -> list[Repo | NotFound] | None:
+async def resolve(
+    question: str | Any, recursive: bool
+) -> list[Exists | MaybeExists | DoesNotExist] | None:
     if isinstance(question, str):
         question = URL(question)
 
-    answers = []
+    answers: list[Exists | MaybeExists | DoesNotExist] = []
     resp = None
 
     while True:
@@ -63,13 +65,20 @@ async def resolve(question: str | Any, recursive: bool) -> list[Repo | NotFound]
 
         if recursive:
             # If we want a recursive answer, we have to continue iterating
-            if resp is not None:
+            match resp:
+                case DoesNotExist():
+                    # Some resolver detected this but we have confirmed it does not exist
+                    break
+                case Exists(repo):
+                    # TODO: Should an "Exists" be further resolved, or does it always indicate an end?
+                    question = repo
+                case MaybeExists(repo):
+                    question = repo
+                case None:
+                    # No answer was found this round so we are done
+                    break
                 # We *did* find an answer this round, so we should continue and see if we find more
-                question = resp
-                resp = None
-            else:
-                # We did *not* find an answer this round, so we are done
-                break
+            resp = None
         else:
             # We are not recursive, so we are done after 1 round regardless
             break

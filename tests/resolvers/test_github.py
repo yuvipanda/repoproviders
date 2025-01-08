@@ -1,6 +1,7 @@
 import pytest
 from yarl import URL
 
+from repoproviders.resolvers.base import MaybeExists
 from repoproviders.resolvers.git import Git, GitHubResolver
 
 
@@ -19,34 +20,47 @@ from repoproviders.resolvers.git import Git, GitHubResolver
         # Simple github repo URL
         (
             "https://github.com/pyOpenSci/pyos-package-template",
-            Git("https://github.com/pyOpenSci/pyos-package-template", "HEAD"),
+            MaybeExists(
+                Git("https://github.com/pyOpenSci/pyos-package-template", "HEAD")
+            ),
         ),
         # Trailing slash normalized?
         (
             "https://github.com/pyOpenSci/pyos-package-template/",
-            Git("https://github.com/pyOpenSci/pyos-package-template", "HEAD"),
+            MaybeExists(
+                Git("https://github.com/pyOpenSci/pyos-package-template", "HEAD")
+            ),
         ),
         # blobs and tree
         (
             "https://github.com/pyOpenSci/pyos-package-template/tree/main/includes/licenses",
-            Git("https://github.com/pyOpenSci/pyos-package-template", "main"),
+            MaybeExists(
+                Git("https://github.com/pyOpenSci/pyos-package-template", "main")
+            ),
         ),
         (
             "https://github.com/pyOpenSci/pyos-package-template/tree/original-cookie/docs",
-            Git(
-                "https://github.com/pyOpenSci/pyos-package-template", "original-cookie"
+            MaybeExists(
+                Git(
+                    "https://github.com/pyOpenSci/pyos-package-template",
+                    "original-cookie",
+                )
             ),
         ),
         (
             "https://github.com/pyOpenSci/pyos-package-template/blob/b912433bfae541972c83529359f4181ef0fe9b67/README.md",
-            Git(
-                "https://github.com/pyOpenSci/pyos-package-template",
-                ref="b912433bfae541972c83529359f4181ef0fe9b67",
+            MaybeExists(
+                Git(
+                    "https://github.com/pyOpenSci/pyos-package-template",
+                    ref="b912433bfae541972c83529359f4181ef0fe9b67",
+                )
             ),
         ),
         (
             "https://github.com/yuvipanda/does-not-exist-e43",
-            Git(repo="https://github.com/yuvipanda/does-not-exist-e43", ref="HEAD"),
+            MaybeExists(
+                Git(repo="https://github.com/yuvipanda/does-not-exist-e43", ref="HEAD")
+            ),
         ),
     ),
 )

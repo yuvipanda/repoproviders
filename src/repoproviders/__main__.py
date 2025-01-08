@@ -3,6 +3,8 @@ import asyncio
 import sys
 from pathlib import Path
 
+from repoproviders.resolvers.base import DoesNotExist, Exists, MaybeExists
+
 from .fetchers import fetch
 from .resolvers import resolve
 
@@ -57,7 +59,15 @@ async def main():
         answers = await resolve(args.question, recursive=True)
         if answers:
             last_answer = answers[-1]
-            await fetch(last_answer, Path(args.output_dir))
+            match last_answer:
+                case Exists(repo) | MaybeExists(repo):
+                    await fetch(repo, Path(args.output_dir))
+                case DoesNotExist(message):
+                    print(
+                        message,
+                        file=sys.stderr,
+                    )
+                    sys.exit(1)
         else:
             print(f"Unable to resolve {args.question}")
 
