@@ -40,7 +40,12 @@ from repoproviders.resolvers.doi import ZenodoDataset, ZenodoResolver
             ZenodoDataset(URL("https://zenodo.org/"), recordId="14007206"),
         ),
         # A doi reference to a bad doi
-        ("https://zenodo.org/doi/10.5281/zdo.805993", NotFound[ZenodoDataset]("https://zenodo.org/doi/10.5281/zdo.805993 is not a valid Zenodo DOI URL")),
+        (
+            "https://zenodo.org/doi/10.5281/zdo.805993",
+            NotFound[ZenodoDataset](
+                "https://zenodo.org/doi/10.5281/zdo.805993 is not a valid Zenodo DOI URL"
+            ),
+        ),
     ),
 )
 async def test_zenodo(url, expected):

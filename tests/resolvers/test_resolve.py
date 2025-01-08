@@ -60,7 +60,14 @@ from repoproviders.resolvers.git import Git, ImmutableGit
             ],
         ),
         # Random URL, not a git repo
-        (Git("https://example.com/something", "HEAD"), [NotFound[ImmutableGit]("Could not access git repository at https://example.com/something")]),
+        (
+            Git("https://example.com/something", "HEAD"),
+            [
+                NotFound[ImmutableGit](
+                    "Could not access git repository at https://example.com/something"
+                )
+            ],
+        ),
         # Resolve a tag
         (
             Git("https://github.com/jupyterhub/zero-to-jupyterhub-k8s", "0.8.0"),
@@ -88,7 +95,11 @@ from repoproviders.resolvers.git import Git, ImmutableGit
             Git(
                 "https://github.com/jupyterhub/zero-to-jupyterhub-k8s", "does-not-exist"
             ),
-            [NotFound[ImmutableGit]("No ref does-not-exist found in repo https://github.com/jupyterhub/zero-to-jupyterhub-k8s")],
+            [
+                NotFound[ImmutableGit](
+                    "No ref does-not-exist found in repo https://github.com/jupyterhub/zero-to-jupyterhub-k8s"
+                )
+            ],
         ),
     ),
 )

@@ -156,7 +156,9 @@ class DataverseResolver:
         data = (await resp.json())["data"]
         return data["datasetVersion"]["datasetPersistentId"]
 
-    async def resolve(self, question: URL | Doi) -> DataverseDataset | NotFound[DataverseDataset] | None:
+    async def resolve(
+        self, question: URL | Doi
+    ) -> DataverseDataset | NotFound[DataverseDataset] | None:
         if isinstance(question, URL):
             url = question
         elif isinstance(question, Doi):
@@ -193,7 +195,9 @@ class DataverseResolver:
             file_id = os.path.basename(path)
             pid_maybe = await self.get_dataset_id_from_file_id(installation, file_id)
             if pid_maybe is None:
-                return NotFound[DataverseDataset](f"No file with id {file_id} found in dataverse installation {installation}")
+                return NotFound[DataverseDataset](
+                    f"No file with id {file_id} found in dataverse installation {installation}"
+                )
             else:
                 persistent_id = pid_maybe
 
@@ -201,11 +205,11 @@ class DataverseResolver:
             verified_dataset = True
         elif path.startswith("/file.xhtml"):
             file_id = qs["persistentId"]
-            pid_maybe = await self.get_dataset_id_from_file_id(
-                installation, file_id
-            )
+            pid_maybe = await self.get_dataset_id_from_file_id(installation, file_id)
             if pid_maybe is None:
-                return NotFound[DataverseDataset](f"No file with id {file_id} found in dataverse installation {installation}")
+                return NotFound[DataverseDataset](
+                    f"No file with id {file_id} found in dataverse installation {installation}"
+                )
             else:
                 persistent_id = pid_maybe
             # We know persistent_id is a dataset, because we asked the API!
@@ -229,7 +233,9 @@ class DataverseResolver:
                 )
                 if pid_maybe is None:
                     # This is not a file either, so this citation doesn't exist
-                    return NotFound[DataverseDataset](f"{persistent_id} is neither a file nor a dataset in {installation}")
+                    return NotFound[DataverseDataset](
+                        f"{persistent_id} is neither a file nor a dataset in {installation}"
+                    )
                 else:
                     persistent_id = pid_maybe
             else:
@@ -253,7 +259,9 @@ class ZenodoResolver:
             URL("https://data.caltech.edu/"),
         ]
 
-    async def resolve(self, question: URL | Doi) -> ZenodoDataset | NotFound[ZenodoDataset] | None:
+    async def resolve(
+        self, question: URL | Doi
+    ) -> ZenodoDataset | NotFound[ZenodoDataset] | None:
         if isinstance(question, URL):
             url = question
         elif isinstance(question, Doi):
@@ -374,7 +382,9 @@ class ImmutableFigshareResolver:
             resp = await session.get(api_url)
 
         if resp.status == 404:
-            return NotFound[ImmutableFigshareDataset](f"Article ID {question.articleId} not found on figshare installation {question.installation.url}")
+            return NotFound[ImmutableFigshareDataset](
+                f"Article ID {question.articleId} not found on figshare installation {question.installation.url}"
+            )
         elif resp.status == 200:
             data = await resp.json()
             return ImmutableFigshareDataset(
