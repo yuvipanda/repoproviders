@@ -97,7 +97,7 @@ class DoiResolver:
 
             if resp.status == 404:
                 # This is a validly *formatted* DOI, but it's not actually a dOI
-                return NotFound()
+                return NotFound(Doi, f"{doi} is not a registered DOI or handle")
             elif resp.status == 200:
                 data = await resp.json()
 
@@ -107,7 +107,7 @@ class DoiResolver:
                         return Doi(v["data"]["value"])
 
                 # No URLs found for this DOI, so we treat it as NotFound
-                return NotFound()
+                return NotFound(Doi, f"{doi} does not point to any URL")
             else:
                 # Some other kind of failure, let's propagate our error up
                 resp.raise_for_status()
@@ -193,25 +193,26 @@ class DataverseResolver:
             file_id = os.path.basename(path)
             pid_maybe = await self.get_dataset_id_from_file_id(installation, file_id)
             if pid_maybe is None:
-                return NotFound()
+                return NotFound(DataverseDataset, f"No file with id {file_id} found in dataverse installation {installation}")
             else:
                 persistent_id = pid_maybe
 
             # We know persistent_id is a dataset, because we asked the API!
             verified_dataset = True
         elif path.startswith("/file.xhtml"):
-            file_persistent_id = qs["persistentId"]
+            file_id = qs["persistentId"]
             pid_maybe = await self.get_dataset_id_from_file_id(
-                installation, file_persistent_id
+                installation, file_id
             )
             if pid_maybe is None:
-                return NotFound()
+                return NotFound(DataverseDataset, f"No file with id {file_id} found in dataverse installation {installation}")
             else:
                 persistent_id = pid_maybe
             # We know persistent_id is a dataset, because we asked the API!
             verified_dataset = True
         else:
-            return NotFound()
+            # This URL is not actually a dataverse dataset URL
+            return None
 
         if not verified_dataset:
             # citations can be either datasets or files - we don't know. The most common case is that it is
@@ -228,7 +229,7 @@ class DataverseResolver:
                 )
                 if pid_maybe is None:
                     # This is not a file either, so this citation doesn't exist
-                    return NotFound()
+                    return NotFound(DataverseDataset, f"{persistent_id} is neither a file nor a dataset in {installation}")
                 else:
                     persistent_id = pid_maybe
             else:
@@ -286,14 +287,14 @@ class ZenodoResolver:
         if url.path[len(installation.path) :].startswith("doi/"):
             url_parts = url.path.split("/")
             if len(url_parts) != 4:
-                # Not a correctly formatted DOI
-                return NotFound()
+                # Not a correctly formatted DOI URL
+                return None
 
             async with aiohttp.ClientSession() as session:
                 resp = await session.head(url)
 
             if resp.status == 404:
-                return NotFound()
+                return NotFound(ZenodoDataset, f"{url} is not a valid Zenodo DOI URL")
             redirect_location = resp.headers["Location"]
 
             return await self.resolve(URL(redirect_location))
@@ -373,7 +374,7 @@ class ImmutableFigshareResolver:
             resp = await session.get(api_url)
 
         if resp.status == 404:
-            return NotFound()
+            return NotFound(ImmutableFigshareDataset, f"Article ID {question.articleId} not found on figshare installation {question.installation.url}")
         elif resp.status == 200:
             data = await resp.json()
             return ImmutableFigshareDataset(
