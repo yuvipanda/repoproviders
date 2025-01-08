@@ -46,17 +46,17 @@ from repoproviders.resolvers.doi import DataverseDataset, DataverseResolver
         # Asking for datasets that don't exist should return NotFound
         (
             "https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/not-found",
-            NotFound(DataverseDataset, "doi:10.7910/not-found is neither a file nor a dataset in https://dataverse.harvard.edu"),
+            NotFound[DataverseDataset]("doi:10.7910/not-found is neither a file nor a dataset in https://dataverse.harvard.edu"),
         ),
         (
             "https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/not-found",
-            NotFound(DataverseDataset, "doi:10.7910/not-found is neither a file nor a dataset in https://dataverse.harvard.edu"),
+            NotFound[DataverseDataset]("doi:10.7910/not-found is neither a file nor a dataset in https://dataverse.harvard.edu"),
         ),
-        ("https://dataverse.harvard.edu/api/access/datafile/0", NotFound(DataverseDataset, "No file with id 0 found in dataverse installation https://dataverse.harvard.edu")),
+        ("https://dataverse.harvard.edu/api/access/datafile/0", NotFound[DataverseDataset]("No file with id 0 found in dataverse installation https://dataverse.harvard.edu")),
         ("https://dataverse.harvard.edu/blaaaah", None),
         (
             "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/not-found",
-            NotFound(DataverseDataset, "No file with id doi:10.7910/not-found found in dataverse installation https://dataverse.harvard.edu"),
+            NotFound[DataverseDataset]("No file with id doi:10.7910/not-found found in dataverse installation https://dataverse.harvard.edu"),
         ),
     ),
 )

@@ -67,7 +67,7 @@ class DoiResolver:
     A *handle* resolver, called a Doi resolver because that's the most common handle
     """
 
-    async def resolve(self, question: URL) -> Doi | NotFound | None:
+    async def resolve(self, question: URL) -> Doi | NotFound[Doi] | None:
         # Check if this is a valid doi or handle
         if question.scheme in ("doi", "hdl"):
             doi = question.path
@@ -97,7 +97,7 @@ class DoiResolver:
 
             if resp.status == 404:
                 # This is a validly *formatted* DOI, but it's not actually a dOI
-                return NotFound(Doi, f"{doi} is not a registered DOI or handle")
+                return NotFound[Doi](f"{doi} is not a registered DOI or handle")
             elif resp.status == 200:
                 data = await resp.json()
 
@@ -107,7 +107,7 @@ class DoiResolver:
                         return Doi(v["data"]["value"])
 
                 # No URLs found for this DOI, so we treat it as NotFound
-                return NotFound(Doi, f"{doi} does not point to any URL")
+                return NotFound[Doi](f"{doi} does not point to any URL")
             else:
                 # Some other kind of failure, let's propagate our error up
                 resp.raise_for_status()
@@ -156,7 +156,7 @@ class DataverseResolver:
         data = (await resp.json())["data"]
         return data["datasetVersion"]["datasetPersistentId"]
 
-    async def resolve(self, question: URL | Doi) -> DataverseDataset | NotFound | None:
+    async def resolve(self, question: URL | Doi) -> DataverseDataset | NotFound[DataverseDataset] | None:
         if isinstance(question, URL):
             url = question
         elif isinstance(question, Doi):
@@ -193,7 +193,7 @@ class DataverseResolver:
             file_id = os.path.basename(path)
             pid_maybe = await self.get_dataset_id_from_file_id(installation, file_id)
             if pid_maybe is None:
-                return NotFound(DataverseDataset, f"No file with id {file_id} found in dataverse installation {installation}")
+                return NotFound[DataverseDataset](f"No file with id {file_id} found in dataverse installation {installation}")
             else:
                 persistent_id = pid_maybe
 
@@ -205,7 +205,7 @@ class DataverseResolver:
                 installation, file_id
             )
             if pid_maybe is None:
-                return NotFound(DataverseDataset, f"No file with id {file_id} found in dataverse installation {installation}")
+                return NotFound[DataverseDataset](f"No file with id {file_id} found in dataverse installation {installation}")
             else:
                 persistent_id = pid_maybe
             # We know persistent_id is a dataset, because we asked the API!
@@ -229,7 +229,7 @@ class DataverseResolver:
                 )
                 if pid_maybe is None:
                     # This is not a file either, so this citation doesn't exist
-                    return NotFound(DataverseDataset, f"{persistent_id} is neither a file nor a dataset in {installation}")
+                    return NotFound[DataverseDataset](f"{persistent_id} is neither a file nor a dataset in {installation}")
                 else:
                     persistent_id = pid_maybe
             else:
@@ -253,7 +253,7 @@ class ZenodoResolver:
             URL("https://data.caltech.edu/"),
         ]
 
-    async def resolve(self, question: URL | Doi) -> ZenodoDataset | NotFound | None:
+    async def resolve(self, question: URL | Doi) -> ZenodoDataset | NotFound[ZenodoDataset] | None:
         if isinstance(question, URL):
             url = question
         elif isinstance(question, Doi):
@@ -294,7 +294,7 @@ class ZenodoResolver:
                 resp = await session.head(url)
 
             if resp.status == 404:
-                return NotFound(ZenodoDataset, f"{url} is not a valid Zenodo DOI URL")
+                return NotFound[ZenodoDataset](f"{url} is not a valid Zenodo DOI URL")
             redirect_location = resp.headers["Location"]
 
             return await self.resolve(URL(redirect_location))
@@ -356,7 +356,7 @@ class FigshareResolver:
 class ImmutableFigshareResolver:
     async def resolve(
         self, question: FigshareDataset
-    ) -> ImmutableFigshareDataset | NotFound | None:
+    ) -> ImmutableFigshareDataset | NotFound[ImmutableFigshareDataset] | None:
         if question.version is not None:
             # Version already specified, just return
             return ImmutableFigshareDataset(
@@ -374,7 +374,7 @@ class ImmutableFigshareResolver:
             resp = await session.get(api_url)
 
         if resp.status == 404:
-            return NotFound(ImmutableFigshareDataset, f"Article ID {question.articleId} not found on figshare installation {question.installation.url}")
+            return NotFound[ImmutableFigshareDataset](f"Article ID {question.articleId} not found on figshare installation {question.installation.url}")
         elif resp.status == 200:
             data = await resp.json()
             return ImmutableFigshareDataset(

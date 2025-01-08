@@ -1,17 +1,14 @@
 from dataclasses import dataclass
-from typing import Any, Protocol
+from typing import Any, Protocol, TypeVar
 
 
 @dataclass(frozen=True)
-class NotFound:
+class NotFound[T: Repo]:
     """
     Resolver recognizes this question, but while resolving determined it does not exist
     """
 
-    kind: type
     message: str
-
-    immutable = True
 
 
 class Repo(Protocol):
@@ -28,5 +25,5 @@ class Repo(Protocol):
 
 
 class SupportsResolve(Protocol):
-    async def resolve(self, question: Any) -> Repo | None:
+    async def resolve(self, question: Any) -> Repo | NotFound | None:
         pass

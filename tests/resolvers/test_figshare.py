@@ -115,7 +115,7 @@ async def test_figshare(url, expected):
                 97827778384384634634634863463434343,
                 None,
             ),
-            NotFound(ImmutableFigshareDataset, "Article ID 97827778384384634634634863463434343 not found on figshare installation https://figshare.com/"),
+            NotFound[ImmutableFigshareDataset]("Article ID 97827778384384634634634863463434343 not found on figshare installation https://figshare.com/"),
         ),
     ),
 )
