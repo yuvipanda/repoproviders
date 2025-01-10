@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import aiohttp
 from yarl import URL
 
-from .base import NotFound
+from .base import DoesNotExist, Exists, MaybeExists
 
 
 @dataclass(frozen=True)
@@ -67,7 +67,7 @@ class DoiResolver:
     A *handle* resolver, called a Doi resolver because that's the most common handle
     """
 
-    async def resolve(self, question: URL) -> Doi | NotFound[Doi] | None:
+    async def resolve(self, question: URL) -> Exists[Doi] | DoesNotExist[Doi] | None:
         # Check if this is a valid doi or handle
         if question.scheme in ("doi", "hdl"):
             doi = question.path
@@ -97,17 +97,17 @@ class DoiResolver:
 
             if resp.status == 404:
                 # This is a validly *formatted* DOI, but it's not actually a dOI
-                return NotFound[Doi](f"{doi} is not a registered DOI or handle")
+                return DoesNotExist(Doi, f"{doi} is not a registered DOI or handle")
             elif resp.status == 200:
                 data = await resp.json()
 
                 # Pick the first URL we find from the doi response
                 for v in data["values"]:
                     if v["type"] == "URL":
-                        return Doi(v["data"]["value"])
+                        return Exists(Doi(v["data"]["value"]))
 
-                # No URLs found for this DOI, so we treat it as NotFound
-                return NotFound[Doi](f"{doi} does not point to any URL")
+                # No URLs found for this DOI, so we treat it as DoesNotExist
+                return DoesNotExist(Doi, f"{doi} does not point to any URL")
             else:
                 # Some other kind of failure, let's propagate our error up
                 resp.raise_for_status()
@@ -158,7 +158,7 @@ class DataverseResolver:
 
     async def resolve(
         self, question: URL | Doi
-    ) -> DataverseDataset | NotFound[DataverseDataset] | None:
+    ) -> Exists[DataverseDataset] | DoesNotExist[DataverseDataset] | None:
         if isinstance(question, URL):
             url = question
         elif isinstance(question, Doi):
@@ -195,8 +195,9 @@ class DataverseResolver:
             file_id = os.path.basename(path)
             pid_maybe = await self.get_dataset_id_from_file_id(installation, file_id)
             if pid_maybe is None:
-                return NotFound[DataverseDataset](
-                    f"No file with id {file_id} found in dataverse installation {installation}"
+                return DoesNotExist(
+                    DataverseDataset,
+                    f"No file with id {file_id} found in dataverse installation {installation}",
                 )
             else:
                 persistent_id = pid_maybe
@@ -207,8 +208,9 @@ class DataverseResolver:
             file_id = qs["persistentId"]
             pid_maybe = await self.get_dataset_id_from_file_id(installation, file_id)
             if pid_maybe is None:
-                return NotFound[DataverseDataset](
-                    f"No file with id {file_id} found in dataverse installation {installation}"
+                return DoesNotExist(
+                    DataverseDataset,
+                    f"No file with id {file_id} found in dataverse installation {installation}",
                 )
             else:
                 persistent_id = pid_maybe
@@ -233,17 +235,22 @@ class DataverseResolver:
                 )
                 if pid_maybe is None:
                     # This is not a file either, so this citation doesn't exist
-                    return NotFound[DataverseDataset](
-                        f"{persistent_id} is neither a file nor a dataset in {installation}"
+                    return DoesNotExist(
+                        DataverseDataset,
+                        f"{persistent_id} is neither a file nor a dataset in {installation}",
                     )
                 else:
                     persistent_id = pid_maybe
+            elif resp.status == 200:
+                # This *is* a dataset, we just verified it with this query
+                verified_dataset = True
             else:
                 # Any other errors should propagate
                 resp.raise_for_status()
 
-        # If we are here, it means the persistent_id is a dataset id, and we don't need to do anything else!
-        return DataverseDataset(installation, persistent_id)
+                return None
+
+        return Exists(DataverseDataset(installation, persistent_id))
 
 
 class ZenodoResolver:
@@ -261,7 +268,7 @@ class ZenodoResolver:
 
     async def resolve(
         self, question: URL | Doi
-    ) -> ZenodoDataset | NotFound[ZenodoDataset] | None:
+    ) -> MaybeExists[ZenodoDataset] | DoesNotExist[ZenodoDataset] | None:
         if isinstance(question, URL):
             url = question
         elif isinstance(question, Doi):
@@ -302,14 +309,16 @@ class ZenodoResolver:
                 resp = await session.head(url)
 
             if resp.status == 404:
-                return NotFound[ZenodoDataset](f"{url} is not a valid Zenodo DOI URL")
+                return DoesNotExist(
+                    ZenodoDataset, f"{url} is not a valid Zenodo DOI URL"
+                )
             redirect_location = resp.headers["Location"]
 
             return await self.resolve(URL(redirect_location))
         else:
             # URL is /record or /records
             # Record ID is the last part of the URL path
-            return ZenodoDataset(installation, url.name)
+            return MaybeExists(ZenodoDataset(installation, url.name))
 
 
 class FigshareResolver:
@@ -322,7 +331,7 @@ class FigshareResolver:
             )
         ]
 
-    async def resolve(self, question: URL | Doi) -> FigshareDataset | None:
+    async def resolve(self, question: URL | Doi) -> MaybeExists[FigshareDataset] | None:
         if isinstance(question, URL):
             url = question
         elif isinstance(question, Doi):
@@ -354,9 +363,11 @@ class FigshareResolver:
         # If not, treat it as article ID only
         parts = url.path.split("/")
         if parts[-1].isdigit() and parts[-2].isdigit():
-            return FigshareDataset(installation, int(parts[-2]), int(parts[-1]))
+            return MaybeExists(
+                FigshareDataset(installation, int(parts[-2]), int(parts[-1]))
+            )
         elif parts[-1].isdigit():
-            return FigshareDataset(installation, int(parts[-1]), None)
+            return MaybeExists(FigshareDataset(installation, int(parts[-1]), None))
         else:
             return None
 
@@ -364,11 +375,18 @@ class FigshareResolver:
 class ImmutableFigshareResolver:
     async def resolve(
         self, question: FigshareDataset
-    ) -> ImmutableFigshareDataset | NotFound[ImmutableFigshareDataset] | None:
+    ) -> (
+        Exists[ImmutableFigshareDataset]
+        | MaybeExists[ImmutableFigshareDataset]
+        | DoesNotExist[ImmutableFigshareDataset]
+        | None
+    ):
         if question.version is not None:
             # Version already specified, just return
-            return ImmutableFigshareDataset(
-                question.installation, question.articleId, question.version
+            return MaybeExists(
+                ImmutableFigshareDataset(
+                    question.installation, question.articleId, question.version
+                )
             )
 
         api_url = (
@@ -382,13 +400,16 @@ class ImmutableFigshareResolver:
             resp = await session.get(api_url)
 
         if resp.status == 404:
-            return NotFound[ImmutableFigshareDataset](
-                f"Article ID {question.articleId} not found on figshare installation {question.installation.url}"
+            return DoesNotExist(
+                ImmutableFigshareDataset,
+                f"Article ID {question.articleId} not found on figshare installation {question.installation.url}",
             )
         elif resp.status == 200:
             data = await resp.json()
-            return ImmutableFigshareDataset(
-                question.installation, question.articleId, data[-1]["version"]
+            return Exists(
+                ImmutableFigshareDataset(
+                    question.installation, question.articleId, data[-1]["version"]
+                )
             )
         else:
             # All other status codes should raise an error

@@ -1,7 +1,7 @@
 import pytest
 from yarl import URL
 
-from repoproviders.resolvers.base import NotFound
+from repoproviders.resolvers.base import DoesNotExist, MaybeExists
 from repoproviders.resolvers.doi import ZenodoDataset, ZenodoResolver
 
 
@@ -14,36 +14,37 @@ from repoproviders.resolvers.doi import ZenodoDataset, ZenodoResolver
         # Simple /record and /records
         (
             "https://zenodo.org/record/3232985",
-            ZenodoDataset(URL("https://zenodo.org/"), "3232985"),
+            MaybeExists(ZenodoDataset(URL("https://zenodo.org/"), "3232985")),
         ),
         (
             "https://zenodo.org/records/3232985",
-            ZenodoDataset(URL("https://zenodo.org/"), "3232985"),
+            MaybeExists(ZenodoDataset(URL("https://zenodo.org/"), "3232985")),
         ),
         # Note we normalize output to have the HTTPS URL, even if we're passed in the HTTP URL
         (
             "http://zenodo.org/record/3232985",
-            ZenodoDataset(URL("https://zenodo.org/"), "3232985"),
+            MaybeExists(ZenodoDataset(URL("https://zenodo.org/"), "3232985")),
         ),
         (
             "https://zenodo.org/records/3232985",
-            ZenodoDataset(URL("https://zenodo.org/"), "3232985"),
+            MaybeExists(ZenodoDataset(URL("https://zenodo.org/"), "3232985")),
         ),
         # A non-zenodo URL
         (
             "https://data.caltech.edu/records/996aw-mf266",
-            ZenodoDataset(URL("https://data.caltech.edu/"), "996aw-mf266"),
+            MaybeExists(ZenodoDataset(URL("https://data.caltech.edu/"), "996aw-mf266")),
         ),
         # A doi reference
         (
             "https://zenodo.org/doi/10.5281/zenodo.805993",
-            ZenodoDataset(URL("https://zenodo.org/"), recordId="14007206"),
+            MaybeExists(ZenodoDataset(URL("https://zenodo.org/"), recordId="14007206")),
         ),
         # A doi reference to a bad doi
         (
             "https://zenodo.org/doi/10.5281/zdo.805993",
-            NotFound[ZenodoDataset](
-                "https://zenodo.org/doi/10.5281/zdo.805993 is not a valid Zenodo DOI URL"
+            DoesNotExist(
+                ZenodoDataset,
+                "https://zenodo.org/doi/10.5281/zdo.805993 is not a valid Zenodo DOI URL",
             ),
         ),
     ),

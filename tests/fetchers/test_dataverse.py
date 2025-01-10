@@ -6,6 +6,7 @@ import pytest
 
 from repoproviders.fetchers import fetch
 from repoproviders.resolvers import resolve
+from repoproviders.resolvers.base import Exists
 
 
 @pytest.mark.parametrize(
@@ -70,8 +71,9 @@ async def test_fetch(questions: list[str], md5tree: dict[str, str]):
             answers = await resolve(question, True)
 
             assert answers is not None
+            assert isinstance(answers[-1], Exists)
 
-            await fetch(answers[-1], output_dir)
+            await fetch(answers[-1].repo, output_dir)
 
             # Verify md5 sum of the files we expect to find
             # We are using md5 instead of something more secure because that is what

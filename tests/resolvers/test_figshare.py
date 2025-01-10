@@ -1,7 +1,7 @@
 import pytest
 from yarl import URL
 
-from repoproviders.resolvers.base import NotFound
+from repoproviders.resolvers.base import DoesNotExist, Exists, MaybeExists
 from repoproviders.resolvers.doi import (
     FigshareDataset,
     FigshareInstallation,
@@ -25,43 +25,55 @@ from repoproviders.resolvers.doi import (
         # Some old school URLs
         (
             "https://figshare.com/articles/title/9782777",
-            FigshareDataset(
-                FigshareInstallation(
-                    URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")
-                ),
-                9782777,
-                None,
+            MaybeExists(
+                FigshareDataset(
+                    FigshareInstallation(
+                        URL("https://figshare.com/"),
+                        URL("https://api.figshare.com/v2/"),
+                    ),
+                    9782777,
+                    None,
+                )
             ),
         ),
         (
             "https://figshare.com/articles/title/9782777/2",
-            FigshareDataset(
-                FigshareInstallation(
-                    URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")
-                ),
-                9782777,
-                2,
+            MaybeExists(
+                FigshareDataset(
+                    FigshareInstallation(
+                        URL("https://figshare.com/"),
+                        URL("https://api.figshare.com/v2/"),
+                    ),
+                    9782777,
+                    2,
+                )
             ),
         ),
         # New style URLs
         (
             "https://figshare.com/articles/code/Binder-ready_openSenseMap_Analysis/9782777",
-            FigshareDataset(
-                FigshareInstallation(
-                    URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")
-                ),
-                9782777,
-                None,
+            MaybeExists(
+                FigshareDataset(
+                    FigshareInstallation(
+                        URL("https://figshare.com/"),
+                        URL("https://api.figshare.com/v2/"),
+                    ),
+                    9782777,
+                    None,
+                )
             ),
         ),
         (
             "https://figshare.com/articles/code/Binder-ready_openSenseMap_Analysis/9782777/3",
-            FigshareDataset(
-                FigshareInstallation(
-                    URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")
-                ),
-                9782777,
-                3,
+            MaybeExists(
+                FigshareDataset(
+                    FigshareInstallation(
+                        URL("https://figshare.com/"),
+                        URL("https://api.figshare.com/v2/"),
+                    ),
+                    9782777,
+                    3,
+                )
             ),
         ),
     ),
@@ -82,12 +94,15 @@ async def test_figshare(url, expected):
                 9782777,
                 None,
             ),
-            ImmutableFigshareDataset(
-                FigshareInstallation(
-                    URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")
-                ),
-                9782777,
-                3,
+            Exists(
+                ImmutableFigshareDataset(
+                    FigshareInstallation(
+                        URL("https://figshare.com/"),
+                        URL("https://api.figshare.com/v2/"),
+                    ),
+                    9782777,
+                    3,
+                )
             ),
         ),
         (
@@ -98,12 +113,15 @@ async def test_figshare(url, expected):
                 9782777,
                 2,
             ),
-            ImmutableFigshareDataset(
-                FigshareInstallation(
-                    URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")
-                ),
-                9782777,
-                2,
+            MaybeExists(
+                ImmutableFigshareDataset(
+                    FigshareInstallation(
+                        URL("https://figshare.com/"),
+                        URL("https://api.figshare.com/v2/"),
+                    ),
+                    9782777,
+                    2,
+                )
             ),
         ),
         # Non existent things
@@ -115,8 +133,9 @@ async def test_figshare(url, expected):
                 97827778384384634634634863463434343,
                 None,
             ),
-            NotFound[ImmutableFigshareDataset](
-                "Article ID 97827778384384634634634863463434343 not found on figshare installation https://figshare.com/"
+            DoesNotExist(
+                ImmutableFigshareDataset,
+                "Article ID 97827778384384634634634863463434343 not found on figshare installation https://figshare.com/",
             ),
         ),
     ),

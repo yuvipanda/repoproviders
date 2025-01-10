@@ -3,12 +3,26 @@ from typing import Any, Protocol
 
 
 @dataclass(frozen=True)
-class NotFound[T: Repo]:
+class DoesNotExist[T: Repo]:
     """
     Resolver recognizes this question, but while resolving determined it does not exist
     """
 
+    # womp womp, we can't really retrieve the value of T at runtime so gotta still pass
+    # that in.
+    # FIXME: See if we can enforce somehow that kind is also a `Repo`
+    kind: type
     message: str
+
+
+@dataclass(frozen=True)
+class Exists[T: Repo]:
+    repo: T
+
+
+@dataclass(frozen=True)
+class MaybeExists[T: Repo]:
+    repo: T
 
 
 class Repo(Protocol):
@@ -25,5 +39,7 @@ class Repo(Protocol):
 
 
 class SupportsResolve(Protocol):
-    async def resolve(self, question: Any) -> Repo | NotFound | None:
+    async def resolve(
+        self, question: Any
+    ) -> Exists | DoesNotExist | MaybeExists | None:
         pass

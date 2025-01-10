@@ -2,7 +2,7 @@ import pytest
 from yarl import URL
 
 from repoproviders.resolvers import resolve
-from repoproviders.resolvers.base import NotFound
+from repoproviders.resolvers.base import DoesNotExist, Exists, MaybeExists
 from repoproviders.resolvers.doi import (
     DataverseDataset,
     Doi,
@@ -29,33 +29,49 @@ from repoproviders.resolvers.git import Git, ImmutableGit
         # Simple github repo URL
         (
             "https://github.com/pyOpenSci/pyos-package-template",
-            [Git("https://github.com/pyOpenSci/pyos-package-template", "HEAD")],
+            [
+                MaybeExists(
+                    Git("https://github.com/pyOpenSci/pyos-package-template", "HEAD")
+                )
+            ],
         ),
         # Trailing slash normalized?
         (
             "https://github.com/pyOpenSci/pyos-package-template/",
-            [Git("https://github.com/pyOpenSci/pyos-package-template", "HEAD")],
+            [
+                MaybeExists(
+                    Git("https://github.com/pyOpenSci/pyos-package-template", "HEAD")
+                )
+            ],
         ),
         # blobs and tree
         (
             "https://github.com/pyOpenSci/pyos-package-template/tree/main/includes/licenses",
-            [Git("https://github.com/pyOpenSci/pyos-package-template", "main")],
+            [
+                MaybeExists(
+                    Git("https://github.com/pyOpenSci/pyos-package-template", "main")
+                )
+            ],
         ),
         (
             "https://github.com/pyOpenSci/pyos-package-template/tree/original-cookie/docs",
             [
-                Git(
-                    "https://github.com/pyOpenSci/pyos-package-template",
-                    "original-cookie",
+                MaybeExists(
+                    Git(
+                        "https://github.com/pyOpenSci/pyos-package-template",
+                        "original-cookie",
+                    )
                 )
             ],
         ),
         (
             "https://github.com/pyOpenSci/pyos-package-template/blob/b912433bfae541972c83529359f4181ef0fe9b67/README.md",
             [
-                Git(
-                    "https://github.com/pyOpenSci/pyos-package-template",
-                    ref="b912433bfae541972c83529359f4181ef0fe9b67",
+                MaybeExists(
+                    Git(
+                        "https://github.com/pyOpenSci/pyos-package-template",
+                        ref="b912433bfae541972c83529359f4181ef0fe9b67",
+                    )
                 )
             ],
         ),
@@ -63,8 +79,9 @@ from repoproviders.resolvers.git import Git, ImmutableGit
         (
             Git("https://example.com/something", "HEAD"),
             [
-                NotFound[ImmutableGit](
-                    "Could not access git repository at https://example.com/something"
+                DoesNotExist(
+                    ImmutableGit,
+                    "Could not access git repository at https://example.com/something",
                 )
             ],
         ),
@@ -72,9 +89,11 @@ from repoproviders.resolvers.git import Git, ImmutableGit
         (
             Git("https://github.com/jupyterhub/zero-to-jupyterhub-k8s", "0.8.0"),
             [
-                ImmutableGit(
-                    "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
-                    "ada2170a2181ae1760d85eab74e5264d0c6bb67f",
+                Exists(
+                    ImmutableGit(
+                        "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+                        "ada2170a2181ae1760d85eab74e5264d0c6bb67f",
+                    )
                 )
             ],
         ),
@@ -85,9 +104,11 @@ from repoproviders.resolvers.git import Git, ImmutableGit
                 "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
             ),
             [
-                ImmutableGit(
-                    "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
-                    "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+                MaybeExists(
+                    ImmutableGit(
+                        "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+                        "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+                    )
                 )
             ],
         ),
@@ -96,8 +117,9 @@ from repoproviders.resolvers.git import Git, ImmutableGit
                 "https://github.com/jupyterhub/zero-to-jupyterhub-k8s", "does-not-exist"
             ),
             [
-                NotFound[ImmutableGit](
-                    "No ref does-not-exist found in repo https://github.com/jupyterhub/zero-to-jupyterhub-k8s"
+                DoesNotExist(
+                    ImmutableGit,
+                    "No ref does-not-exist found in repo https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
                 )
             ],
         ),
@@ -115,22 +137,32 @@ async def test_resolve(url, expected):
         (
             "doi:10.7910/DVN/6ZXAGT/3YRRYJ",
             [
-                Doi(
-                    "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                Exists(
+                    Doi(
+                        "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                    )
                 )
             ],
         ),
         # handle schema'd URI
         (
             "hdl:11529/10016",
-            [Doi("https://data.cimmyt.org/dataset.xhtml?persistentId=hdl:11529/10016")],
+            [
+                Exists(
+                    Doi(
+                        "https://data.cimmyt.org/dataset.xhtml?persistentId=hdl:11529/10016"
+                    )
+                )
+            ],
         ),
         # For convenience, we do accept DOIs without a scheme
         (
             "10.7910/DVN/6ZXAGT/3YRRYJ",
             [
-                Doi(
-                    "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                Exists(
+                    Doi(
+                        "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                    )
                 )
             ],
         ),
@@ -140,24 +172,30 @@ async def test_resolve(url, expected):
         (
             "https://doi.org/10.7910/DVN/6ZXAGT/3YRRYJ",
             [
-                Doi(
-                    "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                Exists(
+                    Doi(
+                        "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                    )
                 )
             ],
         ),
         (
             "https://www.doi.org/10.7910/DVN/6ZXAGT/3YRRYJ",
             [
-                Doi(
-                    "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                Exists(
+                    Doi(
+                        "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                    )
                 )
             ],
         ),
         (
             "https://hdl.handle.net/10.7910/DVN/6ZXAGT/3YRRYJ",
             [
-                Doi(
-                    "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                Exists(
+                    Doi(
+                        "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                    )
                 )
             ],
         ),
@@ -174,11 +212,15 @@ async def test_norecurse(url, expected):
         (
             "doi:10.7910/DVN/6ZXAGT/3YRRYJ",
             [
-                Doi(
-                    "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                Exists(
+                    Doi(
+                        "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                    )
                 ),
-                DataverseDataset(
-                    URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/6ZXAGT"
+                Exists(
+                    DataverseDataset(
+                        URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/6ZXAGT"
+                    )
                 ),
             ],
         ),
@@ -186,53 +228,69 @@ async def test_norecurse(url, expected):
         (
             "hdl:11529/10016",
             [
-                Doi(
-                    "https://data.cimmyt.org/dataset.xhtml?persistentId=hdl:11529/10016"
+                Exists(
+                    Doi(
+                        "https://data.cimmyt.org/dataset.xhtml?persistentId=hdl:11529/10016"
+                    )
                 ),
-                DataverseDataset(URL("http://data.cimmyt.org/"), "hdl:11529/10016"),
+                Exists(
+                    DataverseDataset(URL("http://data.cimmyt.org/"), "hdl:11529/10016")
+                ),
             ],
         ),
         # For convenience, we do accept DOIs without a scheme
         (
             "10.7910/DVN/6ZXAGT",
             [
-                Doi(
-                    "https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/6ZXAGT"
+                Exists(
+                    Doi(
+                        "https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/6ZXAGT"
+                    )
                 ),
-                DataverseDataset(
-                    URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/6ZXAGT"
+                Exists(
+                    DataverseDataset(
+                        URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/6ZXAGT"
+                    )
                 ),
             ],
         ),
         # Something that's only a DOI, and won't resolve further
         (
             "10.1126/science.aar3646",
-            [Doi("https://www.science.org/doi/10.1126/science.aar3646")],
+            [Exists(Doi("https://www.science.org/doi/10.1126/science.aar3646"))],
         ),
         # GitHub URLs that recurse into ImmutableGit
         (
             "https://github.com/jupyterhub/zero-to-jupyterhub-k8s/tree/f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
             [
-                Git(
-                    "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
-                    "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+                MaybeExists(
+                    Git(
+                        "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+                        "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+                    )
                 ),
-                ImmutableGit(
-                    "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
-                    "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+                MaybeExists(
+                    ImmutableGit(
+                        "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+                        "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+                    )
                 ),
             ],
         ),
         (
             "https://github.com/jupyterhub/zero-to-jupyterhub-k8s/tree/0.8.0",
             [
-                Git(
-                    "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
-                    "0.8.0",
+                MaybeExists(
+                    Git(
+                        "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+                        "0.8.0",
+                    )
                 ),
-                ImmutableGit(
-                    "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
-                    "ada2170a2181ae1760d85eab74e5264d0c6bb67f",
+                Exists(
+                    ImmutableGit(
+                        "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+                        "ada2170a2181ae1760d85eab74e5264d0c6bb67f",
+                    )
                 ),
             ],
         ),
@@ -240,78 +298,96 @@ async def test_norecurse(url, expected):
         (
             "git+https://github.com/jupyterhub/zero-to-jupyterhub-k8s@f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
             [
-                Git(
-                    "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
-                    "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+                MaybeExists(
+                    Git(
+                        "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+                        "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+                    )
                 ),
-                ImmutableGit(
-                    "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
-                    "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+                MaybeExists(
+                    ImmutableGit(
+                        "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+                        "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+                    )
                 ),
             ],
         ),
         (
             "git+https://github.com/jupyterhub/zero-to-jupyterhub-k8s@0.8.0",
             [
-                Git(
-                    "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
-                    "0.8.0",
+                MaybeExists(
+                    Git(
+                        "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+                        "0.8.0",
+                    )
                 ),
-                ImmutableGit(
-                    "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
-                    "ada2170a2181ae1760d85eab74e5264d0c6bb67f",
+                Exists(
+                    ImmutableGit(
+                        "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+                        "ada2170a2181ae1760d85eab74e5264d0c6bb67f",
+                    )
                 ),
             ],
         ),
         (
             "10.5281/zenodo.3232985",
             [
-                Doi("https://zenodo.org/record/3232985"),
-                ZenodoDataset(URL("https://zenodo.org/"), "3232985"),
+                Exists(Doi("https://zenodo.org/record/3232985")),
+                MaybeExists(ZenodoDataset(URL("https://zenodo.org/"), "3232985")),
             ],
         ),
         (
             "https://doi.org/10.6084/m9.figshare.9782777.v3",
             [
-                Doi(
-                    "https://figshare.com/articles/Binder-ready_openSenseMap_Analysis/9782777/3"
+                Exists(
+                    Doi(
+                        "https://figshare.com/articles/Binder-ready_openSenseMap_Analysis/9782777/3"
+                    )
                 ),
-                FigshareDataset(
-                    FigshareInstallation(
-                        URL("https://figshare.com/"),
-                        URL("https://api.figshare.com/v2/"),
-                    ),
-                    9782777,
-                    3,
+                MaybeExists(
+                    FigshareDataset(
+                        FigshareInstallation(
+                            URL("https://figshare.com/"),
+                            URL("https://api.figshare.com/v2/"),
+                        ),
+                        9782777,
+                        3,
+                    )
                 ),
-                ImmutableFigshareDataset(
-                    FigshareInstallation(
-                        URL("https://figshare.com/"),
-                        URL("https://api.figshare.com/v2/"),
-                    ),
-                    9782777,
-                    3,
+                MaybeExists(
+                    ImmutableFigshareDataset(
+                        FigshareInstallation(
+                            URL("https://figshare.com/"),
+                            URL("https://api.figshare.com/v2/"),
+                        ),
+                        9782777,
+                        3,
+                    )
                 ),
             ],
         ),
         (
             "https://figshare.com/articles/Binder-ready_openSenseMap_Analysis/9782777",
             [
-                FigshareDataset(
-                    FigshareInstallation(
-                        URL("https://figshare.com/"),
-                        URL("https://api.figshare.com/v2/"),
-                    ),
-                    9782777,
-                    None,
+                MaybeExists(
+                    FigshareDataset(
+                        FigshareInstallation(
+                            URL("https://figshare.com/"),
+                            URL("https://api.figshare.com/v2/"),
+                        ),
+                        9782777,
+                        None,
+                    )
                 ),
-                ImmutableFigshareDataset(
-                    FigshareInstallation(
-                        URL("https://figshare.com/"),
-                        URL("https://api.figshare.com/v2/"),
-                    ),
-                    9782777,
-                    3,
+                Exists(
+                    ImmutableFigshareDataset(
+                        FigshareInstallation(
+                            URL("https://figshare.com/"),
+                            URL("https://api.figshare.com/v2/"),
+                        ),
+                        9782777,
+                        3,
+                    )
                 ),
             ],
         ),
@@ -319,8 +395,8 @@ async def test_norecurse(url, expected):
         (
             "https://doi.org/10.5281/zenodo.805993",
             [
-                Doi(url="https://zenodo.org/doi/10.5281/zenodo.805993"),
-                ZenodoDataset(URL("https://zenodo.org/"), "14007206"),
+                Exists(Doi(url="https://zenodo.org/doi/10.5281/zenodo.805993")),
+                MaybeExists(ZenodoDataset(URL("https://zenodo.org/"), "14007206")),
             ],
         ),
     ),

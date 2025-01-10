@@ -1,6 +1,6 @@
 import pytest
 
-from repoproviders.resolvers.base import NotFound
+from repoproviders.resolvers.base import DoesNotExist, Exists, MaybeExists
 from repoproviders.resolvers.git import Git, ImmutableGit, ImmutableGitResolver
 
 
@@ -10,16 +10,19 @@ from repoproviders.resolvers.git import Git, ImmutableGit, ImmutableGitResolver
         # Random URL, not a git repo
         (
             Git("https://example.com/something", "HEAD"),
-            NotFound[ImmutableGit](
-                "Could not access git repository at https://example.com/something"
+            DoesNotExist(
+                ImmutableGit,
+                "Could not access git repository at https://example.com/something",
             ),
         ),
         # Resolve a tag
         (
             Git("https://github.com/jupyterhub/zero-to-jupyterhub-k8s", "0.8.0"),
-            ImmutableGit(
-                "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
-                "ada2170a2181ae1760d85eab74e5264d0c6bb67f",
+            Exists(
+                ImmutableGit(
+                    "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+                    "ada2170a2181ae1760d85eab74e5264d0c6bb67f",
+                )
             ),
         ),
         # Resolve a commit we know exists, although this isn't verified
@@ -28,16 +31,19 @@ from repoproviders.resolvers.git import Git, ImmutableGit, ImmutableGitResolver
                 "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
                 "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
             ),
-            ImmutableGit(
-                "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
-                "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+            MaybeExists(
+                ImmutableGit(
+                    "https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
+                    "f7f3ff6d1bf708bdc12e5f10e18b2a90a4795603",
+                )
             ),
         ),
         # Repo doesn't exist
         (
             Git(repo="https://github.com/yuvipanda/does-not-exist-e43", ref="HEAD"),
-            NotFound[ImmutableGit](
-                "Could not access git repository at https://github.com/yuvipanda/does-not-exist-e43"
+            DoesNotExist(
+                ImmutableGit,
+                "Could not access git repository at https://github.com/yuvipanda/does-not-exist-e43",
             ),
         ),
         # Ref doesn't exist
@@ -45,8 +51,9 @@ from repoproviders.resolvers.git import Git, ImmutableGit, ImmutableGitResolver
             Git(
                 "https://github.com/jupyterhub/zero-to-jupyterhub-k8s", "does-not-exist"
             ),
-            NotFound[ImmutableGit](
-                "No ref does-not-exist found in repo https://github.com/jupyterhub/zero-to-jupyterhub-k8s"
+            DoesNotExist(
+                ImmutableGit,
+                "No ref does-not-exist found in repo https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
             ),
         ),
     ),
@@ -65,7 +72,7 @@ async def test_immutable_git_HEAD():
     ig = ImmutableGitResolver()
     assert (
         await ig.resolve(
-            Git("https://github.com/jupyterhub/zero-to-jupyterhub-k8s", "main")
+            Git("https://github.com/jupyterhub/zero-to-jupyterhub-k8s", "HEAD")
         )
     ) == (
         await ig.resolve(

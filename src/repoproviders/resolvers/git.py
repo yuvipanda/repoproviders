@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from yarl import URL
 
-from .base import NotFound
+from .base import DoesNotExist, Exists, MaybeExists
 
 
 @dataclass(frozen=True)
@@ -32,7 +32,7 @@ class ImmutableGit:
 
 
 class GitHubResolver:
-    async def resolve(self, question: URL) -> Git | None:
+    async def resolve(self, question: URL) -> MaybeExists[Git] | None:
         # git+<scheme> urls are handled by a different resolver
         if question.scheme not in ("http", "https") or (
             question.host != "github.com" and question.host != "www.github.com"
@@ -45,14 +45,16 @@ class GitHubResolver:
         if len(parts) == 2:
             # Handle <user|org>/<repo>
             # Reconstruct the URL so we normalize any
-            return Git(
-                repo=str(question.with_path(f"{parts[0]}/{parts[1]}")), ref="HEAD"
+            return MaybeExists(
+                Git(repo=str(question.with_path(f"{parts[0]}/{parts[1]}")), ref="HEAD")
             )
         elif len(parts) >= 4 and parts[2] in ("tree", "blob"):
             # Handle <user|org>/<repo>/<tree|blob>/<ref>(/<possible-path>)
             # Note: We ignore any paths specified here, as we only care about the repo
-            return Git(
-                repo=str(question.with_path(f"{parts[0]}/{parts[1]}")), ref=parts[3]
+            return MaybeExists(
+                Git(
+                    repo=str(question.with_path(f"{parts[0]}/{parts[1]}")), ref=parts[3]
+                )
             )
         else:
             # This is not actually a valid GitHub URL we support
@@ -62,7 +64,12 @@ class GitHubResolver:
 class ImmutableGitResolver:
     async def resolve(
         self, question: Git
-    ) -> ImmutableGit | NotFound[ImmutableGit] | None:
+    ) -> (
+        Exists[ImmutableGit]
+        | MaybeExists[ImmutableGit]
+        | DoesNotExist[ImmutableGit]
+        | None
+    ):
         command = ["git", "ls-remote", "--", question.repo, question.ref]
         proc = await asyncio.create_subprocess_exec(
             *command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
@@ -73,8 +80,8 @@ class ImmutableGitResolver:
             # `git` may follow redirects here, so the repo we pass may not always be the repo we
             # get back. So we loosely check for a 'not found' message.
             if re.search(r"fatal: repository '(.+)' not found", stderr, re.MULTILINE):
-                return NotFound[ImmutableGit](
-                    f"Could not access git repository at {question.repo}"
+                return DoesNotExist(
+                    ImmutableGit, f"Could not access git repository at {question.repo}"
                 )
 
             # If it's another error, let's raise it directly
@@ -89,14 +96,15 @@ class ImmutableGitResolver:
             # we can't guarantee that the repo itself exists
             if re.match(r"[0-9a-f]{40}", question.ref):
                 resolved_ref = question.ref
+                return MaybeExists(ImmutableGit(question.repo, resolved_ref))
             else:
-                return NotFound[ImmutableGit](
-                    f"No ref {question.ref} found in repo {question.repo}"
+                return DoesNotExist(
+                    ImmutableGit, f"No ref {question.ref} found in repo {question.repo}"
                 )
         else:
             resolved_ref = stdout.split("\t", 1)[0]
 
-        return ImmutableGit(question.repo, resolved_ref)
+            return Exists(ImmutableGit(question.repo, resolved_ref))
 
 
 class GitUrlResolver:
@@ -106,7 +114,7 @@ class GitUrlResolver:
     URL structure is inspired by what `pip` supports: https://pip.pypa.io/en/stable/topics/vcs-support/#git
     """
 
-    async def resolve(self, question: URL) -> Git | None:
+    async def resolve(self, question: URL) -> MaybeExists[Git] | None:
         # List of supported protocols is from https://pip.pypa.io/en/stable/topics/vcs-support/#git
         if question.scheme not in (
             "git+https",
@@ -127,4 +135,4 @@ class GitUrlResolver:
         else:
             ref = "HEAD"
 
-        return Git(str(repo), ref)
+        return MaybeExists(Git(str(repo), ref))
