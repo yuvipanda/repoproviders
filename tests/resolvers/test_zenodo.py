@@ -42,8 +42,9 @@ from repoproviders.resolvers.doi import ZenodoDataset, ZenodoResolver
         # A doi reference to a bad doi
         (
             "https://zenodo.org/doi/10.5281/zdo.805993",
-            DoesNotExist[ZenodoDataset](
-                "https://zenodo.org/doi/10.5281/zdo.805993 is not a valid Zenodo DOI URL"
+            DoesNotExist(
+                ZenodoDataset,
+                "https://zenodo.org/doi/10.5281/zdo.805993 is not a valid Zenodo DOI URL",
             ),
         ),
     ),

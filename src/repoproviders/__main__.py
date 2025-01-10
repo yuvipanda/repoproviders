@@ -62,9 +62,9 @@ async def main():
             match last_answer:
                 case Exists(repo) | MaybeExists(repo):
                     await fetch(repo, Path(args.output_dir))
-                case DoesNotExist(message):
+                case DoesNotExist(kind, message):
                     print(
-                        message,
+                        f"{args.question} detected to be of kind {kind.__name__} but does not exist: {message}",
                         file=sys.stderr,
                     )
                     sys.exit(1)

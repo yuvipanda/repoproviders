@@ -80,8 +80,8 @@ class ImmutableGitResolver:
             # `git` may follow redirects here, so the repo we pass may not always be the repo we
             # get back. So we loosely check for a 'not found' message.
             if re.search(r"fatal: repository '(.+)' not found", stderr, re.MULTILINE):
-                return DoesNotExist[ImmutableGit](
-                    f"Could not access git repository at {question.repo}"
+                return DoesNotExist(
+                    ImmutableGit, f"Could not access git repository at {question.repo}"
                 )
 
             # If it's another error, let's raise it directly
@@ -98,8 +98,8 @@ class ImmutableGitResolver:
                 resolved_ref = question.ref
                 return MaybeExists(ImmutableGit(question.repo, resolved_ref))
             else:
-                return DoesNotExist[ImmutableGit](
-                    f"No ref {question.ref} found in repo {question.repo}"
+                return DoesNotExist(
+                    ImmutableGit, f"No ref {question.ref} found in repo {question.repo}"
                 )
         else:
             resolved_ref = stdout.split("\t", 1)[0]

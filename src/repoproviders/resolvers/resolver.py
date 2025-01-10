@@ -60,7 +60,7 @@ async def resolve(
             if resp is not None:
                 # We found an answer!
                 answers.append(resp)
-                # Break after we find an answer in each round
+                # Break out of the for after we find an answer in each round
                 break
 
         if recursive:

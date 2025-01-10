@@ -79,8 +79,9 @@ from repoproviders.resolvers.git import Git, ImmutableGit
         (
             Git("https://example.com/something", "HEAD"),
             [
-                DoesNotExist[ImmutableGit](
-                    "Could not access git repository at https://example.com/something"
+                DoesNotExist(
+                    ImmutableGit,
+                    "Could not access git repository at https://example.com/something",
                 )
             ],
         ),
@@ -116,8 +117,9 @@ from repoproviders.resolvers.git import Git, ImmutableGit
                 "https://github.com/jupyterhub/zero-to-jupyterhub-k8s", "does-not-exist"
             ),
             [
-                DoesNotExist[ImmutableGit](
-                    "No ref does-not-exist found in repo https://github.com/jupyterhub/zero-to-jupyterhub-k8s"
+                DoesNotExist(
+                    ImmutableGit,
+                    "No ref does-not-exist found in repo https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
                 )
             ],
         ),

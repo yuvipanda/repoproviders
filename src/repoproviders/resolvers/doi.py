@@ -97,7 +97,7 @@ class DoiResolver:
 
             if resp.status == 404:
                 # This is a validly *formatted* DOI, but it's not actually a dOI
-                return DoesNotExist[Doi](f"{doi} is not a registered DOI or handle")
+                return DoesNotExist(Doi, f"{doi} is not a registered DOI or handle")
             elif resp.status == 200:
                 data = await resp.json()
 
@@ -107,7 +107,7 @@ class DoiResolver:
                         return Exists(Doi(v["data"]["value"]))
 
                 # No URLs found for this DOI, so we treat it as DoesNotExist
-                return DoesNotExist[Doi](f"{doi} does not point to any URL")
+                return DoesNotExist(Doi, f"{doi} does not point to any URL")
             else:
                 # Some other kind of failure, let's propagate our error up
                 resp.raise_for_status()
@@ -195,8 +195,9 @@ class DataverseResolver:
             file_id = os.path.basename(path)
             pid_maybe = await self.get_dataset_id_from_file_id(installation, file_id)
             if pid_maybe is None:
-                return DoesNotExist[DataverseDataset](
-                    f"No file with id {file_id} found in dataverse installation {installation}"
+                return DoesNotExist(
+                    DataverseDataset,
+                    f"No file with id {file_id} found in dataverse installation {installation}",
                 )
             else:
                 persistent_id = pid_maybe
@@ -207,8 +208,9 @@ class DataverseResolver:
             file_id = qs["persistentId"]
             pid_maybe = await self.get_dataset_id_from_file_id(installation, file_id)
             if pid_maybe is None:
-                return DoesNotExist[DataverseDataset](
-                    f"No file with id {file_id} found in dataverse installation {installation}"
+                return DoesNotExist(
+                    DataverseDataset,
+                    f"No file with id {file_id} found in dataverse installation {installation}",
                 )
             else:
                 persistent_id = pid_maybe
@@ -233,8 +235,9 @@ class DataverseResolver:
                 )
                 if pid_maybe is None:
                     # This is not a file either, so this citation doesn't exist
-                    return DoesNotExist[DataverseDataset](
-                        f"{persistent_id} is neither a file nor a dataset in {installation}"
+                    return DoesNotExist(
+                        DataverseDataset,
+                        f"{persistent_id} is neither a file nor a dataset in {installation}",
                     )
                 else:
                     persistent_id = pid_maybe
@@ -306,8 +309,8 @@ class ZenodoResolver:
                 resp = await session.head(url)
 
             if resp.status == 404:
-                return DoesNotExist[ZenodoDataset](
-                    f"{url} is not a valid Zenodo DOI URL"
+                return DoesNotExist(
+                    ZenodoDataset, f"{url} is not a valid Zenodo DOI URL"
                 )
             redirect_location = resp.headers["Location"]
 
@@ -397,8 +400,9 @@ class ImmutableFigshareResolver:
             resp = await session.get(api_url)
 
         if resp.status == 404:
-            return DoesNotExist[ImmutableFigshareDataset](
-                f"Article ID {question.articleId} not found on figshare installation {question.installation.url}"
+            return DoesNotExist(
+                ImmutableFigshareDataset,
+                f"Article ID {question.articleId} not found on figshare installation {question.installation.url}",
             )
         elif resp.status == 200:
             data = await resp.json()

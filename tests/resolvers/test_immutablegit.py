@@ -10,8 +10,9 @@ from repoproviders.resolvers.git import Git, ImmutableGit, ImmutableGitResolver
         # Random URL, not a git repo
         (
             Git("https://example.com/something", "HEAD"),
-            DoesNotExist[ImmutableGit](
-                "Could not access git repository at https://example.com/something"
+            DoesNotExist(
+                ImmutableGit,
+                "Could not access git repository at https://example.com/something",
             ),
         ),
         # Resolve a tag
@@ -40,8 +41,9 @@ from repoproviders.resolvers.git import Git, ImmutableGit, ImmutableGitResolver
         # Repo doesn't exist
         (
             Git(repo="https://github.com/yuvipanda/does-not-exist-e43", ref="HEAD"),
-            DoesNotExist[ImmutableGit](
-                "Could not access git repository at https://github.com/yuvipanda/does-not-exist-e43"
+            DoesNotExist(
+                ImmutableGit,
+                "Could not access git repository at https://github.com/yuvipanda/does-not-exist-e43",
             ),
         ),
         # Ref doesn't exist
@@ -49,8 +51,9 @@ from repoproviders.resolvers.git import Git, ImmutableGit, ImmutableGitResolver
             Git(
                 "https://github.com/jupyterhub/zero-to-jupyterhub-k8s", "does-not-exist"
             ),
-            DoesNotExist[ImmutableGit](
-                "No ref does-not-exist found in repo https://github.com/jupyterhub/zero-to-jupyterhub-k8s"
+            DoesNotExist(
+                ImmutableGit,
+                "No ref does-not-exist found in repo https://github.com/jupyterhub/zero-to-jupyterhub-k8s",
             ),
         ),
     ),
