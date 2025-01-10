@@ -5,6 +5,8 @@ from typing import Any
 
 from yarl import URL
 
+from repoproviders.resolvers.guess import GuessResolver
+
 from .base import DoesNotExist, Exists, MaybeExists, SupportsResolve
 from .doi import (
     DataverseResolver,
@@ -24,6 +26,7 @@ ALL_RESOLVERS: list[SupportsResolve] = [
     ImmutableFigshareResolver(),
     DataverseResolver(),
     ImmutableGitResolver(),
+    GuessResolver(),
 ]
 
 RESOLVER_BY_TYPE: dict[type, list[SupportsResolve]] = {}

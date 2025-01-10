@@ -399,6 +399,24 @@ async def test_norecurse(url, expected):
                 MaybeExists(ZenodoDataset(URL("https://zenodo.org/"), "14007206")),
             ],
         ),
+        # A bare git URL, that we'll have to have guessed
+        (
+            "https://git.kernel.org/pub/scm/virt/kvm/kvm.git",
+            [
+                Exists(
+                    repo=Git(
+                        repo="https://git.kernel.org/pub/scm/virt/kvm/kvm.git/",
+                        ref="HEAD",
+                    )
+                ),
+                Exists(
+                    repo=ImmutableGit(
+                        repo="https://git.kernel.org/pub/scm/virt/kvm/kvm.git/",
+                        ref="8afa5b10af9d748b055a43949f819d9991d63938",
+                    )
+                ),
+            ],
+        ),
     ),
 )
 async def test_recurse(url, expected):
