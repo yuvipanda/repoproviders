@@ -1,8 +1,9 @@
 import aiohttp
 from yarl import URL
 
-from .base import Exists
+from .base import Exists, MaybeExists
 from .git import Git
+from .urls import DataverseURL
 
 
 class GuessResolver:
@@ -30,37 +31,48 @@ class GuessResolver:
         if resp.status == 200:
             return Exists(Git(str(url), "HEAD"))
 
-    # async def is_dataverse(self, session: aiohttp.ClientSession, url: URL) -> Exists[DataverseDataset] | None:
-    #     """
-    #     Check if a given URL is under a dataverse install
-    #     """
+        # Not a smart git URL
+        return None
 
-    #     # Make an API call to check if this is a dataverse instance
-    #     # https://guides.dataverse.org/en/latest/api/native-api.html#show-dataverse-software-version-and-build-number
-    #     # FIXME: This assumes that the dataverse instance is hosted at the root of the server,
-    #     # without any other path prefix
-    #     api_url = url.with_path("/api/info/version")
-    #     resp = await session.get(api_url)
+    async def is_dataverse(
+        self, session: aiohttp.ClientSession, url: URL
+    ) -> MaybeExists[DataverseURL] | None:
+        """
+        Check if a given URL is under a dataverse install
+        """
 
-    #     if resp.status == 200:
-    #         try:
-    #             version_data = await resp.json()
-    #             if version_data.get("status") == "OK" and "version" in version_data.get("data", {}):
-    #             if "status" in version_data and
-    #         except:
-    #             return None
+        # Make an API call to check if this is a dataverse instance
+        # https://guides.dataverse.org/en/latest/api/native-api.html#show-dataverse-software-version-and-build-number
+        # FIXME: This assumes that the dataverse instance is hosted at the root of the server,
+        # without any other path prefix
+        installation = url.with_path("/").with_fragment(None).with_query(None)
+        api_url = installation.with_path("/api/info/version")
+        resp = await session.get(api_url)
 
-    async def resolve(self, question: URL) -> Exists[Git] | None:
+        if resp.status == 200:
+            try:
+                version_data = await resp.json()
+                if version_data.get("status") == "OK" and "version" in version_data.get(
+                    "data", {}
+                ):
+                    return MaybeExists(DataverseURL(installation, url))
+            except:
+                pass
+
+        return None
+
+    async def resolve(
+        self, question: URL
+    ) -> Exists[Git] | MaybeExists[DataverseURL] | None:
         if question.scheme not in ("http", "https"):
             return None
 
-        guessers = (
-            self.is_git_repo,
-            # self.is_dataverse
-        )
+        guessers = (self.is_git_repo, self.is_dataverse)
 
         async with aiohttp.ClientSession() as session:
             for g in guessers:
                 maybe_answer = await g(session, question)
                 if maybe_answer is not None:
                     return maybe_answer
+
+        return None

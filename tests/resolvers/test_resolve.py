@@ -576,6 +576,25 @@ async def test_norecurse(url, expected):
                 ),
             ],
         ),
+        # A dataverse URL that does *not* exist in our list of well known dataverse installations
+        (
+            "https://demo.dataverse.org/dataset.xhtml?persistentId=doi:10.70122/FK2/MBQA9G",
+            [
+                MaybeExists(
+                    DataverseURL(
+                        URL("https://demo.dataverse.org"),
+                        URL(
+                            "https://demo.dataverse.org/dataset.xhtml?persistentId=doi:10.70122/FK2/MBQA9G"
+                        ),
+                    )
+                ),
+                Exists(
+                    DataverseDataset(
+                        URL("https://demo.dataverse.org"), "doi:10.70122/FK2/MBQA9G"
+                    )
+                ),
+            ],
+        ),
     ),
 )
 async def test_recurse(url, expected):
