@@ -1,65 +1,19 @@
-import json
 import os
-from dataclasses import dataclass
 
 import aiohttp
 from yarl import URL
 
 from .base import DoesNotExist, Exists, MaybeExists
-
-
-@dataclass(frozen=True)
-class Doi:
-    url: str
-
-    # This needs further investigation
-    immutable = False
-
-
-@dataclass(frozen=True)
-class DataverseDataset:
-    installationUrl: URL
-    persistentId: str
-
-    # Dataverse Datasets also have versions, which are not represented here.
-    immutable = False
-
-
-@dataclass(frozen=True)
-class ZenodoDataset:
-    installationUrl: URL
-    recordId: str
-
-    # Zenodo records are immutable: https://help.zenodo.org/docs/deposit/about-records/#life-cycle
-    # When a new version is published, it gets its own record id!
-    immutable = True
-
-
-@dataclass(frozen=True)
-class FigshareInstallation:
-    url: URL
-    apiUrl: URL
-
-
-@dataclass(frozen=True)
-class FigshareDataset:
-    installation: FigshareInstallation
-    articleId: int
-    version: int | None
-
-    # Figshare articles have versions, and here we don't know if this one does or not
-    immutable = False
-
-
-@dataclass(frozen=True)
-class ImmutableFigshareDataset:
-    installation: FigshareInstallation
-    articleId: int
-    # version will always be present when immutable
-    version: int
-
-    # We *know* there's a version here
-    immutable = True
+from .urls import (
+    DataverseDataset,
+    DataverseURL,
+    Doi,
+    FigshareDataset,
+    FigshareURL,
+    ImmutableFigshareDataset,
+    ZenodoDataset,
+    ZenodoURL,
+)
 
 
 class DoiResolver:
@@ -104,7 +58,7 @@ class DoiResolver:
                 # Pick the first URL we find from the doi response
                 for v in data["values"]:
                     if v["type"] == "URL":
-                        return Exists(Doi(v["data"]["value"]))
+                        return Exists(Doi(URL(v["data"]["value"])))
 
                 # No URLs found for this DOI, so we treat it as DoesNotExist
                 return DoesNotExist(Doi, f"{doi} does not point to any URL")
@@ -116,18 +70,6 @@ class DoiResolver:
 
 
 class DataverseResolver:
-    def __init__(self):
-        # Get a list of installation URLs for known dataverse installations
-        data_file = os.path.join(os.path.dirname(__file__), "dataverse.json")
-        with open(data_file) as fp:
-            installations = json.load(fp)["installations"]
-
-        # Parse all the URLs of installations once, so we can quickly use them for validating URLs passed in
-        # TODO: Use a better datastructure here (like a trie?)
-        self.installation_urls = [URL(i["url"]) for i in installations]
-
-        super().__init__()
-
     async def get_dataset_id_from_file_id(
         self, installation_url: URL, file_id: str
     ) -> str | None:
@@ -157,25 +99,9 @@ class DataverseResolver:
         return data["datasetVersion"]["datasetPersistentId"]
 
     async def resolve(
-        self, question: URL | Doi
+        self, question: DataverseURL
     ) -> Exists[DataverseDataset] | DoesNotExist[DataverseDataset] | None:
-        if isinstance(question, URL):
-            url = question
-        elif isinstance(question, Doi):
-            url = URL(question.url)
-        # Check if URL is under one of the installation URLs we have.
-        installation = next(
-            (
-                installation
-                for installation in self.installation_urls
-                # Intentionally don't check for scheme validity, to support interchangeable http and https URLs
-                if installation.host == url.host
-                and url.path.startswith(installation.path)
-            ),
-            None,
-        )
-        if installation is None:
-            return None
+        url = question.url
         path = url.path
         qs = url.query
 
@@ -193,11 +119,13 @@ class DataverseResolver:
         elif path.startswith("/api/access/datafile"):
             # What we have here is an entity id, which we can use to get a persistentId
             file_id = os.path.basename(path)
-            pid_maybe = await self.get_dataset_id_from_file_id(installation, file_id)
+            pid_maybe = await self.get_dataset_id_from_file_id(
+                question.installation, file_id
+            )
             if pid_maybe is None:
                 return DoesNotExist(
                     DataverseDataset,
-                    f"No file with id {file_id} found in dataverse installation {installation}",
+                    f"No file with id {file_id} found in dataverse installation {question.installation}",
                 )
             else:
                 persistent_id = pid_maybe
@@ -206,11 +134,13 @@ class DataverseResolver:
             verified_dataset = True
         elif path.startswith("/file.xhtml"):
             file_id = qs["persistentId"]
-            pid_maybe = await self.get_dataset_id_from_file_id(installation, file_id)
+            pid_maybe = await self.get_dataset_id_from_file_id(
+                question.installation, file_id
+            )
             if pid_maybe is None:
                 return DoesNotExist(
                     DataverseDataset,
-                    f"No file with id {file_id} found in dataverse installation {installation}",
+                    f"No file with id {file_id} found in dataverse installation {question.installation}",
                 )
             else:
                 persistent_id = pid_maybe
@@ -223,7 +153,7 @@ class DataverseResolver:
         if not verified_dataset:
             # citations can be either datasets or files - we don't know. The most common case is that it is
             # a dataset, so we check if it is first.
-            api_url = installation / "api/datasets/:persistentId"
+            api_url = question.installation / "api/datasets/:persistentId"
             api_url = api_url.with_query(persistentId=persistent_id)
             async with aiohttp.ClientSession() as session:
                 resp = await session.get(api_url)
@@ -231,13 +161,13 @@ class DataverseResolver:
             if resp.status == 404:
                 # This persistent id is *not* a dataset. Maybe it's a file?
                 pid_maybe = await self.get_dataset_id_from_file_id(
-                    installation, persistent_id
+                    question.installation, persistent_id
                 )
                 if pid_maybe is None:
                     # This is not a file either, so this citation doesn't exist
                     return DoesNotExist(
                         DataverseDataset,
-                        f"{persistent_id} is neither a file nor a dataset in {installation}",
+                        f"{persistent_id} is neither a file nor a dataset in {question.installation}",
                     )
                 else:
                     persistent_id = pid_maybe
@@ -250,7 +180,7 @@ class DataverseResolver:
 
                 return None
 
-        return Exists(DataverseDataset(installation, persistent_id))
+        return Exists(DataverseDataset(question.installation, persistent_id))
 
 
 class ZenodoResolver:
@@ -258,116 +188,54 @@ class ZenodoResolver:
     A resolver for datasets hosted on https://inveniosoftware.org/ (such as Zenodo)
     """
 
-    def __init__(self):
-        # FIXME: Determine this dynamically in the future
-        self.installations = [
-            URL("https://sandbox.zenodo.org/"),
-            URL("https://zenodo.org/"),
-            URL("https://data.caltech.edu/"),
-        ]
-
     async def resolve(
-        self, question: URL | Doi
+        self, question: ZenodoURL
     ) -> MaybeExists[ZenodoDataset] | DoesNotExist[ZenodoDataset] | None:
-        if isinstance(question, URL):
-            url = question
-        elif isinstance(question, Doi):
-            url = URL(question.url)
-
-        installation = next(
-            (
-                installation
-                for installation in self.installations
-                # Intentionally don't check for scheme validity, to support interchangeable http and https URLs
-                if installation.host == url.host
-                # Check for base URL, to support installations on base URL other than /
-                and url.path.startswith(installation.path)
-                and (
-                    # After the base URL, the URL structure should start with either record or records
-                    url.path[len(installation.path) :].startswith("record/")
-                    or url.path[len(installation.path) :].startswith("records/")
-                    or url.path[len(installation.path) :].startswith("doi/")
-                )
-            ),
-            None,
-        )
-        if installation is None:
-            return None
-
         # For URLs of form https://zenodo.org/doi/<doi>, the record_id can be resolved by making a
         # HEAD request and following it. This is absolutely *unideal* - you would really instead want
         # to make an API call. But I can't seem to find anything in the REST API that would let me give
         # it a DOI and return a record_id. And these dois can resolve to *different* records over time,
         # so let's actively resolve them here to match the ZenodoDataset's immutable property
-        if url.path[len(installation.path) :].startswith("doi/"):
-            url_parts = url.path.split("/")
+        if question.url.path[len(question.installation.path) :].startswith("doi/"):
+            url_parts = question.url.path.split("/")
             if len(url_parts) != 4:
                 # Not a correctly formatted DOI URL
                 return None
 
             async with aiohttp.ClientSession() as session:
-                resp = await session.head(url)
+                resp = await session.head(question.url)
 
             if resp.status == 404:
                 return DoesNotExist(
-                    ZenodoDataset, f"{url} is not a valid Zenodo DOI URL"
+                    ZenodoDataset, f"{question.url} is not a valid Zenodo DOI URL"
                 )
             redirect_location = resp.headers["Location"]
 
-            return await self.resolve(URL(redirect_location))
+            return await self.resolve(
+                ZenodoURL(question.installation, URL(redirect_location))
+            )
         else:
             # URL is /record or /records
             # Record ID is the last part of the URL path
-            return MaybeExists(ZenodoDataset(installation, url.name))
+            return MaybeExists(ZenodoDataset(question.installation, question.url.name))
 
 
 class FigshareResolver:
-    def __init__(self):
-        # FIXME: Determine this dynamically in the future
-        # Figshare can be on custom domains: https://figshare.com/blog/Figshare_now_available_on_custom_domains/461
-        self.installations = [
-            FigshareInstallation(
-                URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")
-            )
-        ]
-
-    async def resolve(self, question: URL | Doi) -> MaybeExists[FigshareDataset] | None:
-        if isinstance(question, URL):
-            url = question
-        elif isinstance(question, Doi):
-            url = URL(question.url)
-
-        installation = next(
-            (
-                installation
-                for installation in self.installations
-                # Intentionally don't check for scheme validity, to support interchangeable http and https URLs
-                if installation.url.host == url.host
-                # Check for base URL, to support installations on base URL other than /
-                and url.path.startswith(installation.url.path)
-                and (
-                    # After the base URL, the URL structure should start with either record or records
-                    url.path[len(installation.url.path) :].startswith("articles/")
-                    or url.path[len(installation.url.path) :].startswith(
-                        "account/articles/"
-                    )
-                )
-            ),
-            None,
-        )
-        if installation is None:
-            return None
-
+    async def resolve(
+        self, question: FigshareURL
+    ) -> MaybeExists[FigshareDataset] | None:
         # Figshare article IDs are integers, and so are version IDs
         # If last two segments of the URL are integers, treat them as article ID and version ID
         # If not, treat it as article ID only
-        parts = url.path.split("/")
+        parts = question.url.path.split("/")
         if parts[-1].isdigit() and parts[-2].isdigit():
             return MaybeExists(
-                FigshareDataset(installation, int(parts[-2]), int(parts[-1]))
+                FigshareDataset(question.installation, int(parts[-2]), int(parts[-1]))
             )
         elif parts[-1].isdigit():
-            return MaybeExists(FigshareDataset(installation, int(parts[-1]), None))
+            return MaybeExists(
+                FigshareDataset(question.installation, int(parts[-1]), None)
+            )
         else:
             return None
 

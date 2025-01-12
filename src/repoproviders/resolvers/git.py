@@ -4,6 +4,8 @@ from dataclasses import dataclass
 
 from yarl import URL
 
+from repoproviders.resolvers.urls import GitHubURL
+
 from .base import DoesNotExist, Exists, MaybeExists
 
 
@@ -32,29 +34,21 @@ class ImmutableGit:
 
 
 class GitHubResolver:
-    async def resolve(self, question: URL) -> MaybeExists[Git] | None:
-        # git+<scheme> urls are handled by a different resolver
-        if question.scheme not in ("http", "https") or (
-            question.host != "github.com" and question.host != "www.github.com"
-        ):
-            # TODO: Allow configuring for GitHub enterprise
-            return None
-
+    async def resolve(self, question: GitHubURL) -> MaybeExists[Git] | None:
+        url = question.url
         # Split the URL into parts, discarding empty parts to account for leading and trailing slashes
-        parts = [p for p in question.path.split("/") if p.strip() != ""]
+        parts = [p for p in url.path.split("/") if p.strip() != ""]
         if len(parts) == 2:
             # Handle <user|org>/<repo>
             # Reconstruct the URL so we normalize any
             return MaybeExists(
-                Git(repo=str(question.with_path(f"{parts[0]}/{parts[1]}")), ref="HEAD")
+                Git(repo=str(url.with_path(f"{parts[0]}/{parts[1]}")), ref="HEAD")
             )
         elif len(parts) >= 4 and parts[2] in ("tree", "blob"):
             # Handle <user|org>/<repo>/<tree|blob>/<ref>(/<possible-path>)
             # Note: We ignore any paths specified here, as we only care about the repo
             return MaybeExists(
-                Git(
-                    repo=str(question.with_path(f"{parts[0]}/{parts[1]}")), ref=parts[3]
-                )
+                Git(repo=str(url.with_path(f"{parts[0]}/{parts[1]}")), ref=parts[3])
             )
         else:
             # This is not actually a valid GitHub URL we support

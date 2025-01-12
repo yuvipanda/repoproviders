@@ -16,8 +16,10 @@ from .doi import (
     ZenodoResolver,
 )
 from .git import GitHubResolver, GitUrlResolver, ImmutableGitResolver
+from .wellknown import WellKnownProvidersResolver
 
 ALL_RESOLVERS: list[SupportsResolve] = [
+    WellKnownProvidersResolver(),
     GitHubResolver(),
     GitUrlResolver(),
     DoiResolver(),
