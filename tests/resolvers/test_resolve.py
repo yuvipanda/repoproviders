@@ -323,14 +323,14 @@ async def test_norecurse(url, expected):
                 MaybeExists(
                     # FIXME: The installation URL is http not https because that's what's in our dataset. Figure out how to deal with this later
                     DataverseURL(
-                        URL("http://data.cimmyt.org/"),
+                        URL("http://data.cimmyt.org"),
                         URL(
                             "https://data.cimmyt.org/dataset.xhtml?persistentId=hdl:11529/10016"
                         ),
                     ),
                 ),
                 Exists(
-                    DataverseDataset(URL("http://data.cimmyt.org/"), "hdl:11529/10016")
+                    DataverseDataset(URL("http://data.cimmyt.org"), "hdl:11529/10016")
                 ),
             ],
         ),

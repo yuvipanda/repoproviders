@@ -60,7 +60,10 @@ class WellKnownProvidersResolver:
 
             # Parse all the URLs of installations once, so we can quickly use them for validating URLs passed in
             # TODO: Use a better datastructure here (like a trie?)
-            self._dataverse_installation_urls = [URL(i["url"]) for i in installations]
+            # The structure says 'hostname' but it sometimes has URL prefixes! But no scheme ever
+            self._dataverse_installation_urls = [
+                URL(f"https://{i['hostname']}") for i in installations
+            ]
 
         # Check if URL is under one of the installation URLs we have.
         installation = next(
