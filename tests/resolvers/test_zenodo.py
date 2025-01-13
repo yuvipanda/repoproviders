@@ -9,6 +9,11 @@ from repoproviders.resolvers.urls import ZenodoDataset, ZenodoURL
 @pytest.mark.parametrize(
     ("url", "expected"),
     (
+        # A valid Zenodo URL that isn't actually a dataset
+        (
+            ZenodoURL(URL("https://zenodo.org"), URL("https://zenodo.org/communities")),
+            None,
+        ),
         # Simple /record and /records
         (
             ZenodoURL(

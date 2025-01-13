@@ -191,6 +191,15 @@ class ZenodoResolver:
     async def resolve(
         self, question: ZenodoURL
     ) -> MaybeExists[ZenodoDataset] | DoesNotExist[ZenodoDataset] | None:
+        if not (
+            # After the base URL, the URL structure should start with either record or records
+            question.url.path[len(question.installation.path) :].startswith("record/")
+            or question.url.path[len(question.installation.path) :].startswith(
+                "records/"
+            )
+            or question.url.path[len(question.installation.path) :].startswith("doi/")
+        ):
+            return None
         # For URLs of form https://zenodo.org/doi/<doi>, the record_id can be resolved by making a
         # HEAD request and following it. This is absolutely *unideal* - you would really instead want
         # to make an API call. But I can't seem to find anything in the REST API that would let me give
@@ -224,6 +233,16 @@ class FigshareResolver:
     async def resolve(
         self, question: FigshareURL
     ) -> MaybeExists[FigshareDataset] | None:
+        # After the base URL, the URL structure should start with either articles or account/articles
+        if not (
+            question.url.path[len(question.installation.url.path) :].startswith(
+                "articles/"
+            )
+            or question.url.path[len(question.installation.url.path) :].startswith(
+                "account/articles/"
+            )
+        ):
+            return None
         # Figshare article IDs are integers, and so are version IDs
         # If last two segments of the URL are integers, treat them as article ID and version ID
         # If not, treat it as article ID only
