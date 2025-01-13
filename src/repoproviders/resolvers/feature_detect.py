@@ -6,9 +6,9 @@ from .git import Git
 from .urls import DataverseURL
 
 
-class GuessResolver:
+class FeatureDetectResolver:
     """
-    Use heuristics to guess what kinda thing this is.
+    Use external network calls to detect what kinda URL this is.
 
     Resolver of last resort!
     """
@@ -67,10 +67,10 @@ class GuessResolver:
         if question.scheme not in ("http", "https"):
             return None
 
-        guessers = (self.is_git_repo, self.is_dataverse)
+        detectors = (self.is_git_repo, self.is_dataverse)
 
         async with aiohttp.ClientSession() as session:
-            for g in guessers:
+            for g in detectors:
                 maybe_answer = await g(session, question)
                 if maybe_answer is not None:
                     return maybe_answer

@@ -2,8 +2,8 @@ import pytest
 from yarl import URL
 
 from repoproviders.resolvers.base import Exists, MaybeExists
+from repoproviders.resolvers.feature_detect import FeatureDetectResolver
 from repoproviders.resolvers.git import Git
-from repoproviders.resolvers.guess import GuessResolver
 from repoproviders.resolvers.urls import DataverseURL
 
 
@@ -48,5 +48,5 @@ from repoproviders.resolvers.urls import DataverseURL
     ),
 )
 async def test_doi(url, expected):
-    guess = GuessResolver()
-    assert await guess.resolve(URL(url)) == expected
+    fd = FeatureDetectResolver()
+    assert await fd.resolve(URL(url)) == expected
