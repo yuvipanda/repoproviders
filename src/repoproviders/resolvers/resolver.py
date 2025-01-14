@@ -5,6 +5,8 @@ from typing import Any
 
 from yarl import URL
 
+from repoproviders.resolvers.feature_detect import FeatureDetectResolver
+
 from .base import DoesNotExist, Exists, MaybeExists, SupportsResolve
 from .doi import (
     DataverseResolver,
@@ -14,8 +16,10 @@ from .doi import (
     ZenodoResolver,
 )
 from .git import GitHubResolver, GitUrlResolver, ImmutableGitResolver
+from .wellknown import WellKnownProvidersResolver
 
 ALL_RESOLVERS: list[SupportsResolve] = [
+    WellKnownProvidersResolver(),
     GitHubResolver(),
     GitUrlResolver(),
     DoiResolver(),
@@ -24,6 +28,7 @@ ALL_RESOLVERS: list[SupportsResolve] = [
     ImmutableFigshareResolver(),
     DataverseResolver(),
     ImmutableGitResolver(),
+    FeatureDetectResolver(),
 ]
 
 RESOLVER_BY_TYPE: dict[type, list[SupportsResolve]] = {}

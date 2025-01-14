@@ -2,46 +2,66 @@ import pytest
 from yarl import URL
 
 from repoproviders.resolvers.base import DoesNotExist, MaybeExists
-from repoproviders.resolvers.doi import ZenodoDataset, ZenodoResolver
+from repoproviders.resolvers.doi import ZenodoResolver
+from repoproviders.resolvers.repos import ZenodoDataset, ZenodoURL
 
 
 @pytest.mark.parametrize(
     ("url", "expected"),
     (
-        ("https://example.com/something", None),
-        # A non-dataset URL
-        ("https://data.caltech.edu/communities", None),
+        # A valid Zenodo URL that isn't actually a dataset
+        (
+            ZenodoURL(URL("https://zenodo.org"), URL("https://zenodo.org/communities")),
+            None,
+        ),
         # Simple /record and /records
         (
-            "https://zenodo.org/record/3232985",
+            ZenodoURL(
+                URL("https://zenodo.org"), URL("https://zenodo.org/record/3232985")
+            ),
             MaybeExists(ZenodoDataset(URL("https://zenodo.org/"), "3232985")),
         ),
         (
-            "https://zenodo.org/records/3232985",
+            ZenodoURL(
+                URL("https://zenodo.org"), URL("https://zenodo.org/records/3232985")
+            ),
             MaybeExists(ZenodoDataset(URL("https://zenodo.org/"), "3232985")),
         ),
         # Note we normalize output to have the HTTPS URL, even if we're passed in the HTTP URL
         (
-            "http://zenodo.org/record/3232985",
+            ZenodoURL(
+                URL("https://zenodo.org"), URL("http://zenodo.org/record/3232985")
+            ),
             MaybeExists(ZenodoDataset(URL("https://zenodo.org/"), "3232985")),
         ),
         (
-            "https://zenodo.org/records/3232985",
+            ZenodoURL(
+                URL("https://zenodo.org"), URL("https://zenodo.org/records/3232985")
+            ),
             MaybeExists(ZenodoDataset(URL("https://zenodo.org/"), "3232985")),
         ),
-        # A non-zenodo URL
+        # A non-zenodo.org URL
         (
-            "https://data.caltech.edu/records/996aw-mf266",
+            ZenodoURL(
+                URL("https://data.caltech.edu"),
+                URL("https://data.caltech.edu/records/996aw-mf266"),
+            ),
             MaybeExists(ZenodoDataset(URL("https://data.caltech.edu/"), "996aw-mf266")),
         ),
         # A doi reference
         (
-            "https://zenodo.org/doi/10.5281/zenodo.805993",
+            ZenodoURL(
+                URL("https://zenodo.org"),
+                URL("https://zenodo.org/doi/10.5281/zenodo.805993"),
+            ),
             MaybeExists(ZenodoDataset(URL("https://zenodo.org/"), recordId="14007206")),
         ),
         # A doi reference to a bad doi
         (
-            "https://zenodo.org/doi/10.5281/zdo.805993",
+            ZenodoURL(
+                URL("https://zenodo.org"),
+                URL("https://zenodo.org/doi/10.5281/zdo.805993"),
+            ),
             DoesNotExist(
                 ZenodoDataset,
                 "https://zenodo.org/doi/10.5281/zdo.805993 is not a valid Zenodo DOI URL",
@@ -51,4 +71,4 @@ from repoproviders.resolvers.doi import ZenodoDataset, ZenodoResolver
 )
 async def test_zenodo(url, expected):
     zr = ZenodoResolver()
-    assert await zr.resolve(URL(url)) == expected
+    assert await zr.resolve(url) == expected

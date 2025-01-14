@@ -3,43 +3,79 @@ from yarl import URL
 
 from repoproviders.resolvers.base import MaybeExists
 from repoproviders.resolvers.git import Git, GitHubResolver
+from repoproviders.resolvers.repos import GitHubURL
 
 
 @pytest.mark.parametrize(
     ("url", "expected"),
     (
-        ("https://example.com/something", None),
         # GitHub URLs that are not repos
-        ("https://github.com/pyOpenSci", None),
         (
-            "https://github.com/yuvipanda/repoproviders/actions/runs/12552733471/job/34999118812",
+            GitHubURL(URL("https://github.com"), URL("https://github.com/pyOpenSci")),
             None,
         ),
-        ("https://github.com/yuvipanda/repoproviders/settings", None),
-        ("https://github.com/jupyter/docker-stacks/pull/2194", None),
+        (
+            GitHubURL(
+                URL("https://github.com"),
+                URL(
+                    "https://github.com/yuvipanda/repoproviders/actions/runs/12552733471/job/34999118812"
+                ),
+            ),
+            None,
+        ),
+        (
+            GitHubURL(
+                URL("https://github.com"),
+                URL("https://github.com/yuvipanda/repoproviders/settings"),
+            ),
+            None,
+        ),
+        (
+            GitHubURL(
+                URL("https://github.com"),
+                URL("https://github.com/jupyter/docker-stacks/pull/2194"),
+            ),
+            None,
+        ),
         # Simple github repo URL
         (
-            "https://github.com/pyOpenSci/pyos-package-template",
+            GitHubURL(
+                URL("https://github.com"),
+                URL("https://github.com/pyOpenSci/pyos-package-template"),
+            ),
             MaybeExists(
                 Git("https://github.com/pyOpenSci/pyos-package-template", "HEAD")
             ),
         ),
         # Trailing slash normalized?
         (
-            "https://github.com/pyOpenSci/pyos-package-template/",
+            GitHubURL(
+                URL("https://github.com"),
+                URL("https://github.com/pyOpenSci/pyos-package-template/"),
+            ),
             MaybeExists(
                 Git("https://github.com/pyOpenSci/pyos-package-template", "HEAD")
             ),
         ),
         # blobs and tree
         (
-            "https://github.com/pyOpenSci/pyos-package-template/tree/main/includes/licenses",
+            GitHubURL(
+                URL("https://github.com"),
+                URL(
+                    "https://github.com/pyOpenSci/pyos-package-template/tree/main/includes/licenses"
+                ),
+            ),
             MaybeExists(
                 Git("https://github.com/pyOpenSci/pyos-package-template", "main")
             ),
         ),
         (
-            "https://github.com/pyOpenSci/pyos-package-template/tree/original-cookie/docs",
+            GitHubURL(
+                URL("https://github.com"),
+                URL(
+                    "https://github.com/pyOpenSci/pyos-package-template/tree/original-cookie/docs"
+                ),
+            ),
             MaybeExists(
                 Git(
                     "https://github.com/pyOpenSci/pyos-package-template",
@@ -48,7 +84,12 @@ from repoproviders.resolvers.git import Git, GitHubResolver
             ),
         ),
         (
-            "https://github.com/pyOpenSci/pyos-package-template/blob/b912433bfae541972c83529359f4181ef0fe9b67/README.md",
+            GitHubURL(
+                URL("https://github.com"),
+                URL(
+                    "https://github.com/pyOpenSci/pyos-package-template/blob/b912433bfae541972c83529359f4181ef0fe9b67/README.md"
+                ),
+            ),
             MaybeExists(
                 Git(
                     "https://github.com/pyOpenSci/pyos-package-template",
@@ -57,7 +98,10 @@ from repoproviders.resolvers.git import Git, GitHubResolver
             ),
         ),
         (
-            "https://github.com/yuvipanda/does-not-exist-e43",
+            GitHubURL(
+                URL("https://github.com"),
+                URL("https://github.com/yuvipanda/does-not-exist-e43"),
+            ),
             MaybeExists(
                 Git(repo="https://github.com/yuvipanda/does-not-exist-e43", ref="HEAD")
             ),
@@ -66,4 +110,4 @@ from repoproviders.resolvers.git import Git, GitHubResolver
 )
 async def test_github(url, expected):
     gh = GitHubResolver()
-    assert await gh.resolve(URL(url)) == expected
+    assert await gh.resolve(url) == expected

@@ -2,29 +2,53 @@ import pytest
 from yarl import URL
 
 from repoproviders.resolvers.base import DoesNotExist, Exists, MaybeExists
-from repoproviders.resolvers.doi import (
+from repoproviders.resolvers.doi import FigshareResolver, ImmutableFigshareResolver
+from repoproviders.resolvers.repos import (
     FigshareDataset,
     FigshareInstallation,
-    FigshareResolver,
+    FigshareURL,
     ImmutableFigshareDataset,
-    ImmutableFigshareResolver,
 )
 
 
 @pytest.mark.parametrize(
     ("url", "expected"),
     (
-        ("https://example.com/something", None),
         # A non-dataset URL
-        ("https://figshare.com/browse", None),
+        (
+            FigshareURL(
+                FigshareInstallation(
+                    URL("https://figshare.com/"),
+                    URL("https://api.figshare.com/v2/"),
+                ),
+                URL("https://figshare.com/browse"),
+            ),
+            None,
+        ),
         # A non-dataset URL that looks suspiciously like a dataset URL
         (
-            "https://figshare.com/collections/Risk_reduction_in_SARS-CoV-2_infection_and_reinfection_conferred_by_humoral_antibody_levels_among_essential_workers_during_Omicron_predominance/7605487",
+            FigshareURL(
+                FigshareInstallation(
+                    URL("https://figshare.com/"),
+                    URL("https://api.figshare.com/v2/"),
+                ),
+                URL(
+                    "https://figshare.com/collections/Risk_reduction_in_SARS-CoV-2_infection_and_reinfection_conferred_by_humoral_antibody_levels_among_essential_workers_during_Omicron_predominance/7605487",
+                ),
+            ),
             None,
         ),
         # Some old school URLs
         (
-            "https://figshare.com/articles/title/9782777",
+            FigshareURL(
+                FigshareInstallation(
+                    URL("https://figshare.com/"),
+                    URL("https://api.figshare.com/v2/"),
+                ),
+                URL(
+                    "https://figshare.com/articles/title/9782777",
+                ),
+            ),
             MaybeExists(
                 FigshareDataset(
                     FigshareInstallation(
@@ -37,7 +61,15 @@ from repoproviders.resolvers.doi import (
             ),
         ),
         (
-            "https://figshare.com/articles/title/9782777/2",
+            FigshareURL(
+                FigshareInstallation(
+                    URL("https://figshare.com/"),
+                    URL("https://api.figshare.com/v2/"),
+                ),
+                URL(
+                    "https://figshare.com/articles/title/9782777/2",
+                ),
+            ),
             MaybeExists(
                 FigshareDataset(
                     FigshareInstallation(
@@ -51,7 +83,15 @@ from repoproviders.resolvers.doi import (
         ),
         # New style URLs
         (
-            "https://figshare.com/articles/code/Binder-ready_openSenseMap_Analysis/9782777",
+            FigshareURL(
+                FigshareInstallation(
+                    URL("https://figshare.com/"),
+                    URL("https://api.figshare.com/v2/"),
+                ),
+                URL(
+                    "https://figshare.com/articles/code/Binder-ready_openSenseMap_Analysis/9782777",
+                ),
+            ),
             MaybeExists(
                 FigshareDataset(
                     FigshareInstallation(
@@ -64,7 +104,15 @@ from repoproviders.resolvers.doi import (
             ),
         ),
         (
-            "https://figshare.com/articles/code/Binder-ready_openSenseMap_Analysis/9782777/3",
+            FigshareURL(
+                FigshareInstallation(
+                    URL("https://figshare.com/"),
+                    URL("https://api.figshare.com/v2/"),
+                ),
+                URL(
+                    "https://figshare.com/articles/code/Binder-ready_openSenseMap_Analysis/9782777/3",
+                ),
+            ),
             MaybeExists(
                 FigshareDataset(
                     FigshareInstallation(
@@ -80,7 +128,7 @@ from repoproviders.resolvers.doi import (
 )
 async def test_figshare(url, expected):
     fs = FigshareResolver()
-    assert await fs.resolve(URL(url)) == expected
+    assert await fs.resolve(url) == expected
 
 
 @pytest.mark.parametrize(

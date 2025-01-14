@@ -2,18 +2,21 @@ import pytest
 from yarl import URL
 
 from repoproviders.resolvers.base import DoesNotExist, Exists
-from repoproviders.resolvers.doi import DataverseDataset, DataverseResolver
+from repoproviders.resolvers.doi import DataverseResolver
+from repoproviders.resolvers.repos import DataverseDataset, DataverseURL
 
 
 @pytest.mark.parametrize(
     ("url", "expected"),
     (
-        ("https://example.com/something", None),
-        # Dataverse URLs should wholly under the subpath URL
-        ("https://dvn.library.ubc.ca/not-dvn/something-else", None),
         # A dataset citation returns the dataset correctly
         (
-            "https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/TJCLKP",
+            DataverseURL(
+                URL("https://dataverse.harvard.edu"),
+                URL(
+                    "https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/TJCLKP"
+                ),
+            ),
             Exists(
                 DataverseDataset(
                     URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/TJCLKP"
@@ -21,7 +24,12 @@ from repoproviders.resolvers.doi import DataverseDataset, DataverseResolver
             ),
         ),
         (
-            "https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/TJCLKP",
+            DataverseURL(
+                URL("https://dataverse.harvard.edu"),
+                URL(
+                    "https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/TJCLKP"
+                ),
+            ),
             Exists(
                 DataverseDataset(
                     URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/TJCLKP"
@@ -30,7 +38,10 @@ from repoproviders.resolvers.doi import DataverseDataset, DataverseResolver
         ),
         # Asking for specific files should give us the whole dataset they are a part of
         (
-            "https://dataverse.harvard.edu/api/access/datafile/3323458",
+            DataverseURL(
+                URL("https://dataverse.harvard.edu"),
+                URL("https://dataverse.harvard.edu/api/access/datafile/3323458"),
+            ),
             Exists(
                 DataverseDataset(
                     URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/3MJ7IR"
@@ -38,7 +49,12 @@ from repoproviders.resolvers.doi import DataverseDataset, DataverseResolver
             ),
         ),
         (
-            "https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ",
+            DataverseURL(
+                URL("https://dataverse.harvard.edu"),
+                URL(
+                    "https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                ),
+            ),
             Exists(
                 DataverseDataset(
                     URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/6ZXAGT"
@@ -46,7 +62,12 @@ from repoproviders.resolvers.doi import DataverseDataset, DataverseResolver
             ),
         ),
         (
-            "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ",
+            DataverseURL(
+                URL("https://dataverse.harvard.edu"),
+                URL(
+                    "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                ),
+            ),
             Exists(
                 DataverseDataset(
                     URL("https://dataverse.harvard.edu"), "doi:10.7910/DVN/6ZXAGT"
@@ -55,29 +76,53 @@ from repoproviders.resolvers.doi import DataverseDataset, DataverseResolver
         ),
         # Asking for datasets that don't exist should return DoesNotExist
         (
-            "https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/not-found",
+            DataverseURL(
+                URL("https://dataverse.harvard.edu"),
+                URL(
+                    "https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/not-found"
+                ),
+            ),
             DoesNotExist(
                 DataverseDataset,
                 "doi:10.7910/not-found is neither a file nor a dataset in https://dataverse.harvard.edu",
             ),
         ),
         (
-            "https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/not-found",
+            DataverseURL(
+                URL("https://dataverse.harvard.edu"),
+                URL(
+                    "https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/not-found"
+                ),
+            ),
             DoesNotExist(
                 DataverseDataset,
                 "doi:10.7910/not-found is neither a file nor a dataset in https://dataverse.harvard.edu",
             ),
         ),
         (
-            "https://dataverse.harvard.edu/api/access/datafile/0",
+            DataverseURL(
+                URL("https://dataverse.harvard.edu"),
+                URL("https://dataverse.harvard.edu/api/access/datafile/0"),
+            ),
             DoesNotExist(
                 DataverseDataset,
                 "No file with id 0 found in dataverse installation https://dataverse.harvard.edu",
             ),
         ),
-        ("https://dataverse.harvard.edu/blaaaah", None),
         (
-            "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/not-found",
+            DataverseURL(
+                URL("https://dataverse.harvard.edu"),
+                URL("https://dataverse.harvard.edu/blaaaah"),
+            ),
+            None,
+        ),
+        (
+            DataverseURL(
+                URL("https://dataverse.harvard.edu"),
+                URL(
+                    "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/not-found"
+                ),
+            ),
             DoesNotExist(
                 DataverseDataset,
                 "No file with id doi:10.7910/not-found found in dataverse installation https://dataverse.harvard.edu",
@@ -87,4 +132,4 @@ from repoproviders.resolvers.doi import DataverseDataset, DataverseResolver
 )
 async def test_dataverse(url, expected):
     dv = DataverseResolver()
-    assert await dv.resolve(URL(url)) == expected
+    assert await dv.resolve(url) == expected

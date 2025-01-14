@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Protocol
+from typing import Any, Protocol, runtime_checkable
 
 
 @dataclass(frozen=True)
@@ -25,6 +25,7 @@ class MaybeExists[T: Repo]:
     repo: T
 
 
+@runtime_checkable
 class Repo(Protocol):
     """
     Represents a Repository

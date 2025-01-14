@@ -14,7 +14,9 @@ from repoproviders.resolvers.doi import Doi, DoiResolver
             "doi:10.7910/DVN/6ZXAGT/3YRRYJ",
             Exists(
                 Doi(
-                    "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                    URL(
+                        "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                    )
                 )
             ),
         ),
@@ -23,7 +25,9 @@ from repoproviders.resolvers.doi import Doi, DoiResolver
             "hdl:11529/10016",
             Exists(
                 Doi(
-                    "https://data.cimmyt.org/dataset.xhtml?persistentId=hdl:11529/10016"
+                    URL(
+                        "https://data.cimmyt.org/dataset.xhtml?persistentId=hdl:11529/10016"
+                    )
                 )
             ),
         ),
@@ -32,7 +36,9 @@ from repoproviders.resolvers.doi import Doi, DoiResolver
             "10.7910/DVN/6ZXAGT/3YRRYJ",
             Exists(
                 Doi(
-                    "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                    URL(
+                        "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                    )
                 )
             ),
         ),
@@ -43,7 +49,9 @@ from repoproviders.resolvers.doi import Doi, DoiResolver
             "https://doi.org/10.7910/DVN/6ZXAGT/3YRRYJ",
             Exists(
                 Doi(
-                    "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                    URL(
+                        "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                    )
                 )
             ),
         ),
@@ -51,7 +59,9 @@ from repoproviders.resolvers.doi import Doi, DoiResolver
             "https://www.doi.org/10.7910/DVN/6ZXAGT/3YRRYJ",
             Exists(
                 Doi(
-                    "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                    URL(
+                        "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                    )
                 )
             ),
         ),
@@ -59,7 +69,9 @@ from repoproviders.resolvers.doi import Doi, DoiResolver
             "https://hdl.handle.net/10.7910/DVN/6ZXAGT/3YRRYJ",
             Exists(
                 Doi(
-                    "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                    URL(
+                        "https://dataverse.harvard.edu/file.xhtml?persistentId=doi:10.7910/DVN/6ZXAGT/3YRRYJ"
+                    )
                 )
             ),
         ),
