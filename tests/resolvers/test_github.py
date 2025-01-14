@@ -3,7 +3,7 @@ from yarl import URL
 
 from repoproviders.resolvers.base import MaybeExists
 from repoproviders.resolvers.git import Git, GitHubResolver
-from repoproviders.resolvers.urls import GitHubURL
+from repoproviders.resolvers.repos import GitHubURL
 
 
 @pytest.mark.parametrize(

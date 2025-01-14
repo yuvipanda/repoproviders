@@ -4,7 +4,7 @@ from yarl import URL
 from repoproviders.resolvers.base import Exists, MaybeExists
 from repoproviders.resolvers.feature_detect import FeatureDetectResolver
 from repoproviders.resolvers.git import Git
-from repoproviders.resolvers.urls import DataverseURL
+from repoproviders.resolvers.repos import DataverseURL
 
 
 @pytest.mark.parametrize(

@@ -4,7 +4,7 @@ import aiohttp
 from yarl import URL
 
 from .base import DoesNotExist, Exists, MaybeExists
-from .urls import (
+from .repos import (
     DataverseDataset,
     DataverseURL,
     Doi,

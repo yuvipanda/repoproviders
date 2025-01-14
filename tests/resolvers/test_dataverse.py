@@ -3,7 +3,7 @@ from yarl import URL
 
 from repoproviders.resolvers.base import DoesNotExist, Exists
 from repoproviders.resolvers.doi import DataverseResolver
-from repoproviders.resolvers.urls import DataverseDataset, DataverseURL
+from repoproviders.resolvers.repos import DataverseDataset, DataverseURL
 
 
 @pytest.mark.parametrize(

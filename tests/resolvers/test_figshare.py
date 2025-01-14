@@ -3,7 +3,7 @@ from yarl import URL
 
 from repoproviders.resolvers.base import DoesNotExist, Exists, MaybeExists
 from repoproviders.resolvers.doi import FigshareResolver, ImmutableFigshareResolver
-from repoproviders.resolvers.urls import (
+from repoproviders.resolvers.repos import (
     FigshareDataset,
     FigshareInstallation,
     FigshareURL,

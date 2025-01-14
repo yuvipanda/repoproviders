@@ -5,7 +5,7 @@ from typing import Callable
 from yarl import URL
 
 from .base import MaybeExists, Repo
-from .urls import (
+from .repos import (
     DataverseURL,
     Doi,
     FigshareInstallation,

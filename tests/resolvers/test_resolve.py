@@ -4,7 +4,7 @@ from yarl import URL
 from repoproviders.resolvers import resolve
 from repoproviders.resolvers.base import DoesNotExist, Exists, MaybeExists
 from repoproviders.resolvers.git import Git, ImmutableGit
-from repoproviders.resolvers.urls import (
+from repoproviders.resolvers.repos import (
     DataverseDataset,
     DataverseURL,
     Doi,

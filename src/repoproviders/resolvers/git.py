@@ -1,36 +1,10 @@
 import asyncio
 import re
-from dataclasses import dataclass
 
 from yarl import URL
 
-from repoproviders.resolvers.urls import GitHubURL
-
 from .base import DoesNotExist, Exists, MaybeExists
-
-
-@dataclass(frozen=True)
-class Git:
-    repo: str
-    ref: str
-
-    immutable = False
-
-
-@dataclass(frozen=True)
-class ImmutableGit:
-    """
-    Same as Git, but marked to be fully resolved. This implies:
-
-    1. The repository exists, and can be contacted
-    2. If ref was a branch or tag, it has been resolved into an immutable commit sha
-    3. If ref *looks* like a sha, we assume it exists (without testing it)
-    """
-
-    repo: str
-    ref: str
-
-    immutable = True
+from .repos import Git, GitHubURL, ImmutableGit
 
 
 class GitHubResolver:

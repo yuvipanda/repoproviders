@@ -3,7 +3,7 @@ from yarl import URL
 
 from repoproviders.resolvers.base import DoesNotExist, MaybeExists
 from repoproviders.resolvers.doi import ZenodoResolver
-from repoproviders.resolvers.urls import ZenodoDataset, ZenodoURL
+from repoproviders.resolvers.repos import ZenodoDataset, ZenodoURL
 
 
 @pytest.mark.parametrize(

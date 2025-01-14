@@ -2,8 +2,7 @@ import aiohttp
 from yarl import URL
 
 from .base import Exists, MaybeExists
-from .git import Git
-from .urls import DataverseURL
+from .repos import DataverseURL, Git
 
 
 class FeatureDetectResolver:
