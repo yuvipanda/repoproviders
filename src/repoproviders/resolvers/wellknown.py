@@ -11,6 +11,7 @@ from .repos import (
     FigshareInstallation,
     FigshareURL,
     GitHubURL,
+    GitLabURL,
     ZenodoURL,
 )
 
@@ -25,6 +26,16 @@ class WellKnownProvidersResolver:
             return None
         else:
             return GitHubURL(URL("https://github.com"), question)
+
+    def detect_gitlab(self, question: URL) -> GitLabURL | None:
+        # git+<scheme> urls are handled by a different resolver
+        if question.scheme not in ("http", "https") or (
+            question.host != "gitlab.com" and question.host != "www.gitlab.com"
+        ):
+            # TODO: Allow configuring for GitHub enterprise
+            return None
+        else:
+            return GitLabURL(URL("https://gitlab.com"), question)
 
     def detect_zenodo(self, question: URL) -> ZenodoURL | None:
         KNOWN_INSTALLATIONS = [
@@ -115,6 +126,7 @@ class WellKnownProvidersResolver:
             self.detect_dataverse,
             self.detect_zenodo,
             self.detect_figshare,
+            self.detect_gitlab,
         ]
 
         match question:

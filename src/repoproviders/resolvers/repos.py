@@ -43,6 +43,21 @@ class GitHubURL:
 
 
 @dataclass(frozen=True)
+class GitLabURL:
+    """
+    A GitLab URL of any sort.
+
+    Not just a repository URL.
+    """
+
+    installation: URL
+    url: URL
+
+    # URLs can point to whatever
+    immutable = False
+
+
+@dataclass(frozen=True)
 class Doi:
     url: URL
 

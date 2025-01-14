@@ -3,7 +3,6 @@ from yarl import URL
 
 from repoproviders.resolvers import resolve
 from repoproviders.resolvers.base import DoesNotExist, Exists, MaybeExists
-from repoproviders.resolvers.git import Git, ImmutableGit
 from repoproviders.resolvers.repos import (
     DataverseDataset,
     DataverseURL,
@@ -11,8 +10,11 @@ from repoproviders.resolvers.repos import (
     FigshareDataset,
     FigshareInstallation,
     FigshareURL,
+    Git,
     GitHubURL,
+    GitLabURL,
     ImmutableFigshareDataset,
+    ImmutableGit,
     ZenodoDataset,
     ZenodoURL,
 )
@@ -590,6 +592,58 @@ async def test_norecurse(url, expected):
                 Exists(
                     DataverseDataset(
                         URL("https://demo.dataverse.org"), "doi:10.70122/FK2/MBQA9G"
+                    )
+                ),
+            ],
+        ),
+        # A GitLab URL on GitLab
+        (
+            "https://gitlab.com/mosaik/examples/mosaik-tutorials-on-binder/-/blob/b2c44e7f804dc1634681540582b1731e0393f69b/03_Same_Time_Loop/_01_controller_master.ipynb?ref_type=heads",
+            [
+                MaybeExists(
+                    repo=GitLabURL(
+                        installation=URL("https://gitlab.com"),
+                        url=URL(
+                            "https://gitlab.com/mosaik/examples/mosaik-tutorials-on-binder/-/blob/b2c44e7f804dc1634681540582b1731e0393f69b/03_Same_Time_Loop/_01_controller_master.ipynb?ref_type=heads"
+                        ),
+                    )
+                ),
+                MaybeExists(
+                    repo=Git(
+                        repo="https://gitlab.com/mosaik/examples/mosaik-tutorials-on-binder",
+                        ref="b2c44e7f804dc1634681540582b1731e0393f69b",
+                    )
+                ),
+                MaybeExists(
+                    repo=ImmutableGit(
+                        repo="https://gitlab.com/mosaik/examples/mosaik-tutorials-on-binder",
+                        ref="b2c44e7f804dc1634681540582b1731e0393f69b",
+                    )
+                ),
+            ],
+        ),
+        # A GitLab URL that isn't on gitlab.com
+        (
+            "https://gitlab.wikimedia.org/toolforge-repos/toolviews/-/tree/bb42ab4dc4ddf0712f83ec4add58005a3ae75de5/toolviews?ref_type=heads",
+            [
+                MaybeExists(
+                    repo=GitLabURL(
+                        installation=URL("https://gitlab.wikimedia.org/"),
+                        url=URL(
+                            "https://gitlab.wikimedia.org/toolforge-repos/toolviews/-/tree/bb42ab4dc4ddf0712f83ec4add58005a3ae75de5/toolviews?ref_type=heads"
+                        ),
+                    )
+                ),
+                MaybeExists(
+                    repo=Git(
+                        repo="https://gitlab.wikimedia.org/toolforge-repos/toolviews",
+                        ref="bb42ab4dc4ddf0712f83ec4add58005a3ae75de5",
+                    )
+                ),
+                MaybeExists(
+                    repo=ImmutableGit(
+                        repo="https://gitlab.wikimedia.org/toolforge-repos/toolviews",
+                        ref="bb42ab4dc4ddf0712f83ec4add58005a3ae75de5",
                     )
                 ),
             ],

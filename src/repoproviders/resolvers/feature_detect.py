@@ -1,8 +1,10 @@
+from json import JSONDecodeError
+
 import aiohttp
 from yarl import URL
 
 from .base import Exists, MaybeExists
-from .repos import DataverseURL, Git
+from .repos import DataverseURL, Git, GitLabURL
 
 
 class FeatureDetectResolver:
@@ -60,13 +62,37 @@ class FeatureDetectResolver:
 
         return None
 
+    async def is_gitlab(
+        self, session: aiohttp.ClientSession, question: URL
+    ) -> MaybeExists[GitLabURL] | None:
+        # A lot of GitLab APIs seem to require auth to hit, including the version API
+        # So instead, we hit the OpenID Connect Well Known Endpoint (https://docs.gitlab.com/ee/integration/openid_connect_provider.html#settings-discovery)
+        # And check for GitLab specific supported claims.
+        installation = question.with_path("/").with_query(None).with_fragment(None)
+        openid_config_url = installation / ".well-known/openid-configuration"
+
+        resp = await session.get(openid_config_url)
+
+        if resp.status != 200:
+            return None
+
+        try:
+            data = await resp.json()
+        except JSONDecodeError:
+            return None
+
+        if "https://gitlab.org/claims/groups/owner" in data.get("claims_supported", {}):
+            return MaybeExists(GitLabURL(installation, question))
+        else:
+            return None
+
     async def resolve(
         self, question: URL
-    ) -> Exists[Git] | MaybeExists[DataverseURL] | None:
+    ) -> Exists[Git] | MaybeExists[DataverseURL] | MaybeExists[GitLabURL] | None:
         if question.scheme not in ("http", "https"):
             return None
 
-        detectors = (self.is_git_repo, self.is_dataverse)
+        detectors = (self.is_dataverse, self.is_gitlab, self.is_git_repo)
 
         async with aiohttp.ClientSession() as session:
             for g in detectors:
