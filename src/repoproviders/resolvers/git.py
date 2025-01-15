@@ -43,6 +43,12 @@ class GitLabResolver:
             )
         elif "-" in parts:
             dash_index = parts.index("-")
+            if len(parts) == dash_index + 1:
+                # The dash is the last part of the URL, which isn't something we recognize to be anything
+                return None
+            if not parts[dash_index + 1] in ("tree", "blob"):
+                # GitLab has dashes in lots of URLs, we only care about tree and blob ones
+                return None
             return MaybeExists(
                 Git(
                     str(url.with_path("/".join(parts[0:dash_index]))),
