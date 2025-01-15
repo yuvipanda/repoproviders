@@ -8,6 +8,7 @@ from repoproviders.resolvers.repos import (
     FigshareInstallation,
     FigshareURL,
     GitHubURL,
+    GitLabURL,
     ZenodoURL,
 )
 from repoproviders.resolvers.wellknown import WellKnownProvidersResolver
@@ -73,6 +74,12 @@ from repoproviders.resolvers.wellknown import WellKnownProvidersResolver
                     ),
                     URL("https://figshare.com/browse"),
                 )
+            ),
+        ),
+        (
+            "https://gitlab.com/browse",
+            MaybeExists(
+                GitLabURL(URL("https://gitlab.com"), URL("https://gitlab.com/browse"))
             ),
         ),
     ),
