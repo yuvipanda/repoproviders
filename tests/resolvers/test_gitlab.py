@@ -117,6 +117,16 @@ from repoproviders.resolvers.repos import GitLabURL
                 Git(repo="https://gitlab.com/yuvipanda/does-not-exist-e43", ref="HEAD")
             ),
         ),
+        # Non repo URLs should simply be detected to be not a repo
+        (
+            GitLabURL(
+                URL("https://gitlab.wikimedia.org"),
+                URL(
+                    "https://gitlab.wikimedia.org/toolforge-repos/toolviews/-/merge_requests/11"
+                ),
+            ),
+            None,
+        ),
     ),
 )
 async def test_gitlab(url, expected):
