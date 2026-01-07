@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Any, Protocol, runtime_checkable
+from dataclasses import Field, dataclass
+from typing import Any, ClassVar, Protocol, runtime_checkable
 
 
 @dataclass(frozen=True)
@@ -37,6 +37,9 @@ class Repo(Protocol):
     # 2. A version identifier is included as part of the definition (like with Figshare)
     # 3. A content identifiable hash is included as part of the definition (like with ImmutableGit)
     immutable: bool
+
+    # Must also be a dataclass
+    __dataclass_fields__: ClassVar[dict[str, Field[Any]]]
 
 
 class SupportsResolve(Protocol):

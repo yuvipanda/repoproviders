@@ -171,6 +171,7 @@ dependencies = [
     "twine",
 ]
 detached = true
+builder = true
 
 [tool.hatch.envs.install.scripts]
 check = [
