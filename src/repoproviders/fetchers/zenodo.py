@@ -5,7 +5,6 @@ from tempfile import NamedTemporaryFile
 from zipfile import ZipFile
 
 import aiohttp
-from yarl import URL
 
 from ..resolvers.doi import ZenodoDataset
 from ..utils import download_file
@@ -29,10 +28,7 @@ class ZenodoFetcher:
                 # Only do this if mimetype is zip
                 entry = data["entries"][0]
                 if entry["mimetype"] == "application/zip":
-                    download_api_url = entry["links"]["content"]
-
-                    download_url_resp = await session.get(download_api_url)
-                    download_url = URL(await download_url_resp.text())
+                    download_url = entry["links"]["content"]
 
                     with NamedTemporaryFile() as temp_file:
                         await download_file(session, download_url, Path(temp_file.name))
