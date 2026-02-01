@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-case-conflict
       - id: check-ast
@@ -15,16 +15,16 @@ repos:
       - id: debug-statements
       - id: end-of-file-fixer
       - id: trailing-whitespace
-  - repo: https://github.com/psf/black
-    rev: 24.10.0
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 26.1.0
     hooks:
       - id: black
   - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
+    rev: 7.0.0
     hooks:
       - id: isort
   - repo: https://github.com/PyCQA/flake8
-    rev: "7.1.1"
+    rev: "7.3.0"
     hooks:
       - id: flake8
   - repo: https://github.com/PyCQA/autoflake
@@ -33,16 +33,16 @@ repos:
     - id: autoflake
       args: [--remove-all-unused-imports, --in-place]
   - repo: https://github.com/jsh9/pydoclint
-    rev: 0.6.0
+    rev: 0.8.3
     hooks:
       - id: pydoclint
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.31.0
+    rev: 0.36.1
     hooks:
       - id: check-github-workflows
       - id: check-readthedocs
   - repo: https://github.com/executablebooks/mdformat
-    rev: 0.7.21
+    rev: 1.0.0
     hooks:
       - id: mdformat
         additional_dependencies:
