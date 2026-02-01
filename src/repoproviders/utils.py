@@ -9,6 +9,12 @@ async def download_file(session: aiohttp.ClientSession, url: URL, output_path: P
     CHUNK_SIZE = 4 * 1024
     resp = await session.get(url)
 
+    if resp.status == 200 and "Location" in resp.headers:
+        # Some providers (lookin at you, data.caltech.edu) send a Location header
+        # *but with a 200 status code*. This is invalid and bogus, yet we have to
+        # honor it. Sigh
+        return await download_file(session, URL(resp.headers["Location"]), output_path)
+
     resp.raise_for_status()
 
     if not output_path.parent.exists():

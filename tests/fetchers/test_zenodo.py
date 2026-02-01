@@ -13,7 +13,8 @@ from repoproviders.resolvers.base import DoesNotExist
     ("questions", "md5tree"),
     [
         (
-            # Test fetching a record with a single zip file that we then extract
+            # Test fetching a record with a single zip file that we then extract,
+            # Also accounting for data.caltech.edu sending back 200 response with Location headers
             ("https://data.caltech.edu/records/996aw-mf266",),
             {
                 "CaltechDATA_Usage_Graphs.ipynb": "3bb3a97b879112b1ab70923636d63e87",
@@ -22,6 +23,16 @@ from repoproviders.resolvers.base import DoesNotExist
                 "README.md": "59a0e5157faef752532fe51a2d490c9c",
                 ".gitignore": "2a9ac83919f923cc25ea380b19a2a7d9",
                 "codemeta.json": "8aa017724932fbdff3d2240c932487b7",
+            },
+        ),
+        (
+            # Test fetching a record with a single zip file, without the 200 / Location header
+            # issue
+            ("https://sandbox.zenodo.org/records/432153",),
+            {
+                "LICENSE": "65d3616852dbf7b1a6d4b53b00626032",
+                "README.md": "041917c62158f2dec74eb1ead07662f1",
+                "rutgers.txt": "2f501f69915cbcf0fb185f9e8bdb1c96",
             },
         ),
         (
