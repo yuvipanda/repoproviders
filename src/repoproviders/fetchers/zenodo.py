@@ -23,7 +23,6 @@ class ZenodoFetcher:
             resp.raise_for_status()
 
             data = await resp.json()
-            print(data)
 
             # Handle case when we only have one entry, and it's a zip file
             if len(data["entries"]) == 1:
@@ -48,15 +47,16 @@ class ZenodoFetcher:
                             for d in subdirs[0].iterdir():
                                 shutil.move(d, output_dir)
                             os.rmdir(subdirs[0])
+                        # We're all done, no more processing to do
                         return
 
-            # ALl other cases
+            # For cases with more than one entry, or if the one entry isn't a zip file
             for entry in data["entries"]:
                 file_download_url = entry["links"]["content"]
 
+                # FIXME: Handle path traverseal attacks here?
                 file_name = entry["key"]
 
-                file_path = file_name
-
-                # FIXME: Does this handle directories?
-                await download_file(session, file_download_url, output_dir / file_path)
+                # Zenodo doesn't support directory structures,
+                # so we don't need to handle nesting https://support.zenodo.org/help/en-gb/1-upload-deposit/74-can-i-upload-folders-directories
+                await download_file(session, file_download_url, output_dir / file_name)
