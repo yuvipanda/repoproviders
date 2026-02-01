@@ -4,11 +4,17 @@ import typing
 from pathlib import Path
 from typing import Any
 
+from repoproviders.fetchers.zenodo import ZenodoFetcher
+
 from .base import SupportsFetch
 from .dataverse import DataverseFetcher
 from .git import ImmutableGitFetcher
 
-ALL_FETCHERS: list[SupportsFetch] = [ImmutableGitFetcher(), DataverseFetcher()]
+ALL_FETCHERS: list[SupportsFetch] = [
+    ImmutableGitFetcher(),
+    DataverseFetcher(),
+    ZenodoFetcher(),
+]
 
 FETCHER_BY_TYPE: dict[type, SupportsFetch] = {}
 for R in ALL_FETCHERS:
