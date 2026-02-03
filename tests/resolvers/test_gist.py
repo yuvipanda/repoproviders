@@ -32,7 +32,7 @@ from repoproviders.resolvers.repos import GistURL
             ),
             MaybeExists(
                 repo=Git(
-                    repo="GistURL(installation=URL('https://gist.github.com'), url=URL('https://gist.github.com/JakeWharton/5423616'))",
+                    repo="https://gist.github.com/JakeWharton/5423616",
                     ref="HEAD",
                 )
             ),
