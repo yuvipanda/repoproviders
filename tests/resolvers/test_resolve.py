@@ -10,6 +10,7 @@ from repoproviders.resolvers.repos import (
     FigshareDataset,
     FigshareInstallation,
     FigshareURL,
+    GistURL,
     Git,
     GitHubURL,
     GitLabURL,
@@ -644,6 +645,29 @@ async def test_norecurse(url, expected):
                     repo=ImmutableGit(
                         repo="https://gitlab.wikimedia.org/toolforge-repos/toolviews",
                         ref="bb42ab4dc4ddf0712f83ec4add58005a3ae75de5",
+                    )
+                ),
+            ],
+        ),
+        # A gist URL
+        (
+            "https://gist.github.com/JakeWharton/5423616",
+            [
+                MaybeExists(
+                    GistURL(
+                        installation=URL("https://gist.github.com"),
+                        url=URL("https://gist.github.com/JakeWharton/5423616"),
+                    )
+                ),
+                MaybeExists(
+                    repo=Git(
+                        repo="https://gist.github.com/JakeWharton/5423616", ref="HEAD"
+                    )
+                ),
+                Exists(
+                    repo=ImmutableGit(
+                        repo="https://gist.github.com/JakeWharton/5423616",
+                        ref="76d24e01654211591b7bea8ae4557f6ff5283343",
                     )
                 ),
             ],

@@ -7,6 +7,7 @@ from repoproviders.resolvers.repos import (
     Doi,
     FigshareInstallation,
     FigshareURL,
+    GistURL,
     GitHubURL,
     GitLabURL,
     ZenodoURL,
@@ -80,6 +81,24 @@ from repoproviders.resolvers.wellknown import WellKnownProvidersResolver
             "https://gitlab.com/browse",
             MaybeExists(
                 GitLabURL(URL("https://gitlab.com"), URL("https://gitlab.com/browse"))
+            ),
+        ),
+        (
+            "https://gist.github.com/yuvipanda",
+            MaybeExists(
+                GistURL(
+                    URL("https://gist.github.com"),
+                    URL("https://gist.github.com/yuvipanda"),
+                )
+            ),
+        ),
+        (
+            "https://gist.github.com/JakeWharton/5423616",
+            MaybeExists(
+                GistURL(
+                    URL("https://gist.github.com"),
+                    URL("https://gist.github.com/JakeWharton/5423616"),
+                )
             ),
         ),
     ),

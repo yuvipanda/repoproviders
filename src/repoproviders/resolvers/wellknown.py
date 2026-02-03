@@ -10,6 +10,7 @@ from .repos import (
     Doi,
     FigshareInstallation,
     FigshareURL,
+    GistURL,
     GitHubURL,
     GitLabURL,
     ZenodoURL,
@@ -26,6 +27,13 @@ class WellKnownProvidersResolver:
             return None
         else:
             return GitHubURL(URL("https://github.com"), question)
+
+    def detect_gist(self, question: URL) -> GistURL | None:
+        if question.host == "gist.github.com":
+            return GistURL(URL("https://gist.github.com"), question)
+        else:
+            # TODO: Allow configuring for GitHub enterprise
+            return None
 
     def detect_gitlab(self, question: URL) -> GitLabURL | None:
         # git+<scheme> urls are handled by a different resolver
@@ -123,6 +131,7 @@ class WellKnownProvidersResolver:
         # network calls
         detectors: list[Callable[[URL], Repo | None]] = [
             self.detect_github,
+            self.detect_gist,
             self.detect_dataverse,
             self.detect_zenodo,
             self.detect_figshare,

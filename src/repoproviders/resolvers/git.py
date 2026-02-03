@@ -4,7 +4,7 @@ import re
 from yarl import URL
 
 from .base import DoesNotExist, Exists, MaybeExists
-from .repos import Git, GitHubURL, GitLabURL, ImmutableGit
+from .repos import GistURL, Git, GitHubURL, GitLabURL, ImmutableGit
 
 
 class GitHubResolver:
@@ -27,6 +27,21 @@ class GitHubResolver:
         else:
             # This is not actually a valid GitHub URL we support
             return None
+
+
+class GistResolver:
+    async def resolve(self, question: GistURL) -> MaybeExists[Git] | None:
+        url = question.url
+        # Split the URL into parts, discarding empty parts to account for leading and trailing slashes
+        parts = [p for p in url.path.split("/") if p.strip() != ""]
+
+        if len(parts) == 2:
+            # Handle user/gist-id
+            return MaybeExists[Git](repo=Git(str(question.url), "HEAD"))
+
+        # FIXME: Handle ways to specify individual refs in Gist.
+        # I can't seem to find a
+        return None
 
 
 class GitLabResolver:
