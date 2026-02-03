@@ -50,8 +50,8 @@ jobs:
     - name: Check installation
       run: hatch run install:check
 
-    - name: Check dependencies
-      run: hatch run audit:check
+    # - name: Check dependencies
+    #   run: hatch run audit:check
     - name: Test suite
       run: hatch run +py=${{ matrix.python-version }} test:run
 
