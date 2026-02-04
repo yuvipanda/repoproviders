@@ -43,6 +43,21 @@ class GitHubURL:
 
 
 @dataclass(frozen=True)
+class GistURL:
+    """
+    A Gist URL of any sort.
+
+    Not just cloneable repo URL
+    """
+
+    installation: URL
+    url: URL
+
+    # URL can point to whatever
+    immutable = False
+
+
+@dataclass(frozen=True)
 class GitLabURL:
     """
     A GitLab URL of any sort.

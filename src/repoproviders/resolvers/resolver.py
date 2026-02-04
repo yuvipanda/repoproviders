@@ -15,12 +15,19 @@ from .doi import (
     ImmutableFigshareResolver,
     ZenodoResolver,
 )
-from .git import GitHubResolver, GitLabResolver, GitUrlResolver, ImmutableGitResolver
+from .git import (
+    GistResolver,
+    GitHubResolver,
+    GitLabResolver,
+    GitUrlResolver,
+    ImmutableGitResolver,
+)
 from .wellknown import WellKnownProvidersResolver
 
 ALL_RESOLVERS: list[SupportsResolve] = [
     WellKnownProvidersResolver(),
     GitHubResolver(),
+    GistResolver(),
     GitUrlResolver(),
     GitLabResolver(),
     DoiResolver(),

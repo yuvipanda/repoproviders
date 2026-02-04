@@ -186,7 +186,7 @@ extra-dependencies = [
     "pytest-cov",
     "pytest-raises",
     "pytest-randomly",
-    "pytest-xdist",
+    "pytest-xdist[psutil]",
     "pytest-asyncio"
 ]
 
@@ -194,4 +194,4 @@ extra-dependencies = [
 python = ["3.12", "3.13"]
 
 [tool.hatch.envs.test.scripts]
-run = "pytest {args:--cov=repoproviders --cov-report=term-missing --cov-report=xml}"
+run = "pytest {args:--cov=repoproviders --cov-report=term-missing --cov-report=xml -n auto}"
