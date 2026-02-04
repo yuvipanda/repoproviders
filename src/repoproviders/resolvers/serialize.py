@@ -23,22 +23,25 @@ def to_json(answer: DoesNotExist[Repo] | Exists[Repo] | MaybeExists[Repo]):
     """
     Convert an answer into a canonical JSON representation
     """
+    return json.dumps(to_dict(answer), cls=_Encoder)
+
+
+def to_dict(
+    answer: DoesNotExist[Repo] | Exists[Repo] | MaybeExists[Repo],
+) -> dict[str, Any]:
+    """
+    Convert an answer into a canonical dict representation
+    """
     match answer:
         case DoesNotExist(_, _):
-            return json.dumps(
-                {
-                    "certainity": answer.__class__.__name__,
-                    "kind": answer.kind.__name__,
-                    "data": dataclasses.asdict(answer),
-                },
-                cls=_Encoder,
-            )
+            return {
+                "certainity": answer.__class__.__name__,
+                "kind": answer.kind.__name__,
+                "data": dataclasses.asdict(answer),
+            }
         case Exists(repo) | MaybeExists(repo):
-            return json.dumps(
-                {
-                    "certainity": answer.__class__.__name__,
-                    "kind": answer.repo.__class__.__name__,
-                    "data": dataclasses.asdict(repo),
-                },
-                cls=_Encoder,
-            )
+            return {
+                "certainity": answer.__class__.__name__,
+                "kind": answer.repo.__class__.__name__,
+                "data": dataclasses.asdict(repo),
+            }
