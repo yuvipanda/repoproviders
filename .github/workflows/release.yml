@@ -11,8 +11,7 @@ jobs:
     uses: ./.github/workflows/test.yml
 
   release:
-    # Temporarily release without tests as harvard dataverse is down
-    # needs: [prerequisites]
+    needs: [prerequisites]
     strategy:
       matrix:
         os: [ubuntu-latest]
