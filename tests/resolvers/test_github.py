@@ -1,9 +1,9 @@
 import pytest
 from yarl import URL
 
-from repoproviders.resolvers.base import MaybeExists
-from repoproviders.resolvers.git import Git, GitHubResolver
-from repoproviders.resolvers.repos import GitHubURL
+from repoproviders.resolvers.base import DoesNotExist, MaybeExists
+from repoproviders.resolvers.git import Git, GitHubPRResolver, GitHubResolver
+from repoproviders.resolvers.repos import GitHubPR, GitHubURL
 
 
 @pytest.mark.parametrize(
@@ -35,7 +35,12 @@ from repoproviders.resolvers.repos import GitHubURL
                 URL("https://github.com"),
                 URL("https://github.com/jupyter/docker-stacks/pull/2194"),
             ),
-            None,
+            MaybeExists(
+                GitHubPR(
+                    URL("https://github.com"),
+                    URL("https://github.com/jupyter/docker-stacks/pull/2194"),
+                )
+            ),
         ),
         # Simple github repo URL
         (
@@ -111,3 +116,35 @@ from repoproviders.resolvers.repos import GitHubURL
 async def test_github(url, expected):
     gh = GitHubResolver()
     assert await gh.resolve(url) == expected
+
+
+@pytest.mark.parametrize(
+    ("url", "expected"),
+    (
+        (
+            GitHubPR(
+                URL("https://github.com"),
+                URL("https://github.com/jupyter/docker-stacks/pull/2194"),
+            ),
+            MaybeExists(
+                Git(
+                    "https://github.com/mathbunnyru/docker-stacks",
+                    "update_oracledb_version",
+                )
+            ),
+        ),
+        (
+            GitHubPR(
+                URL("https://github.com"),
+                URL("https://github.com/jupyter/docker-stacks/pull/219400000000"),
+            ),
+            DoesNotExist(
+                GitHubPR,
+                "PR 219400000000 does not exist at https://github.com/jupyter/docker-stacks/pull/219400000000",
+            ),
+        ),
+    ),
+)
+async def test_github_pr(url, expected):
+    gh_pr = GitHubPRResolver()
+    assert await gh_pr.resolve(url) == expected
