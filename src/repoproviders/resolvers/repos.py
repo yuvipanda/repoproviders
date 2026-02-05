@@ -8,7 +8,7 @@ class Git:
     repo: str
     ref: str
 
-    immutable = False
+    immutable: bool = False
 
 
 @dataclass(frozen=True)
@@ -24,7 +24,7 @@ class ImmutableGit:
     repo: str
     ref: str
 
-    immutable = True
+    immutable: bool = True
 
 
 @dataclass(frozen=True)
@@ -39,7 +39,7 @@ class GitHubURL:
     url: URL
 
     # URLs can point to whatever
-    immutable = False
+    immutable: bool = False
 
 
 @dataclass(frozen=True)
@@ -54,7 +54,7 @@ class GistURL:
     url: URL
 
     # URL can point to whatever
-    immutable = False
+    immutable: bool = False
 
 
 @dataclass(frozen=True)
@@ -69,7 +69,7 @@ class GitLabURL:
     url: URL
 
     # URLs can point to whatever
-    immutable = False
+    immutable: bool = False
 
 
 @dataclass(frozen=True)
@@ -77,7 +77,7 @@ class Doi:
     url: URL
 
     # This needs further investigation
-    immutable = False
+    immutable: bool = False
 
 
 @dataclass(frozen=True)
@@ -91,7 +91,7 @@ class DataverseURL:
     installation: URL
     url: URL
 
-    immutable = False
+    immutable: bool = False
 
 
 @dataclass(frozen=True)
@@ -100,7 +100,7 @@ class DataverseDataset:
     persistentId: str
 
     # Dataverse Datasets also have versions, which are not represented here.
-    immutable = False
+    immutable: bool = False
 
 
 @dataclass(frozen=True)
@@ -114,7 +114,7 @@ class ZenodoURL:
     installation: URL
     url: URL
 
-    immutable = False
+    immutable: bool = False
 
 
 @dataclass(frozen=True)
@@ -124,7 +124,7 @@ class ZenodoDataset:
 
     # Zenodo records are immutable: https://help.zenodo.org/docs/deposit/about-records/#life-cycle
     # When a new version is published, it gets its own record id!
-    immutable = True
+    immutable: bool = True
 
 
 @dataclass(frozen=True)
@@ -144,7 +144,7 @@ class FigshareURL:
     installation: FigshareInstallation
     url: URL
 
-    immutable = False
+    immutable: bool = False
 
 
 @dataclass(frozen=True)
@@ -154,7 +154,7 @@ class FigshareDataset:
     version: int | None
 
     # Figshare articles have versions, and here we don't know if this one does or not
-    immutable = False
+    immutable: bool = False
 
 
 @dataclass(frozen=True)
@@ -165,4 +165,4 @@ class ImmutableFigshareDataset:
     version: int
 
     # We *know* there's a version here
-    immutable = True
+    immutable: bool = True
