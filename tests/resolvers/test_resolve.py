@@ -12,6 +12,7 @@ from repoproviders.resolvers.repos import (
     FigshareURL,
     GistURL,
     Git,
+    GitHubPR,
     GitHubURL,
     GitLabURL,
     ImmutableFigshareDataset,
@@ -669,6 +670,33 @@ async def test_norecurse(url, expected):
                         repo="https://gist.github.com/JakeWharton/5423616",
                         ref="76d24e01654211591b7bea8ae4557f6ff5283343",
                     )
+                ),
+            ],
+        ),
+        # A github PR that has been merged and branch deleted
+        (
+            "https://github.com/yuvipanda/repoproviders/pull/1",
+            [
+                MaybeExists(
+                    repo=GitHubURL(
+                        installation=URL("https://github.com"),
+                        url=URL("https://github.com/yuvipanda/repoproviders/pull/1"),
+                    )
+                ),
+                MaybeExists(
+                    repo=GitHubPR(
+                        installation=URL("https://github.com"),
+                        url=URL("https://github.com/yuvipanda/repoproviders/pull/1"),
+                    )
+                ),
+                MaybeExists(
+                    repo=Git(
+                        repo="https://github.com/yuvipanda/repoproviders", ref="types-1"
+                    )
+                ),
+                DoesNotExist(
+                    kind=ImmutableGit,
+                    message="No ref types-1 found in repo https://github.com/yuvipanda/repoproviders",
                 ),
             ],
         ),
