@@ -18,6 +18,7 @@ from repoproviders.resolvers.serialize import to_json
                 "data": {
                     "installation": "https://github.com",
                     "url": "https://github.com/pyOpenSci",
+                    "immutable": False,
                 },
             },
         ),
@@ -29,6 +30,7 @@ from repoproviders.resolvers.serialize import to_json
                 "data": {
                     "repo": "https://github.com/pyOpenSci/pyos-package-template",
                     "ref": "c77ad6399f713ee3a021ef52b069e56b17de24a7",
+                    "immutable": True,
                 },
             },
         ),
@@ -40,6 +42,7 @@ from repoproviders.resolvers.serialize import to_json
                 "data": {
                     "installationUrl": "https://dataverse.harvard.edu",
                     "persistentId": "doi:10.7910/DVN/6ZXAGT",
+                    "immutable": False,
                 },
             },
         ),
@@ -55,6 +58,7 @@ from repoproviders.resolvers.serialize import to_json
                     },
                     "articleId": 9782777,
                     "version": 3,
+                    "immutable": True,
                 },
             },
         ),
