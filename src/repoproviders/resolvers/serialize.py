@@ -9,7 +9,7 @@ from repoproviders.resolvers.base import DoesNotExist, Exists, MaybeExists
 from .base import Repo
 
 
-class _Encoder(json.JSONEncoder):
+class JSONEncoder(json.JSONEncoder):
     def default(self, o: URL | Any | type) -> str | Any:
         if isinstance(o, URL):
             return str(o)
@@ -23,7 +23,7 @@ def to_json(answer: DoesNotExist[Repo] | Exists[Repo] | MaybeExists[Repo]):
     """
     Convert an answer into a canonical JSON representation
     """
-    return json.dumps(to_dict(answer), cls=_Encoder)
+    return json.dumps(to_dict(answer), cls=JSONEncoder)
 
 
 def to_dict(
