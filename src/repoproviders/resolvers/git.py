@@ -1,14 +1,17 @@
 import asyncio
 import re
 
+from aiohttp import ClientSession
 from yarl import URL
 
 from .base import DoesNotExist, Exists, MaybeExists
-from .repos import GistURL, Git, GitHubURL, GitLabURL, ImmutableGit
+from .repos import GistURL, Git, GitHubPR, GitHubURL, GitLabURL, ImmutableGit
 
 
 class GitHubResolver:
-    async def resolve(self, question: GitHubURL) -> MaybeExists[Git] | None:
+    async def resolve(
+        self, question: GitHubURL
+    ) -> MaybeExists[Git] | MaybeExists[GitHubPR] | None:
         url = question.url
         # Split the URL into parts, discarding empty parts to account for leading and trailing slashes
         parts = [p for p in url.path.split("/") if p.strip() != ""]
@@ -24,9 +27,42 @@ class GitHubResolver:
             return MaybeExists(
                 Git(repo=str(url.with_path(f"{parts[0]}/{parts[1]}")), ref=parts[3])
             )
+        elif len(parts) == 4 and parts[2] == "pull" and parts[3].isdigit():
+            # Resolve pull requests to the branch their head ref points to
+            return MaybeExists(GitHubPR(question.installation, question.url))
         else:
             # This is not actually a valid GitHub URL we support
             return None
+
+
+class GitHubPRResolver:
+    async def resolve(
+        self, question: GitHubPR
+    ) -> MaybeExists[Git] | DoesNotExist[GitHubPR] | None:
+        parts = [p for p in question.url.path.split("/") if p.strip() != ""]
+        org = parts[0]
+        repo = parts[1]
+        pull_req_id = int(parts[3])
+        async with ClientSession() as session:
+            # FIXME: Support enterprise github installations
+            # FIXME: Add authentication support
+            api_url = (
+                URL("https://api.github.com/repos")
+                / org
+                / repo
+                / "pulls"
+                / str(pull_req_id)
+            )
+            resp = await session.get(api_url)
+
+            data = await resp.json()
+            if resp.status == 404:
+                return DoesNotExist(
+                    GitHubPR, f"PR {pull_req_id} does not exist at {question.url}"
+                )
+            repo_url = data["head"]["repo"]["html_url"]
+            ref = data["head"]["ref"]
+            return MaybeExists(Git(repo_url, ref))
 
 
 class GistResolver:

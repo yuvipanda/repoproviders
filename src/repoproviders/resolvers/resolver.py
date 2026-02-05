@@ -17,6 +17,7 @@ from .doi import (
 )
 from .git import (
     GistResolver,
+    GitHubPRResolver,
     GitHubResolver,
     GitLabResolver,
     GitUrlResolver,
@@ -27,6 +28,7 @@ from .wellknown import WellKnownProvidersResolver
 ALL_RESOLVERS: list[SupportsResolve] = [
     WellKnownProvidersResolver(),
     GitHubResolver(),
+    GitHubPRResolver(),
     GistResolver(),
     GitUrlResolver(),
     GitLabResolver(),

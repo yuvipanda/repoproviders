@@ -43,6 +43,19 @@ class GitHubURL:
 
 
 @dataclass(frozen=True)
+class GitHubPR:
+    """
+    A GitHub Pull Request
+    """
+
+    installation: URL
+    url: URL
+
+    # PRs can change to whatever
+    immutable = False
+
+
+@dataclass(frozen=True)
 class GistURL:
     """
     A Gist URL of any sort.
