@@ -1,9 +1,9 @@
 import pytest
 from yarl import URL
 
-from repoproviders.resolvers.base import DoesNotExist, MaybeExists
+from repoproviders.resolvers.base import DoesNotExist, Exists, MaybeExists
 from repoproviders.resolvers.git import Git, GitHubPRResolver, GitHubResolver
-from repoproviders.resolvers.repos import GitHubPR, GitHubURL
+from repoproviders.resolvers.repos import CompressedFile, GitHubPR, GitHubURL
 
 
 @pytest.mark.parametrize(
@@ -110,6 +110,32 @@ from repoproviders.resolvers.repos import GitHubPR, GitHubURL
             MaybeExists(
                 Git(repo="https://github.com/yuvipanda/does-not-exist-e43", ref="HEAD")
             ),
+        ),
+        (
+            GitHubURL(
+                URL("https://github.com/jupyter/governance"),
+                URL(
+                    "https://github.com/jupyter/governance/archive/31ca8204d8ca6366d968de2c10bcf5572f7a048e.zip"
+                ),
+            ),
+            Exists(
+                repo=CompressedFile(
+                    url=URL(
+                        "https://github.com/jupyter/governance/archive/31ca8204d8ca6366d968de2c10bcf5572f7a048e.zip"
+                    ),
+                    mime_type="application/zip",
+                    etag='"bf3c60d9118d8e1317c0852e8b2e3e9b7a9176413f512262b08ddc7a7659d804"',
+                )
+            ),
+        ),
+        (
+            GitHubURL(
+                URL("https://github.com/jupyter/governance"),
+                URL(
+                    "https://github.com/jupyter/governance/archive/random-words-not-found.zip"
+                ),
+            ),
+            None,
         ),
     ),
 )

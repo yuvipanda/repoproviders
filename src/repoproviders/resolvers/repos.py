@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Literal
 
 from yarl import URL
 
@@ -179,3 +180,16 @@ class ImmutableFigshareDataset:
 
     # We *know* there's a version here
     immutable = True
+
+
+@dataclass(frozen=True)
+class CompressedFile:
+    """
+    Represents a compressed file with an etag
+    """
+
+    url: URL
+    mime_type: Literal["application/zip"]
+    etag: str
+
+    immutable = False

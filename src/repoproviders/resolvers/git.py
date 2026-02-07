@@ -1,17 +1,28 @@
 import asyncio
 import re
 
+import aiohttp
 from aiohttp import ClientSession
 from yarl import URL
 
+from repoproviders.resolvers.utils import guess_from_head
+
 from .base import DoesNotExist, Exists, MaybeExists
-from .repos import GistURL, Git, GitHubPR, GitHubURL, GitLabURL, ImmutableGit
+from .repos import (
+    CompressedFile,
+    GistURL,
+    Git,
+    GitHubPR,
+    GitHubURL,
+    GitLabURL,
+    ImmutableGit,
+)
 
 
 class GitHubResolver:
     async def resolve(
         self, question: GitHubURL
-    ) -> MaybeExists[Git] | MaybeExists[GitHubPR] | None:
+    ) -> MaybeExists[Git] | MaybeExists[GitHubPR] | Exists[CompressedFile] | None:
         url = question.url
         # Split the URL into parts, discarding empty parts to account for leading and trailing slashes
         parts = [p for p in url.path.split("/") if p.strip() != ""]
@@ -30,6 +41,11 @@ class GitHubResolver:
         elif len(parts) == 4 and parts[2] == "pull" and parts[3].isdigit():
             # Resolve pull requests to the branch their head ref points to
             return MaybeExists(GitHubPR(question.installation, question.url))
+        elif len(parts) == 4 and parts[2] == "archive" and parts[3].endswith(".zip"):
+
+            async with aiohttp.ClientSession() as session:
+                answer = await guess_from_head(session, question.url)
+                return answer
         else:
             # This is not actually a valid GitHub URL we support
             return None

@@ -4,7 +4,7 @@ from yarl import URL
 from repoproviders.resolvers.base import Exists, MaybeExists
 from repoproviders.resolvers.feature_detect import FeatureDetectResolver
 from repoproviders.resolvers.git import Git
-from repoproviders.resolvers.repos import DataverseURL
+from repoproviders.resolvers.repos import CompressedFile, DataverseURL
 
 
 @pytest.mark.parametrize(
@@ -45,6 +45,21 @@ from repoproviders.resolvers.repos import DataverseURL
                 )
             ),
         ),
+        # A ZIP file with working etag
+        (
+            "https://codeload.github.com/jupyter/governance/zip/31ca8204d8ca6366d968de2c10bcf5572f7a048e",
+            Exists(
+                CompressedFile(
+                    URL(
+                        "https://codeload.github.com/jupyter/governance/zip/31ca8204d8ca6366d968de2c10bcf5572f7a048e"
+                    ),
+                    mime_type="application/zip",
+                    etag='"bf3c60d9118d8e1317c0852e8b2e3e9b7a9176413f512262b08ddc7a7659d804"',
+                )
+            ),
+        ),
+        # A ZIP file *without* working etag, which we don't support now
+        ("https://sandbox.zenodo.org/api/records/436825/files-archive", None),
     ),
 )
 async def test_doi(url, expected):

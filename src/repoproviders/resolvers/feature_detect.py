@@ -4,7 +4,8 @@ import aiohttp
 from yarl import URL
 
 from .base import Exists, MaybeExists
-from .repos import DataverseURL, Git, GitLabURL
+from .repos import CompressedFile, DataverseURL, Git, GitLabURL
+from .utils import guess_from_head
 
 
 class FeatureDetectResolver:
@@ -88,11 +89,22 @@ class FeatureDetectResolver:
 
     async def resolve(
         self, question: URL
-    ) -> Exists[Git] | MaybeExists[DataverseURL] | MaybeExists[GitLabURL] | None:
+    ) -> (
+        Exists[Git]
+        | MaybeExists[DataverseURL]
+        | MaybeExists[GitLabURL]
+        | Exists[CompressedFile]
+        | None
+    ):
         if question.scheme not in ("http", "https"):
             return None
 
-        detectors = (self.is_dataverse, self.is_gitlab, self.is_git_repo)
+        detectors = (
+            guess_from_head,
+            self.is_dataverse,
+            self.is_gitlab,
+            self.is_git_repo,
+        )
 
         async with aiohttp.ClientSession() as session:
             for g in detectors:
