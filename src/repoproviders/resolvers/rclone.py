@@ -53,7 +53,8 @@ class GoogleDriveItemResolver:
             if proc.returncode != 0:
                 # Failure in one way or another. Let's just write out the failure message
                 # FIXME: Does this leak sensitive info?
-                return DoesNotExist(GoogleDriveFolder, stderr.decode().strip())
+                # Cut off first 20 chars, as it prints out the date
+                return DoesNotExist(GoogleDriveFolder, stderr.decode()[20:].strip())
 
             data = json.loads(stdout.decode())
 
