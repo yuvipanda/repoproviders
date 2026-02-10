@@ -1,8 +1,9 @@
-import asyncio
 import re
 
 from aiohttp import ClientSession
 from yarl import URL
+
+from repoproviders.utils import exec_process
 
 from .base import DoesNotExist, Exists, MaybeExists
 from .repos import GistURL, Git, GitHubPR, GitHubURL, GitLabURL, ImmutableGit
@@ -121,11 +122,8 @@ class ImmutableGitResolver:
         | None
     ):
         command = ["git", "ls-remote", "--", question.repo, question.ref]
-        proc = await asyncio.create_subprocess_exec(
-            *command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-        )
-        stdout, stderr = [s.decode().strip() for s in await proc.communicate()]
-        retcode = await proc.wait()
+        retcode, stdout, stderr = await exec_process(command)
+
         if retcode:
             # `git` may follow redirects here, so the repo we pass may not always be the repo we
             # get back. So we loosely check for a 'not found' message.

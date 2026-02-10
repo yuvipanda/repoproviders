@@ -4,6 +4,8 @@ from typing import Callable
 
 from yarl import URL
 
+from repoproviders.resolvers.rclone import GoogleDriveFolder
+
 from .base import MaybeExists, Repo
 from .repos import (
     DataverseURL,
@@ -126,12 +128,21 @@ class WellKnownProvidersResolver:
 
         return FigshareURL(installation, question)
 
+    def detect_google_drive(self, question: URL) -> GoogleDriveFolder | None:
+        if question.host == "drive.google.com":
+            parts = question.path.split("/")
+            if parts[1] == "drive" and parts[2] == "folders":
+                return GoogleDriveFolder(parts[3])
+
+        return None
+
     async def resolve(self, question: URL | Doi) -> MaybeExists[Repo] | None:
         # These detectors are *intentionally* not async, as they should not be doing any
         # network calls
         detectors: list[Callable[[URL], Repo | None]] = [
             self.detect_github,
             self.detect_gist,
+            self.detect_google_drive,
             self.detect_dataverse,
             self.detect_zenodo,
             self.detect_figshare,

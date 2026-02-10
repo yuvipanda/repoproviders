@@ -44,6 +44,11 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+
+    - name: Setup rclone
+      run: |
+        curl https://rclone.org/install.sh | sudo bash
+
     - name: Install hatch
       uses: pypa/hatch@install
 
