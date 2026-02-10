@@ -51,10 +51,13 @@ class GoogleDriveFolderResolver:
             returncode, stdout, stderr = await exec_process(cmd)
 
             if returncode != 0:
-                # Failure in one way or another. Let's just write out the failure message
-                # FIXME: Does this leak sensitive info?
+                # Failure in one way or another. Let's just write out the failure message lines
+                # that refer to lsjson, so we avoid messages about missing config files
                 # Cut off first 20 chars, as it prints out the date
-                return DoesNotExist(GoogleDriveFolder, stderr[20:].strip())
+                stderr_lines = [l[20:] for l in stderr.splitlines()]
+                message = " ".join(l for l in stderr_lines if "lsjson" in l)
+                # FIXME: Does this leak sensitive info?
+                return DoesNotExist(GoogleDriveFolder, message)
 
             data = json.loads(stdout)
 
