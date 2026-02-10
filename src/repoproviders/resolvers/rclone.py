@@ -1,11 +1,10 @@
-import asyncio
 import json
 from dataclasses import dataclass
 from tempfile import NamedTemporaryFile
 
 from repoproviders.resolvers.base import DoesNotExist, Exists
 
-from ..utils import GCP_PUBLIC_SERVICE_ACCOUNT_KEY, make_dir_hash
+from ..utils import GCP_PUBLIC_SERVICE_ACCOUNT_KEY, exec_process, make_dir_hash
 
 
 @dataclass(frozen=True)
@@ -44,19 +43,15 @@ class GoogleDriveItemResolver:
                 question.id,
             ]
 
-            proc = await asyncio.create_subprocess_exec(
-                *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-            )
-            stdout, stderr = await proc.communicate()
-            await proc.wait()
+            returncode, stdout, stderr = await exec_process(cmd)
 
-            if proc.returncode != 0:
+            if returncode != 0:
                 # Failure in one way or another. Let's just write out the failure message
                 # FIXME: Does this leak sensitive info?
                 # Cut off first 20 chars, as it prints out the date
-                return DoesNotExist(GoogleDriveFolder, stderr.decode()[20:].strip())
+                return DoesNotExist(GoogleDriveFolder, stderr[20:].strip())
 
-            data = json.loads(stdout.decode())
+            data = json.loads(stdout)
 
             if len(data) == 0:
                 # No items were returned. Let's treat this as a DoesNotExist, as this usually means we don't

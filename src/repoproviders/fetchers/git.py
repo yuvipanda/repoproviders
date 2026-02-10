@@ -1,8 +1,8 @@
-import asyncio
 from pathlib import Path
 from subprocess import CalledProcessError
 
 from ..resolvers.git import ImmutableGit
+from ..utils import exec_process
 
 
 class ImmutableGitFetcher:
@@ -17,11 +17,7 @@ class ImmutableGitFetcher:
             repo.repo,
             str(output_dir),
         ]
-        proc = await asyncio.create_subprocess_exec(
-            *command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-        )
-        stdout, stderr = [s.decode().strip() for s in await proc.communicate()]
-        retcode = await proc.wait()
+        retcode, stdout, stderr = await exec_process(command)
 
         if retcode != 0:
             # FIXME: Raise a more helpful error?
@@ -29,15 +25,7 @@ class ImmutableGitFetcher:
 
         command = ["git", "checkout", repo.ref]
 
-        proc = await asyncio.create_subprocess_exec(
-            *command,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            cwd=str(output_dir)
-        )
-
-        stdout, stderr = [s.decode().strip() for s in await proc.communicate()]
-        retcode = await proc.wait()
+        retcode, stdout, stderr = await exec_process(command, cwd=str(output_dir))
 
         if retcode != 0:
             # FIXME: Raise a more helpful error?

@@ -1,3 +1,4 @@
+import asyncio
 import hashlib
 import json
 from base64 import standard_b64decode, urlsafe_b64encode
@@ -62,3 +63,17 @@ async def download_file(session: aiohttp.ClientSession, url: URL, output_path: P
     with open(output_path, "wb") as f:
         async for chunk in resp.content.iter_chunked(CHUNK_SIZE):
             f.write(chunk)
+
+
+async def exec_process(cmd: list[str], **kwargs) -> tuple[int, str, str]:
+    """
+    Execute given command and return return code, stdout, stderr
+    """
+
+    proc = await asyncio.create_subprocess_exec(
+        *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, **kwargs
+    )
+    stdout, stderr = await proc.communicate()
+    returncode = await proc.wait()
+
+    return returncode, stdout.decode(), stderr.decode()
