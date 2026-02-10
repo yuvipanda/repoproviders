@@ -4,7 +4,7 @@ import typing
 from pathlib import Path
 from typing import Any
 
-from repoproviders.fetchers.rclone import GoogleDriveFetcher
+from repoproviders.fetchers.rclone import GoogleDriveFolderFetcher
 from repoproviders.fetchers.zenodo import ZenodoFetcher
 
 from .base import SupportsFetch
@@ -15,7 +15,7 @@ ALL_FETCHERS: list[SupportsFetch] = [
     ImmutableGitFetcher(),
     DataverseFetcher(),
     ZenodoFetcher(),
-    GoogleDriveFetcher(),
+    GoogleDriveFolderFetcher(),
 ]
 
 FETCHER_BY_TYPE: dict[type, SupportsFetch] = {}

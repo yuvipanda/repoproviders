@@ -22,7 +22,7 @@ class ImmutableGoogleDriveFolder:
     immutable = True
 
 
-class GoogleDriveItemResolver:
+class GoogleDriveFolderResolver:
     async def resolve(
         self, question: GoogleDriveFolder
     ) -> Exists[ImmutableGoogleDriveFolder] | DoesNotExist[GoogleDriveFolder] | None:

@@ -3,7 +3,7 @@ import pytest
 from repoproviders.resolvers.base import DoesNotExist, Exists
 from repoproviders.resolvers.rclone import (
     GoogleDriveFolder,
-    GoogleDriveItemResolver,
+    GoogleDriveFolderResolver,
     ImmutableGoogleDriveFolder,
 )
 
@@ -48,5 +48,5 @@ from repoproviders.resolvers.rclone import (
     ),
 )
 async def test_gist(url, expected):
-    gh = GoogleDriveItemResolver()
+    gh = GoogleDriveFolderResolver()
     assert await gh.resolve(url) == expected

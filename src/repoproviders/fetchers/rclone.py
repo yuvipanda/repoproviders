@@ -8,7 +8,7 @@ from repoproviders.resolvers.rclone import GoogleDriveFolder, ImmutableGoogleDri
 from ..utils import GCP_PUBLIC_SERVICE_ACCOUNT_KEY
 
 
-class GoogleDriveFetcher:
+class GoogleDriveFolderFetcher:
     async def fetch(
         self, repo: ImmutableGoogleDriveFolder | GoogleDriveFolder, output_dir: Path
     ):
