@@ -1,5 +1,6 @@
 import json
 from dataclasses import dataclass
+from shutil import which
 from tempfile import NamedTemporaryFile
 
 from repoproviders.resolvers.base import DoesNotExist, Exists
@@ -27,6 +28,10 @@ class GoogleDriveFolderResolver:
         self, question: GoogleDriveFolder
     ) -> Exists[ImmutableGoogleDriveFolder] | DoesNotExist[GoogleDriveFolder] | None:
 
+        if not which("rclone"):
+            raise FileNotFoundError(
+                "rclone must be installed to resolve folders from Google Drive"
+            )
         with NamedTemporaryFile("w") as service_account_key:
             json.dump(GCP_PUBLIC_SERVICE_ACCOUNT_KEY, service_account_key)
             service_account_key.flush()

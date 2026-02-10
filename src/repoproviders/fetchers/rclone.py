@@ -1,6 +1,7 @@
 import json
 import subprocess
 from pathlib import Path
+from shutil import which
 from tempfile import NamedTemporaryFile
 
 from repoproviders.resolvers.rclone import GoogleDriveFolder, ImmutableGoogleDriveFolder
@@ -12,6 +13,10 @@ class GoogleDriveFolderFetcher:
     async def fetch(
         self, repo: ImmutableGoogleDriveFolder | GoogleDriveFolder, output_dir: Path
     ):
+        if not which("rclone"):
+            raise FileNotFoundError(
+                "rclone must be installed to fetch folders from Google Drive"
+            )
         # FIXME: We don't actually check the dirhash of the ImmutableGoogleDriveFolder, so it may have
         # mutated since we asked for things to be done to it. I don't exactly know what to do about that.
         with NamedTemporaryFile("w") as service_account_key:
