@@ -3,17 +3,17 @@ import subprocess
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
-from repoproviders.resolvers.rclone import ImmutableGoogleDriveFolder
+from repoproviders.resolvers.rclone import GoogleDriveFolder, ImmutableGoogleDriveFolder
 
 from ..utils import GCP_PUBLIC_SERVICE_ACCOUNT_KEY
 
 
 class GoogleDriveFetcher:
-
-    async def fetch(self, repo: ImmutableGoogleDriveFolder, output_dir: Path):
-        # FIXME: We ask for an ImmutableGoogleDriveFolder, but we could just as well fetch
-        # a *mutable* one here, because we don't check dirhash after. What do we do with that?
-        # UNCLEAR.
+    async def fetch(
+        self, repo: ImmutableGoogleDriveFolder | GoogleDriveFolder, output_dir: Path
+    ):
+        # FIXME: We don't actually check the dirhash of the ImmutableGoogleDriveFolder, so it may have
+        # mutated since we asked for things to be done to it. I don't exactly know what to do about that.
         with NamedTemporaryFile("w") as service_account_key:
             json.dump(GCP_PUBLIC_SERVICE_ACCOUNT_KEY, service_account_key)
             service_account_key.flush()
