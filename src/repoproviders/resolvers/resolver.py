@@ -23,6 +23,7 @@ from .git import (
     GitUrlResolver,
     ImmutableGitResolver,
 )
+from .rclone import GoogleDriveItemResolver
 from .wellknown import WellKnownProvidersResolver
 
 ALL_RESOLVERS: list[SupportsResolve] = [
@@ -30,6 +31,7 @@ ALL_RESOLVERS: list[SupportsResolve] = [
     GitHubResolver(),
     GitHubPRResolver(),
     GistResolver(),
+    GoogleDriveItemResolver(),
     GitUrlResolver(),
     GitLabResolver(),
     DoiResolver(),
