@@ -9,14 +9,14 @@ from ..utils import GCP_PUBLIC_SERVICE_ACCOUNT_KEY, make_dir_hash
 
 
 @dataclass(frozen=True)
-class GoogleDriveItem:
+class GoogleDriveFolder:
     id: str
 
     immutable = False
 
 
 @dataclass(frozen=True)
-class ImmutableGoogleDriveItem:
+class ImmutableGoogleDriveFolder:
     id: str
     dir_hash: str
 
@@ -25,8 +25,8 @@ class ImmutableGoogleDriveItem:
 
 class GoogleDriveItemResolver:
     async def resolve(
-        self, question: GoogleDriveItem
-    ) -> Exists[ImmutableGoogleDriveItem] | DoesNotExist[GoogleDriveItem] | None:
+        self, question: GoogleDriveFolder
+    ) -> Exists[ImmutableGoogleDriveFolder] | DoesNotExist[GoogleDriveFolder] | None:
 
         with NamedTemporaryFile("w") as service_account_key:
             json.dump(GCP_PUBLIC_SERVICE_ACCOUNT_KEY, service_account_key)
@@ -53,16 +53,15 @@ class GoogleDriveItemResolver:
             if proc.returncode != 0:
                 # Failure in one way or another. Let's just write out the failure message
                 # FIXME: Does this leak sensitive info?
-                return DoesNotExist(GoogleDriveItem, stderr.decode().strip())
+                return DoesNotExist(GoogleDriveFolder, stderr.decode().strip())
 
             data = json.loads(stdout.decode())
-            print(data)
 
             if len(data) == 0:
                 # No items were returned. Let's treat this as a DoesNotExist, as this usually means we don't
                 # have permissions, or the directory doesn't exist
                 return DoesNotExist(
-                    GoogleDriveItem,
+                    GoogleDriveFolder,
                     "The Google Drive Folder either does not exist, is empty or is not public",
                 )
 
@@ -80,4 +79,4 @@ class GoogleDriveItemResolver:
 
             dirhash = make_dir_hash(hash_input)
 
-            return Exists(ImmutableGoogleDriveItem(question.id, dirhash))
+            return Exists(ImmutableGoogleDriveFolder(question.id, dirhash))

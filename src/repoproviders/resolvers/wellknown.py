@@ -4,7 +4,7 @@ from typing import Callable
 
 from yarl import URL
 
-from repoproviders.resolvers.rclone import GoogleDriveItem
+from repoproviders.resolvers.rclone import GoogleDriveFolder
 
 from .base import MaybeExists, Repo
 from .repos import (
@@ -128,11 +128,11 @@ class WellKnownProvidersResolver:
 
         return FigshareURL(installation, question)
 
-    def detect_google_drive(self, question: URL) -> GoogleDriveItem | None:
+    def detect_google_drive(self, question: URL) -> GoogleDriveFolder | None:
         if question.host == "drive.google.com":
             parts = question.path.split("/")
             if parts[1] == "drive" and parts[2] == "folders":
-                return GoogleDriveItem(parts[3])
+                return GoogleDriveFolder(parts[3])
 
         return None
 

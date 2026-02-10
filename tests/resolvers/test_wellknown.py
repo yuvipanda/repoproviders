@@ -2,7 +2,7 @@ import pytest
 from yarl import URL
 
 from repoproviders.resolvers.base import MaybeExists
-from repoproviders.resolvers.rclone import GoogleDriveItem
+from repoproviders.resolvers.rclone import GoogleDriveFolder
 from repoproviders.resolvers.repos import (
     DataverseURL,
     Doi,
@@ -105,7 +105,7 @@ from repoproviders.resolvers.wellknown import WellKnownProvidersResolver
         (
             # We support directory links
             "https://drive.google.com/drive/folders/1o3okM5hYOgUGHYipyjiblEzbp29UX9cF",
-            MaybeExists(GoogleDriveItem("1o3okM5hYOgUGHYipyjiblEzbp29UX9cF")),
+            MaybeExists(GoogleDriveFolder("1o3okM5hYOgUGHYipyjiblEzbp29UX9cF")),
         ),
         (
             # We don't support file links
