@@ -72,7 +72,7 @@ class GoogleDriveFolderResolver:
             hash_input = {}
             for item in data:
                 # Use (in order of preference), sha256, sha1, md5 and modtime based on what is present
-                hashes = item.get("Hashes")
+                hashes = item.get("Hashes", {})
                 h = hashes.get(
                     "sha256", hashes.get("sha1", hashes.get("md5", item["ModTime"]))
                 )
