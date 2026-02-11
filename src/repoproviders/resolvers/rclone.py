@@ -71,15 +71,12 @@ class GoogleDriveFolderResolver:
 
             hash_input = {}
             for item in data:
-                if "Hashes" in item:
-                    if "sha256" in item["Hashes"]:
-                        hash_input[item["Path"]] = item["Hashes"]["sha256"]
-                    else:
-                        # Some old directories won't have sha256 but will have sha1
-                        hash_input[item["Path"]] = item["Hashes"]["sha1"]
-                else:
-                    # Directories won't have hashes, so let's use Modified Time
-                    hash_input[item["Path"]] = item["ModTime"]
+                # Use (in order of preference), sha256, sha1, md5 and modtime based on what is present
+                hashes = item.get("Hashes", {})
+                h = hashes.get(
+                    "sha256", hashes.get("sha1", hashes.get("md5", item["ModTime"]))
+                )
+                hash_input[item["Path"]] = h
 
             dirhash = make_dir_hash(hash_input)
 
