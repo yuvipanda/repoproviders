@@ -8,6 +8,29 @@
 
 _Detect, resolve and fetch repositories of content_
 
+## Supported Repositories
+
+| Repository                            | Resolver | Fetcher |
+| ------------------------------------- | -------- | ------- |
+| GitHub Repos                          | ✅       | ✅      |
+| GitHub Refs (Commits, Tags, Branches) | ✅       | ✅      |
+| GitHub PRs                            | ✅       | ✅      |
+| GitHub Action Artifacts               | ❌       | ❌      |
+| Gists                                 | ✅       | ✅      |
+| Git Repos                             | ✅       | ✅      |
+| GitLab Repos                          | ✅       | ✅      |
+| GitLab Refs (Commits, Tags, Branches) | ✅       | ✅      |
+| Google Drive Folders (Public)         | ✅       | ✅      |
+| Zenodo Repositories                   | ✅       | ✅      |
+| Dataverse Repositories                | ✅       | ✅      |
+| Figshare                              | ✅       | ❌      |
+| DOI                                   | ✅       | N/A     |
+| Hydroshare                            | ❌       | ❌      |
+| Mercurial                             | ❌       | ❌      |
+| CKAN                                  | ❌       | ❌      |
+| Software Heritage                     | ❌       | ❌      |
+| ZIP files over HTTP                   | ❌       | ❌      |
+
 ## Examples
 
 You can try these out with a `pip install repoproviders`.
