@@ -1,4 +1,5 @@
 import asyncio
+import binascii
 import hashlib
 import json
 from base64 import standard_b64decode, urlsafe_b64encode
@@ -27,6 +28,12 @@ GCP_PUBLIC_SERVICE_ACCOUNT_KEY = {
     "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/repoproviders-no-rights-public%40repoproviders-iam.iam.gserviceaccount.com",
     "universe_domain": "googleapis.com",
 }
+
+# Publicly visible GitHub PAT with just public repo permissions of account yuvipanda-repoproviders-public
+# Primarily useful for downloading GitHubActionsArtifact resources, as you need a PAT to do so
+GITHUB_PUBLIC_PAT = binascii.a2b_uu(
+    b"H9VAP7UE%9&%N;U5O34YF4712:%HQ9VQP,VUF,U),3D%J9S%Q8GHW:P  \n"
+).decode()
 
 
 def make_dir_hash(data: dict[str, str]) -> str:

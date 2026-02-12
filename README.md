@@ -30,6 +30,7 @@ _Detect, resolve and fetch repositories of content_
 | CKAN                                  | ❌       | ❌      |
 | Software Heritage                     | ❌       | ❌      |
 | ZIP files over HTTP                   | ❌       | ❌      |
+| Codeberg Refs                         | ❌       | ❌      |
 
 ## Examples
 
