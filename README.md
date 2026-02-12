@@ -15,7 +15,7 @@ _Detect, resolve and fetch repositories of content_
 | GitHub Repos                          | ✅       | ✅      |
 | GitHub Refs (Commits, Tags, Branches) | ✅       | ✅      |
 | GitHub PRs                            | ✅       | ✅      |
-| GitHub Action Artifacts               | ❌       | ❌      |
+| GitHub Action Artifacts               | ✅       | ✅      |
 | Gists                                 | ✅       | ✅      |
 | Git Repos                             | ✅       | ✅      |
 | GitLab Repos                          | ✅       | ✅      |
