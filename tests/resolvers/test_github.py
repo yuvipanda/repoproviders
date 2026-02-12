@@ -3,7 +3,7 @@ from yarl import URL
 
 from repoproviders.resolvers.base import DoesNotExist, MaybeExists
 from repoproviders.resolvers.git import Git, GitHubPRResolver, GitHubResolver
-from repoproviders.resolvers.repos import GitHubPR, GitHubURL
+from repoproviders.resolvers.repos import GitHubActionArtifact, GitHubPR, GitHubURL
 
 
 @pytest.mark.parametrize(
@@ -109,6 +109,19 @@ from repoproviders.resolvers.repos import GitHubPR, GitHubURL
             ),
             MaybeExists(
                 Git(repo="https://github.com/yuvipanda/does-not-exist-e43", ref="HEAD")
+            ),
+        ),
+        (
+            GitHubURL(
+                URL("https://github.com"),
+                URL(
+                    "https://github.com/jupyterlab/jupyterlab/actions/runs/21701082973/artifacts/5385867847"
+                ),
+            ),
+            MaybeExists(
+                GitHubActionArtifact(
+                    URL("https://github.com"), "jupyterlab", "jupyterlab", 5385867847
+                )
             ),
         ),
     ),

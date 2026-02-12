@@ -6,13 +6,26 @@ from yarl import URL
 from repoproviders.utils import exec_process
 
 from .base import DoesNotExist, Exists, MaybeExists
-from .repos import GistURL, Git, GitHubPR, GitHubURL, GitLabURL, ImmutableGit
+from .repos import (
+    GistURL,
+    Git,
+    GitHubActionArtifact,
+    GitHubPR,
+    GitHubURL,
+    GitLabURL,
+    ImmutableGit,
+)
 
 
 class GitHubResolver:
     async def resolve(
         self, question: GitHubURL
-    ) -> MaybeExists[Git] | MaybeExists[GitHubPR] | None:
+    ) -> (
+        MaybeExists[Git]
+        | MaybeExists[GitHubPR]
+        | MaybeExists[GitHubActionArtifact]
+        | None
+    ):
         url = question.url
         # Split the URL into parts, discarding empty parts to account for leading and trailing slashes
         parts = [p for p in url.path.split("/") if p.strip() != ""]
@@ -31,6 +44,13 @@ class GitHubResolver:
         elif len(parts) == 4 and parts[2] == "pull" and parts[3].isdigit():
             # Resolve pull requests to the branch their head ref points to
             return MaybeExists(GitHubPR(question.installation, question.url))
+        elif len(parts) == 7 and parts[5] == "artifacts" and parts[6].isdigit():
+            # An artifact uploaded by GitHub actions. We don't know if this is still unexpired
+            return MaybeExists(
+                GitHubActionArtifact(
+                    question.installation, parts[0], parts[1], int(parts[6])
+                )
+            )
         else:
             # This is not actually a valid GitHub URL we support
             return None

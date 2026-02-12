@@ -9,11 +9,12 @@ from repoproviders.fetchers.zenodo import ZenodoFetcher
 
 from .base import SupportsFetch
 from .dataverse import DataverseFetcher
-from .git import ImmutableGitFetcher
+from .git import GitHubActionArtifactFetcher, ImmutableGitFetcher
 
 ALL_FETCHERS: list[SupportsFetch] = [
     ImmutableGitFetcher(),
     DataverseFetcher(),
+    GitHubActionArtifactFetcher(),
     ZenodoFetcher(),
     GoogleDriveFolderFetcher(),
 ]

@@ -56,6 +56,21 @@ class GitHubPR:
 
 
 @dataclass(frozen=True)
+class GitHubActionArtifact:
+    """
+    A downloadable GitHub Action Artifact
+    """
+
+    installation: URL
+    account: str
+    repo: str
+    artifact_id: int
+
+    # Artifacts don't change after upload
+    immutable = True
+
+
+@dataclass(frozen=True)
 class GistURL:
     """
     A Gist URL of any sort.
