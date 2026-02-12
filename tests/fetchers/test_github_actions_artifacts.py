@@ -20,6 +20,7 @@ from repoproviders.resolvers.base import DoesNotExist
             # 1. Fix this properly by rewriting the test here to dynamically look for artifacts
             # 2. Go to https://github.com/jupyterlab/jupyterlab/actions/workflows/galata.yml, pick a
             #    recent completed run, find the URL for `documentation-test-assets` and update the content
+            # https://github.com/yuvipanda/repoproviders/issues/28 has more information
             (
                 "https://github.com/jupyterlab/jupyterlab/actions/runs/21958742242/artifacts/5487665511",
             ),
