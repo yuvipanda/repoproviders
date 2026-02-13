@@ -194,3 +194,11 @@ class ImmutableFigshareDataset:
 
     # We *know* there's a version here
     immutable = True
+
+
+@dataclass(frozen=True)
+class HydroshareDataset:
+    resource_id: str
+
+    # Hydroshare Datasets are mutable
+    immutable = False

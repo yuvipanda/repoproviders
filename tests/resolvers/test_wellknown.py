@@ -11,6 +11,7 @@ from repoproviders.resolvers.repos import (
     GistURL,
     GitHubURL,
     GitLabURL,
+    HydroshareDataset,
     ZenodoURL,
 )
 from repoproviders.resolvers.wellknown import WellKnownProvidersResolver
@@ -110,6 +111,26 @@ from repoproviders.resolvers.wellknown import WellKnownProvidersResolver
         (
             # We don't support file links
             "https://drive.google.com/file/d/110LCoTV6NM7YpMc7MqooQ9pJ0PhsOzFY/view?usp=drive_link",
+            None,
+        ),
+        (
+            # Support URLs without www.
+            "https://hydroshare.org/resource/76502ab28c5744f98e2bbad5155e39c7/",
+            MaybeExists(HydroshareDataset("76502ab28c5744f98e2bbad5155e39c7")),
+        ),
+        (
+            # Support URLs with www.
+            "https://www.hydroshare.org/resource/76502ab28c5744f98e2bbad5155e39c7/",
+            MaybeExists(HydroshareDataset("76502ab28c5744f98e2bbad5155e39c7")),
+        ),
+        (
+            # Handle lack of trailing /
+            "https://www.hydroshare.org/resource/76502ab28c5744f98e2bbad5155e39c7",
+            MaybeExists(HydroshareDataset("76502ab28c5744f98e2bbad5155e39c7")),
+        ),
+        (
+            # Random hydroshare URLs don't work
+            "https://hydroshare.org/search/",
             None,
         ),
     ),
