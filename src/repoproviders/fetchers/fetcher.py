@@ -4,6 +4,7 @@ import typing
 from pathlib import Path
 from typing import Any
 
+from repoproviders.fetchers.hydroshare import HydroshareFetcher
 from repoproviders.fetchers.rclone import GoogleDriveFolderFetcher
 from repoproviders.fetchers.zenodo import ZenodoFetcher
 
@@ -19,6 +20,7 @@ ALL_FETCHERS: list[SupportsFetch] = [
     FigshareFetcher(),
     ZenodoFetcher(),
     GoogleDriveFolderFetcher(),
+    HydroshareFetcher(),
 ]
 
 FETCHER_BY_TYPE: dict[type, SupportsFetch] = {}

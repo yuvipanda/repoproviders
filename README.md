@@ -21,11 +21,11 @@ _Detect, resolve and fetch repositories of content_
 | GitLab Repos                          | ✅       | ✅      |
 | GitLab Refs (Commits, Tags, Branches) | ✅       | ✅      |
 | Google Drive Folders (Public)         | ✅       | ✅      |
+| DOI                                   | ✅       | N/A     |
 | Zenodo Repositories                   | ✅       | ✅      |
 | Dataverse Repositories                | ✅       | ✅      |
 | Figshare                              | ✅       | ✅      |
-| DOI                                   | ✅       | N/A     |
-| Hydroshare                            | ❌       | ❌      |
+| Hydroshare                            | ✅       | ✅      |
 | Mercurial                             | ❌       | ❌      |
 | CKAN                                  | ❌       | ❌      |
 | Software Heritage                     | ❌       | ❌      |
