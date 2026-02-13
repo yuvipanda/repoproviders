@@ -12,7 +12,7 @@ from ..utils import download_file
 class HydroshareFetcher:
     async def fetch(self, repo: HydroshareDataset, output_dir: Path):
         # This sometimes takes a while, as the zip file is dynamically generated on first GET
-        # So let's just put this in a retry loop
+        # However, aiohttp seems to handle this behavior just fine no problem
         download_url = (
             URL("https://www.hydroshare.org/django_irods/download/bags/")
             / repo.resource_id
