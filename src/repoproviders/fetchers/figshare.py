@@ -5,7 +5,7 @@ from zipfile import ZipFile
 import aiohttp
 
 from ..resolvers.doi import ImmutableFigshareDataset
-from ..utils import download_file
+from ..utils import FIGSHARE_PUBLIC_TOKEN, download_file
 
 
 class FigshareFetcher:
@@ -19,7 +19,9 @@ class FigshareFetcher:
             / "download"
         )
 
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(
+            headers={"Authorization": f"token {FIGSHARE_PUBLIC_TOKEN}"}
+        ) as session:
             with NamedTemporaryFile() as temp_file:
                 await download_file(session, download_url, Path(temp_file.name))
                 compressed_file = ZipFile(temp_file.name)

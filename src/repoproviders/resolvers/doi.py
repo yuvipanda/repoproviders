@@ -3,6 +3,7 @@ import os
 import aiohttp
 from yarl import URL
 
+from ..utils import FIGSHARE_PUBLIC_TOKEN
 from .base import DoesNotExist, Exists, MaybeExists
 from .repos import (
     DataverseDataset,
@@ -283,7 +284,9 @@ class ImmutableFigshareResolver:
             / "versions"
         )
 
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(
+            headers={"Authorization": f"token {FIGSHARE_PUBLIC_TOKEN}"}
+        ) as session:
             resp = await session.get(api_url)
 
         if resp.status == 404:
