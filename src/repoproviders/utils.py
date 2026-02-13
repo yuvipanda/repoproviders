@@ -35,6 +35,13 @@ GITHUB_PUBLIC_PAT = binascii.a2b_uu(
     b"H9VAP7UE%9&%N;U5O34YF4712:%HQ9VQP,VUF,U),3D%J9S%Q8GHW:P  \n"
 ).decode()
 
+# Publicly visible figshare token, for account yuvipanda+repoproviders-public@gmail.com
+# Used to have better luck with hitting the figshare API, which has a very protective & aggressive
+# AWS Web Application Firewall in front
+FIGSHARE_PUBLIC_TOKEN = standard_b64decode(
+    "OWU5ZjdjMGIzMDA5NWRiZDJmMDEyNGJhODFiZDAyMjAwZTFjNDA2NTdmNTg0MmFlNDZhYjM1NTMxNzcyNTBkNzEwNWY3MDYxYTdhYWY5Njg3MjdjOGUyYTQ0ZjU4ODE5NWI1ZmEyNzVlNjcwYjcwNjYzYTY0YzVjZjZmMDdhZmQ="
+).decode()
+
 
 def make_dir_hash(data: dict[str, str]) -> str:
     """

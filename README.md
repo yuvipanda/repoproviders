@@ -23,7 +23,7 @@ _Detect, resolve and fetch repositories of content_
 | Google Drive Folders (Public)         | ✅       | ✅      |
 | Zenodo Repositories                   | ✅       | ✅      |
 | Dataverse Repositories                | ✅       | ✅      |
-| Figshare                              | ✅       | ❌      |
+| Figshare                              | ✅       | ✅      |
 | DOI                                   | ✅       | N/A     |
 | Hydroshare                            | ❌       | ❌      |
 | Mercurial                             | ❌       | ❌      |
