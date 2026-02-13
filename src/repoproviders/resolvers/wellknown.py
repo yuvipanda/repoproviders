@@ -15,6 +15,7 @@ from .repos import (
     GistURL,
     GitHubURL,
     GitLabURL,
+    HydroshareDataset,
     ZenodoURL,
 )
 
@@ -136,6 +137,15 @@ class WellKnownProvidersResolver:
 
         return None
 
+    def detect_hydroshare(self, question: URL) -> HydroshareDataset | None:
+        if question.host == "www.hydroshare.org" or question.host == "hydroshare.org":
+            # Strip out leading and trailing / to make our work easier
+            parts = [p for p in question.path.split("/") if p.strip()]
+            if len(parts) == 2 and parts[0] == "resource":
+                return HydroshareDataset(parts[1])
+
+        return None
+
     async def resolve(self, question: URL | Doi) -> MaybeExists[Repo] | None:
         # These detectors are *intentionally* not async, as they should not be doing any
         # network calls
@@ -147,6 +157,7 @@ class WellKnownProvidersResolver:
             self.detect_zenodo,
             self.detect_figshare,
             self.detect_gitlab,
+            self.detect_hydroshare,
         ]
 
         match question:
