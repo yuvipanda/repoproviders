@@ -1,17 +1,28 @@
-# repoproviders
+# `repoproviders`
 
-## Overview
+A strongly typed library for resolving URLs into various kinds of `repositories`
+and fetching them.
 
-Detect, resolve and fetch repositories of content
+## Supported Repositories
 
-[API Documentation](./api/modules.rst)
-
-## Copyright
-
-- Copyright © 2024 Yuvi Panda.
-- Free software distributed under the 3-Clause BSD License.
-
-```{toctree}
-:hidden:
-./api/modules.rst
-```
+| Repository                            | Resolver | Fetcher |
+| ------------------------------------- | -------- | ------- |
+| GitHub Repos                          | ✅       | ✅      |
+| GitHub Refs (Commits, Tags, Branches) | ✅       | ✅      |
+| GitHub PRs                            | ✅       | ✅      |
+| GitHub Action Artifacts               | ✅       | ✅      |
+| Gists                                 | ✅       | ✅      |
+| Git Repos                             | ✅       | ✅      |
+| GitLab Repos                          | ✅       | ✅      |
+| GitLab Refs (Commits, Tags, Branches) | ✅       | ✅      |
+| Google Drive Folders (Public)         | ✅       | ✅      |
+| DOI                                   | ✅       | N/A     |
+| Zenodo Repositories                   | ✅       | ✅      |
+| Dataverse Repositories                | ✅       | ✅      |
+| Figshare                              | ✅       | ✅      |
+| Hydroshare                            | ✅       | ✅      |
+| Mercurial                             | ❌       | ❌      |
+| CKAN                                  | ❌       | ❌      |
+| Software Heritage                     | ❌       | ❌      |
+| ZIP files over HTTP                   | ❌       | ❌      |
+| Codeberg Refs                         | ❌       | ❌      |
