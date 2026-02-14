@@ -202,3 +202,11 @@ class HydroshareDataset:
 
     # Hydroshare Datasets are mutable
     immutable = False
+
+
+@dataclass(frozen=True)
+class CKANDataset:
+    installation: URL
+    dataset_id: str
+
+    immutable = False

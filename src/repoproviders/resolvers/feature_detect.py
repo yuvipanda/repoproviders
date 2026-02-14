@@ -5,7 +5,7 @@ import aiohttp
 from yarl import URL
 
 from .base import Exists, MaybeExists
-from .repos import DataverseURL, Git, GitLabURL
+from .repos import CKANDataset, DataverseURL, Git, GitLabURL
 
 
 class FeatureDetectResolver:
@@ -94,13 +94,56 @@ class FeatureDetectResolver:
         else:
             return None
 
+    async def is_ckan(
+        self, session: aiohttp.ClientSession, question: URL
+    ) -> MaybeExists[CKANDataset] | None:
+        # If there's no "/dataset/" it's not CKAN
+        if "/dataset/" not in question.path:
+            return None
+
+        # Determine the API URL, so we can make a call to the status_show endpoint
+
+        # CKAN can be under a url prefix so we should support that
+        parts = question.path.split("/")
+        dataset_identifier_index = parts.index("dataset")
+
+        # Only one segment after 'dataset', which is hte dataset id
+        if len(parts) != dataset_identifier_index + 2:
+            return None
+
+        url_prefix = "/".join(parts[:dataset_identifier_index])
+        base_url = question.with_path(url_prefix)
+        dataset_id = parts[dataset_identifier_index + 1]
+
+        status_api_endpoint = base_url / "api/3/action/status_show"
+
+        resp = await session.get(status_api_endpoint)
+
+        # Using startswith as Content-Type can also have encoding specified
+        if resp.status != 200 or not resp.headers.get("Content-Type", "").startswith(
+            "application/json"
+        ):
+            return None
+
+        data = await resp.json()
+        if "ckan_version" not in data.get("result", {}):
+            return None
+
+        return MaybeExists(CKANDataset(base_url, dataset_id))
+
     async def resolve(
         self, question: URL, log: Logger
-    ) -> Exists[Git] | MaybeExists[DataverseURL] | MaybeExists[GitLabURL] | None:
+    ) -> (
+        Exists[Git]
+        | MaybeExists[DataverseURL]
+        | MaybeExists[GitLabURL]
+        | MaybeExists[CKANDataset]
+        | None
+    ):
         if question.scheme not in ("http", "https"):
             return None
 
-        detectors = (self.is_dataverse, self.is_gitlab, self.is_git_repo)
+        detectors = (self.is_dataverse, self.is_gitlab, self.is_git_repo, self.is_ckan)
 
         async with aiohttp.ClientSession() as session:
             for g in detectors:
