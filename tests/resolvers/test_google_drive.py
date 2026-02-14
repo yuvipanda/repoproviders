@@ -47,6 +47,6 @@ from repoproviders.resolvers.rclone import (
         ),
     ),
 )
-async def test_gist(url, expected):
+async def test_gist(url, expected, log):
     gh = GoogleDriveFolderResolver()
-    assert await gh.resolve(url) == expected
+    assert await gh.resolve(url, log) == expected

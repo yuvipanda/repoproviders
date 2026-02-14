@@ -69,6 +69,6 @@ from repoproviders.resolvers.repos import ZenodoDataset, ZenodoURL
         ),
     ),
 )
-async def test_zenodo(url, expected):
+async def test_zenodo(url, expected, log):
     zr = ZenodoResolver()
-    assert await zr.resolve(url) == expected
+    assert await zr.resolve(url, log) == expected

@@ -58,9 +58,9 @@ from repoproviders.resolvers.git import Git, ImmutableGit, ImmutableGitResolver
         ),
     ),
 )
-async def test_immutable_git(question, expected):
+async def test_immutable_git(question, expected, log):
     ig = ImmutableGitResolver()
-    assert await ig.resolve(question) == expected
+    assert await ig.resolve(question, log) == expected
 
 
 async def test_immutable_git_HEAD():

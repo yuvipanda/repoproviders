@@ -47,6 +47,6 @@ from repoproviders.resolvers.repos import DataverseURL
         ),
     ),
 )
-async def test_doi(url, expected):
+async def test_doi(url, expected, log):
     fd = FeatureDetectResolver()
-    assert await fd.resolve(URL(url)) == expected
+    assert await fd.resolve(URL(url), log) == expected

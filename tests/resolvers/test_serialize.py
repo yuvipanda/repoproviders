@@ -71,9 +71,9 @@ from repoproviders.resolvers.serialize import to_json
         ),
     ),
 )
-async def test_to_json(url, expected):
+async def test_to_json(url, expected, log):
     # This also tests to_dict anyway
-    answers = await resolve(url, True)
+    answers = await resolve(url, True, log)
     if expected is None:
         assert answers == []
     else:

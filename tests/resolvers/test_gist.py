@@ -39,6 +39,6 @@ from repoproviders.resolvers.repos import GistURL
         ),
     ),
 )
-async def test_gist(url, expected):
+async def test_gist(url, expected, log):
     gh = GistResolver()
-    assert await gh.resolve(url) == expected
+    assert await gh.resolve(url, log) == expected

@@ -130,6 +130,6 @@ from repoproviders.resolvers.repos import DataverseDataset, DataverseURL
         ),
     ),
 )
-async def test_dataverse(url, expected):
+async def test_dataverse(url, expected, log):
     dv = DataverseResolver()
-    assert await dv.resolve(url) == expected
+    assert await dv.resolve(url, log) == expected

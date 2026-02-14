@@ -126,9 +126,9 @@ from repoproviders.resolvers.repos import GitHubActionArtifact, GitHubPR, GitHub
         ),
     ),
 )
-async def test_github(url, expected):
+async def test_github(url, expected, log):
     gh = GitHubResolver()
-    assert await gh.resolve(url) == expected
+    assert await gh.resolve(url, log) == expected
 
 
 @pytest.mark.parametrize(
@@ -158,6 +158,6 @@ async def test_github(url, expected):
         ),
     ),
 )
-async def test_github_pr(url, expected):
+async def test_github_pr(url, expected, log):
     gh_pr = GitHubPRResolver()
-    assert await gh_pr.resolve(url) == expected
+    assert await gh_pr.resolve(url, log) == expected
