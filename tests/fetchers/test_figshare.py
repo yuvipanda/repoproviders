@@ -1,4 +1,5 @@
 import hashlib
+from logging import Logger
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -38,11 +39,11 @@ from repoproviders.resolvers.base import DoesNotExist
         )
     ],
 )
-async def test_fetch(questions: list[str], md5tree: dict[str, str]):
+async def test_fetch(questions: list[str], md5tree: dict[str, str], log: Logger):
     for question in questions:
         with TemporaryDirectory() as d:
             output_dir = Path(d)
-            answers = await resolve(question, True)
+            answers = await resolve(question, True, log)
 
             assert answers is not None
             assert not isinstance(answers[-1], DoesNotExist)
