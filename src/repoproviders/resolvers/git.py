@@ -1,4 +1,5 @@
 import re
+from logging import Logger
 
 from aiohttp import ClientSession
 from yarl import URL
@@ -19,7 +20,7 @@ from .repos import (
 
 class GitHubResolver:
     async def resolve(
-        self, question: GitHubURL
+        self, question: GitHubURL, log: Logger
     ) -> (
         MaybeExists[Git]
         | MaybeExists[GitHubPR]
@@ -58,7 +59,7 @@ class GitHubResolver:
 
 class GitHubPRResolver:
     async def resolve(
-        self, question: GitHubPR
+        self, question: GitHubPR, log: Logger
     ) -> MaybeExists[Git] | DoesNotExist[GitHubPR] | None:
         parts = [p for p in question.url.path.split("/") if p.strip() != ""]
         org = parts[0]
@@ -87,7 +88,7 @@ class GitHubPRResolver:
 
 
 class GistResolver:
-    async def resolve(self, question: GistURL) -> MaybeExists[Git] | None:
+    async def resolve(self, question: GistURL, log: Logger) -> MaybeExists[Git] | None:
         url = question.url
         # Split the URL into parts, discarding empty parts to account for leading and trailing slashes
         parts = [p for p in url.path.split("/") if p.strip() != ""]
@@ -102,7 +103,9 @@ class GistResolver:
 
 
 class GitLabResolver:
-    async def resolve(self, question: GitLabURL) -> MaybeExists[Git] | None:
+    async def resolve(
+        self, question: GitLabURL, log: Logger
+    ) -> MaybeExists[Git] | None:
         url = question.url
         # Split the URL into parts, discarding empty parts to account for leading and trailing slashes
         parts = [p for p in url.path.split("/") if p.strip() != ""]
@@ -134,7 +137,7 @@ class GitLabResolver:
 
 class ImmutableGitResolver:
     async def resolve(
-        self, question: Git
+        self, question: Git, log: Logger
     ) -> (
         Exists[ImmutableGit]
         | MaybeExists[ImmutableGit]
@@ -182,7 +185,7 @@ class GitUrlResolver:
     URL structure is inspired by what `pip` supports: https://pip.pypa.io/en/stable/topics/vcs-support/#git
     """
 
-    async def resolve(self, question: URL) -> MaybeExists[Git] | None:
+    async def resolve(self, question: URL, log: Logger) -> MaybeExists[Git] | None:
         # List of supported protocols is from https://pip.pypa.io/en/stable/topics/vcs-support/#git
         if question.scheme not in (
             "git+https",

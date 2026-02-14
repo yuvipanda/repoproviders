@@ -1,6 +1,7 @@
 import inspect
 import types
 import typing
+from logging import Logger
 from typing import Any
 
 from yarl import URL
@@ -56,7 +57,7 @@ for R in ALL_RESOLVERS:
 
 
 async def resolve(
-    question: str | Any, recursive: bool
+    question: str | Any, recursive: bool, log: Logger
 ) -> list[Exists | MaybeExists | DoesNotExist] | None:
     if isinstance(question, str):
         question = URL(question)
@@ -73,7 +74,7 @@ async def resolve(
             break
 
         for r in applicable_resolvers:
-            resp = await r.resolve(question)
+            resp = await r.resolve(question, log)
             if resp is not None:
                 # We found an answer!
                 answers.append(resp)

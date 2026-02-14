@@ -1,4 +1,5 @@
 import json
+from logging import Logger
 from pathlib import Path
 from typing import Callable
 
@@ -21,7 +22,7 @@ from .repos import (
 
 
 class WellKnownProvidersResolver:
-    def detect_github(self, question: URL) -> GitHubURL | None:
+    def detect_github(self, question: URL, log: Logger) -> GitHubURL | None:
         # git+<scheme> urls are handled by a different resolver
         if question.scheme not in ("http", "https") or (
             question.host != "github.com" and question.host != "www.github.com"
@@ -31,14 +32,14 @@ class WellKnownProvidersResolver:
         else:
             return GitHubURL(URL("https://github.com"), question)
 
-    def detect_gist(self, question: URL) -> GistURL | None:
+    def detect_gist(self, question: URL, log: Logger) -> GistURL | None:
         if question.host == "gist.github.com":
             return GistURL(URL("https://gist.github.com"), question)
         else:
             # TODO: Allow configuring for GitHub enterprise
             return None
 
-    def detect_gitlab(self, question: URL) -> GitLabURL | None:
+    def detect_gitlab(self, question: URL, log: Logger) -> GitLabURL | None:
         # git+<scheme> urls are handled by a different resolver
         if question.scheme not in ("http", "https") or (
             question.host != "gitlab.com" and question.host != "www.gitlab.com"
@@ -48,7 +49,7 @@ class WellKnownProvidersResolver:
         else:
             return GitLabURL(URL("https://gitlab.com"), question)
 
-    def detect_zenodo(self, question: URL) -> ZenodoURL | None:
+    def detect_zenodo(self, question: URL, log: Logger) -> ZenodoURL | None:
         KNOWN_INSTALLATIONS = [
             URL("https://sandbox.zenodo.org/"),
             URL("https://zenodo.org/"),
@@ -72,7 +73,7 @@ class WellKnownProvidersResolver:
 
         return ZenodoURL(installation, question)
 
-    def detect_dataverse(self, question: URL) -> DataverseURL | None:
+    def detect_dataverse(self, question: URL, log: Logger) -> DataverseURL | None:
 
         if not hasattr(self, "_dataverse_installation_urls"):
             # Get a list of installation URLs for known dataverse installations
@@ -103,7 +104,7 @@ class WellKnownProvidersResolver:
         else:
             return DataverseURL(installation, question)
 
-    def detect_figshare(self, question: URL) -> FigshareURL | None:
+    def detect_figshare(self, question: URL, log: Logger) -> FigshareURL | None:
         KNOWN_INSTALLATIONS = [
             FigshareInstallation(
                 URL("https://figshare.com/"), URL("https://api.figshare.com/v2/")
@@ -129,7 +130,9 @@ class WellKnownProvidersResolver:
 
         return FigshareURL(installation, question)
 
-    def detect_google_drive(self, question: URL) -> GoogleDriveFolder | None:
+    def detect_google_drive(
+        self, question: URL, log: Logger
+    ) -> GoogleDriveFolder | None:
         if question.host == "drive.google.com":
             parts = question.path.split("/")
             if parts[1] == "drive" and parts[2] == "folders":
@@ -137,7 +140,7 @@ class WellKnownProvidersResolver:
 
         return None
 
-    def detect_hydroshare(self, question: URL) -> HydroshareDataset | None:
+    def detect_hydroshare(self, question: URL, log: Logger) -> HydroshareDataset | None:
         if question.host == "www.hydroshare.org" or question.host == "hydroshare.org":
             # Strip out leading and trailing / to make our work easier
             parts = [p for p in question.path.split("/") if p.strip()]
@@ -146,10 +149,12 @@ class WellKnownProvidersResolver:
 
         return None
 
-    async def resolve(self, question: URL | Doi) -> MaybeExists[Repo] | None:
+    async def resolve(
+        self, question: URL | Doi, log: Logger
+    ) -> MaybeExists[Repo] | None:
         # These detectors are *intentionally* not async, as they should not be doing any
         # network calls
-        detectors: list[Callable[[URL], Repo | None]] = [
+        detectors: list[Callable[[URL, Logger], Repo | None]] = [
             self.detect_github,
             self.detect_gist,
             self.detect_google_drive,
@@ -167,7 +172,7 @@ class WellKnownProvidersResolver:
                 url = doi_url
 
         for d in detectors:
-            maybe_answer = d(url)
+            maybe_answer = d(url, log)
             if maybe_answer is not None:
                 return MaybeExists(maybe_answer)
 

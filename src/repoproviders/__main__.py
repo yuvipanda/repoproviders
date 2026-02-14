@@ -1,5 +1,6 @@
 import argparse
 import asyncio
+import logging
 import sys
 from pathlib import Path
 
@@ -21,6 +22,9 @@ async def main():
         help="Do not recurse, return after first answer",
         action="store_true",
     )
+    resolve_subparser.add_argument(
+        "--debug", help="Print debug info during resolution", action="store_true"
+    )
 
     fetch_subparser = subparsers.add_parser("fetch")
     fetch_subparser.add_argument("question", help="What should we try to fetch?")
@@ -28,8 +32,11 @@ async def main():
 
     args = argparser.parse_args()
 
+    log = logging.getLogger()
+    log.setLevel(logging.DEBUG if args.debug else logging.INFO)
+
     if args.command == "resolve":
-        answers = await resolve(args.question, recursive=not args.no_recurse)
+        answers = await resolve(args.question, not args.no_recurse, log)
 
         if answers:
             for a in answers:

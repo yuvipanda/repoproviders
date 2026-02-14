@@ -1,4 +1,5 @@
 from dataclasses import Field, dataclass
+from logging import Logger
 from typing import Any, ClassVar, Protocol, runtime_checkable
 
 
@@ -44,6 +45,6 @@ class Repo(Protocol):
 
 class SupportsResolve(Protocol):
     async def resolve(
-        self, question: Any
+        self, question: Any, log: Logger
     ) -> Exists | DoesNotExist | MaybeExists | None:
         pass
