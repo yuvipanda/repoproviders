@@ -4,7 +4,7 @@ from yarl import URL
 from repoproviders.resolvers.base import Exists, MaybeExists
 from repoproviders.resolvers.feature_detect import FeatureDetectResolver
 from repoproviders.resolvers.git import Git
-from repoproviders.resolvers.repos import DataverseURL
+from repoproviders.resolvers.repos import CKANDataset, DataverseURL
 
 
 @pytest.mark.parametrize(
@@ -45,6 +45,18 @@ from repoproviders.resolvers.repos import DataverseURL
                 )
             ),
         ),
+        # A working CKAN instance
+        (
+            "https://catalog.data.gov/dataset/authorizations-from-10-01-2006-thru-12-31-2022",
+            MaybeExists(
+                CKANDataset(
+                    URL("https://catalog.data.gov"),
+                    "authorizations-from-10-01-2006-thru-12-31-2022",
+                )
+            ),
+        ),
+        # Looks like, but isn't actually a CKAN dataset
+        ("https://catalog.data.gov/dataset/", None),
     ),
 )
 async def test_doi(url, expected, log):

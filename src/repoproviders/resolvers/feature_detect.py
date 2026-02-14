@@ -115,6 +115,10 @@ class FeatureDetectResolver:
         base_url = question.with_path(url_prefix)
         dataset_id = parts[dataset_identifier_index + 1]
 
+        if not dataset_id:
+            # Empty dataset_id is no-go
+            return None
+
         status_api_endpoint = base_url / "api/3/action/status_show"
 
         resp = await session.get(status_api_endpoint)
