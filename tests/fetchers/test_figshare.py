@@ -48,7 +48,7 @@ async def test_fetch(questions: list[str], md5tree: dict[str, str], log: Logger)
             assert answers is not None
             assert not isinstance(answers[-1], DoesNotExist)
 
-            await fetch(answers[-1].repo, output_dir)
+            await fetch(answers[-1].repo, output_dir, log)
 
             # Verify md5 sum of the files we expect to find
             for subpath, expected_sha in md5tree.items():
