@@ -68,6 +68,7 @@ class DoiResolver:
                 return DoesNotExist(Doi, f"{doi} does not point to any URL")
             else:
                 # Some other kind of failure, let's propagate our error up
+                log.error(f"Error resolving doi {doi} through {api_url}")
                 resp.raise_for_status()
                 # This should not actually be reached, but the explicit return None makes mypy happy
                 return None

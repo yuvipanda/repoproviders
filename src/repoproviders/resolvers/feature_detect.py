@@ -31,6 +31,7 @@ class FeatureDetectResolver:
         resp = await session.get(refs_url)
 
         if resp.status == 200:
+            log.debug(f"Found git repo at {url} via 200 OK response to {refs_url}")
             return Exists(Git(str(url), "HEAD"))
 
         # Not a smart git URL
@@ -57,6 +58,9 @@ class FeatureDetectResolver:
                 if version_data.get("status") == "OK" and "version" in version_data.get(
                     "data", {}
                 ):
+                    log.debug(
+                        f"Detected dataverse installation at {installation} via 200 response to {api_url}"
+                    )
                     return MaybeExists(DataverseURL(installation, url))
             except:
                 pass
@@ -83,6 +87,9 @@ class FeatureDetectResolver:
             return None
 
         if "https://gitlab.org/claims/groups/owner" in data.get("claims_supported", {}):
+            log.debug(
+                f"Found GitLab installation at {installation} by looking for `claims_supported` in {openid_config_url}"
+            )
             return MaybeExists(GitLabURL(installation, question))
         else:
             return None

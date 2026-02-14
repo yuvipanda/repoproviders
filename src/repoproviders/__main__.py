@@ -34,6 +34,7 @@ async def main():
 
     log = logging.getLogger()
     log.setLevel(logging.DEBUG if args.debug else logging.INFO)
+    log.addHandler(logging.StreamHandler())
 
     if args.command == "resolve":
         answers = await resolve(args.question, not args.no_recurse, log)
