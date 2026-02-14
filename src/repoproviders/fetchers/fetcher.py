@@ -5,6 +5,7 @@ from logging import Logger, getLogger
 from pathlib import Path
 from typing import Optional
 
+from repoproviders.fetchers.ckan import CKANFetcher
 from repoproviders.fetchers.hydroshare import HydroshareFetcher
 from repoproviders.fetchers.rclone import GoogleDriveFolderFetcher
 from repoproviders.fetchers.zenodo import ZenodoFetcher
@@ -23,6 +24,7 @@ ALL_FETCHERS: list[SupportsFetch] = [
     ZenodoFetcher(),
     GoogleDriveFolderFetcher(),
     HydroshareFetcher(),
+    CKANFetcher(),
 ]
 
 FETCHER_BY_TYPE: dict[type, SupportsFetch] = {}

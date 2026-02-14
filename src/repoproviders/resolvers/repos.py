@@ -206,7 +206,7 @@ class HydroshareDataset:
 
 @dataclass(frozen=True)
 class CKANDataset:
-    installation: URL
+    installationUrl: URL
     dataset_id: str
 
     immutable = False

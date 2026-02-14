@@ -57,6 +57,16 @@ from repoproviders.resolvers.repos import CKANDataset, DataverseURL
         ),
         # Looks like, but isn't actually a CKAN dataset
         ("https://catalog.data.gov/dataset/", None),
+        # A CKAN instance with a base_url
+        (
+            "https://open.canada.ca/data/en/dataset/90fed587-1364-4f33-a9ee-208181dc0b97",
+            MaybeExists(
+                CKANDataset(
+                    URL("https://open.canada.ca/data/en"),
+                    "90fed587-1364-4f33-a9ee-208181dc0b97",
+                )
+            ),
+        ),
     ),
 )
 async def test_doi(url, expected, log):
