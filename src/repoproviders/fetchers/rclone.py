@@ -1,5 +1,6 @@
 import json
 import subprocess
+from logging import Logger
 from pathlib import Path
 from shutil import which
 from tempfile import NamedTemporaryFile
@@ -11,7 +12,10 @@ from ..utils import GCP_PUBLIC_SERVICE_ACCOUNT_KEY
 
 class GoogleDriveFolderFetcher:
     async def fetch(
-        self, repo: ImmutableGoogleDriveFolder | GoogleDriveFolder, output_dir: Path
+        self,
+        repo: ImmutableGoogleDriveFolder | GoogleDriveFolder,
+        output_dir: Path,
+        log: Logger,
     ):
         if not which("rclone"):
             raise FileNotFoundError(

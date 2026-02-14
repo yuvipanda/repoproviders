@@ -1,3 +1,4 @@
+from logging import Logger
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from zipfile import ZipFile
@@ -9,7 +10,9 @@ from ..utils import FIGSHARE_PUBLIC_TOKEN, download_file
 
 
 class FigshareFetcher:
-    async def fetch(self, repo: ImmutableFigshareDataset, output_dir: Path):
+    async def fetch(
+        self, repo: ImmutableFigshareDataset, output_dir: Path, log: Logger
+    ):
         download_url = (
             repo.installation.apiUrl
             / "articles"

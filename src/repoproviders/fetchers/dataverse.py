@@ -1,4 +1,5 @@
 import os
+from logging import Logger
 from pathlib import Path
 
 import aiohttp
@@ -8,7 +9,7 @@ from ..utils import download_file
 
 
 class DataverseFetcher:
-    async def fetch(self, repo: DataverseDataset, output_dir: Path):
+    async def fetch(self, repo: DataverseDataset, output_dir: Path, log: Logger):
         files_url = repo.installationUrl / "api/datasets/:persistentId"
         files_url = files_url.with_query(persistentId=repo.persistentId)
 

@@ -1,6 +1,7 @@
 import inspect
 import types
 import typing
+from logging import Logger
 from pathlib import Path
 from typing import Any
 
@@ -35,7 +36,7 @@ for R in ALL_FETCHERS:
             FETCHER_BY_TYPE[t] = R
 
 
-async def fetch(question: Any, output_dir: Path):
+async def fetch(question: Any, output_dir: Path, log: Logger):
     fetcher = FETCHER_BY_TYPE[type(question)]
 
-    await fetcher.fetch(question, output_dir)
+    await fetcher.fetch(question, output_dir, log)
