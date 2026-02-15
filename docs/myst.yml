@@ -1,0 +1,20 @@
+# See docs at: https://mystmd.org/guide/frontmatter
+version: 1
+project:
+  id: ba75322e-2193-4291-a2ef-670ddab459f6
+  title: repoproviders
+  description: A strongly typed library for resolving URLs into various kinds of `repositories` and fetching them.
+  # keywords: []
+  # authors: []
+  github: https://github.com/yuvipanda/repoproviders
+  # To autogenerate a Table of Contents, run "jupyter book init --write-toc"
+  toc:
+    - file: index.md
+    - file: usage.md
+    - file: design.md
+
+site:
+  template: book-theme
+  # options:
+  #   favicon: favicon.ico
+  #   logo: site_logo.png
