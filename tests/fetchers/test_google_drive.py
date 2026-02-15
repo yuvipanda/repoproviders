@@ -1,4 +1,5 @@
 import hashlib
+from logging import Logger
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -33,16 +34,16 @@ from repoproviders.resolvers.base import DoesNotExist
         ),
     ],
 )
-async def test_fetch(questions: list[str], md5tree: dict[str, str]):
+async def test_fetch(questions: list[str], md5tree: dict[str, str], log: Logger):
     for question in questions:
         with TemporaryDirectory() as d:
             output_dir = Path(d)
-            answers = await resolve(question, True)
+            answers = await resolve(question, True, log)
 
             assert answers is not None
             assert not isinstance(answers[-1], DoesNotExist)
 
-            await fetch(answers[-1].repo, output_dir)
+            await fetch(answers[-1].repo, output_dir, log)
 
             # Verify md5 sum of the files we expect to find
             for subpath, expected_sha in md5tree.items():

@@ -126,9 +126,9 @@ from repoproviders.resolvers.repos import (
         ),
     ),
 )
-async def test_figshare(url, expected):
+async def test_figshare(url, expected, log):
     fs = FigshareResolver()
-    assert await fs.resolve(url) == expected
+    assert await fs.resolve(url, log) == expected
 
 
 @pytest.mark.parametrize(
@@ -188,6 +188,6 @@ async def test_figshare(url, expected):
         ),
     ),
 )
-async def test_immutable_figshare(question, expected):
+async def test_immutable_figshare(question, expected, log):
     ifs = ImmutableFigshareResolver()
-    assert await ifs.resolve(question) == expected
+    assert await ifs.resolve(question, log) == expected

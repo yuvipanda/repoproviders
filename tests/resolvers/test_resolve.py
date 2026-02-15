@@ -192,8 +192,8 @@ from repoproviders.resolvers.repos import (
         ),
     ),
 )
-async def test_resolve(url, expected):
-    assert await resolve(url, False) == expected
+async def test_resolve(url, expected, log):
+    assert await resolve(url, False, log) == expected
 
 
 @pytest.mark.parametrize(
@@ -280,8 +280,8 @@ async def test_resolve(url, expected):
         ),
     ),
 )
-async def test_norecurse(url, expected):
-    assert await resolve(URL(url), False) == expected
+async def test_norecurse(url, expected, log):
+    assert await resolve(URL(url), False, log) == expected
 
 
 @pytest.mark.parametrize(
@@ -702,5 +702,5 @@ async def test_norecurse(url, expected):
         ),
     ),
 )
-async def test_recurse(url, expected):
-    assert await resolve(URL(url), True) == expected
+async def test_recurse(url, expected, log):
+    assert await resolve(URL(url), True, log) == expected

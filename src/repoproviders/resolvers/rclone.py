@@ -1,5 +1,6 @@
 import json
 from dataclasses import dataclass
+from logging import Logger
 from shutil import which
 from tempfile import NamedTemporaryFile
 
@@ -25,7 +26,7 @@ class ImmutableGoogleDriveFolder:
 
 class GoogleDriveFolderResolver:
     async def resolve(
-        self, question: GoogleDriveFolder
+        self, question: GoogleDriveFolder, log: Logger
     ) -> Exists[ImmutableGoogleDriveFolder] | DoesNotExist[GoogleDriveFolder] | None:
 
         if not which("rclone"):

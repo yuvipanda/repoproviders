@@ -135,8 +135,8 @@ from repoproviders.resolvers.wellknown import WellKnownProvidersResolver
         ),
     ),
 )
-async def test_doi(question, expected):
+async def test_doi(question, expected, log):
     wk = WellKnownProvidersResolver()
     if isinstance(question, str):
         question = URL(question)
-    assert await wk.resolve(question) == expected
+    assert await wk.resolve(question, log) == expected

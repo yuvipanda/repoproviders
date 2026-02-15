@@ -1,3 +1,4 @@
+from logging import Logger
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from zipfile import ZipFile
@@ -10,7 +11,7 @@ from ..utils import download_file
 
 
 class HydroshareFetcher:
-    async def fetch(self, repo: HydroshareDataset, output_dir: Path):
+    async def fetch(self, repo: HydroshareDataset, output_dir: Path, log: Logger):
         # This sometimes takes a while, as the zip file is dynamically generated on first GET
         # However, aiohttp seems to handle this behavior just fine no problem
         download_url = (

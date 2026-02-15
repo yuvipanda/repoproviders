@@ -1,4 +1,5 @@
 import os
+from logging import Logger
 
 import aiohttp
 from yarl import URL
@@ -22,7 +23,9 @@ class DoiResolver:
     A *handle* resolver, called a Doi resolver because that's the most common handle
     """
 
-    async def resolve(self, question: URL) -> Exists[Doi] | DoesNotExist[Doi] | None:
+    async def resolve(
+        self, question: URL, log: Logger
+    ) -> Exists[Doi] | DoesNotExist[Doi] | None:
         # Check if this is a valid doi or handle
         if question.scheme in ("doi", "hdl"):
             doi = question.path
@@ -65,6 +68,7 @@ class DoiResolver:
                 return DoesNotExist(Doi, f"{doi} does not point to any URL")
             else:
                 # Some other kind of failure, let's propagate our error up
+                log.error(f"Error resolving doi {doi} through {api_url}")
                 resp.raise_for_status()
                 # This should not actually be reached, but the explicit return None makes mypy happy
                 return None
@@ -100,7 +104,7 @@ class DataverseResolver:
         return data["datasetVersion"]["datasetPersistentId"]
 
     async def resolve(
-        self, question: DataverseURL
+        self, question: DataverseURL, log: Logger
     ) -> Exists[DataverseDataset] | DoesNotExist[DataverseDataset] | None:
         url = question.url
         path = url.path
@@ -190,7 +194,7 @@ class ZenodoResolver:
     """
 
     async def resolve(
-        self, question: ZenodoURL
+        self, question: ZenodoURL, log: Logger
     ) -> MaybeExists[ZenodoDataset] | DoesNotExist[ZenodoDataset] | None:
         if not (
             # After the base URL, the URL structure should start with either record or records
@@ -222,7 +226,7 @@ class ZenodoResolver:
             redirect_location = resp.headers["Location"]
 
             return await self.resolve(
-                ZenodoURL(question.installation, URL(redirect_location))
+                ZenodoURL(question.installation, URL(redirect_location)), log
             )
         else:
             # URL is /record or /records
@@ -232,7 +236,7 @@ class ZenodoResolver:
 
 class FigshareResolver:
     async def resolve(
-        self, question: FigshareURL
+        self, question: FigshareURL, log: Logger
     ) -> MaybeExists[FigshareDataset] | None:
         # After the base URL, the URL structure should start with either articles or account/articles
         if not (
@@ -262,7 +266,7 @@ class FigshareResolver:
 
 class ImmutableFigshareResolver:
     async def resolve(
-        self, question: FigshareDataset
+        self, question: FigshareDataset, log: Logger
     ) -> (
         Exists[ImmutableFigshareDataset]
         | MaybeExists[ImmutableFigshareDataset]

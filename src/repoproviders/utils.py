@@ -3,7 +3,9 @@ import binascii
 import hashlib
 import json
 from base64 import standard_b64decode, urlsafe_b64encode
+from logging import Logger
 from pathlib import Path
+from typing import Optional
 
 import aiohttp
 from yarl import URL
@@ -79,7 +81,9 @@ async def download_file(session: aiohttp.ClientSession, url: URL, output_path: P
             f.write(chunk)
 
 
-async def exec_process(cmd: list[str], **kwargs) -> tuple[int, str, str]:
+async def exec_process(
+    cmd: list[str], log: Optional[Logger] = None, **kwargs
+) -> tuple[int, str, str]:
     """
     Execute given command and return return code, stdout, stderr
     """
@@ -87,7 +91,12 @@ async def exec_process(cmd: list[str], **kwargs) -> tuple[int, str, str]:
     proc = await asyncio.create_subprocess_exec(
         *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, **kwargs
     )
-    stdout, stderr = await proc.communicate()
+    stdout, stderr = [s.decode() for s in await proc.communicate()]
     returncode = await proc.wait()
 
-    return returncode, stdout.decode(), stderr.decode()
+    if log:
+        # FIXME: Stream these directly out
+        log.debug(stdout)
+        log.debug(stderr)
+
+    return returncode, stdout, stderr

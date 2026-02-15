@@ -51,6 +51,6 @@ from repoproviders.resolvers.git import Git, GitUrlResolver
         ),
     ),
 )
-async def test_giturl(url, expected):
+async def test_giturl(url, expected, log):
     gu = GitUrlResolver()
-    assert await gu.resolve(URL(url)) == expected
+    assert await gu.resolve(URL(url), log) == expected

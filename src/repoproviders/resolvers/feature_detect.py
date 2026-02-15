@@ -1,4 +1,5 @@
 from json import JSONDecodeError
+from logging import Logger
 
 import aiohttp
 from yarl import URL
@@ -15,7 +16,7 @@ class FeatureDetectResolver:
     """
 
     async def is_git_repo(
-        self, session: aiohttp.ClientSession, url: URL
+        self, session: aiohttp.ClientSession, url: URL, log: Logger
     ) -> Exists[Git] | None:
         """
         Return true if url is a git repository that supports the smart HTTP git protocol
@@ -30,13 +31,14 @@ class FeatureDetectResolver:
         resp = await session.get(refs_url)
 
         if resp.status == 200:
+            log.debug(f"Found git repo at {url} via 200 OK response to {refs_url}")
             return Exists(Git(str(url), "HEAD"))
 
         # Not a smart git URL
         return None
 
     async def is_dataverse(
-        self, session: aiohttp.ClientSession, url: URL
+        self, session: aiohttp.ClientSession, url: URL, log: Logger
     ) -> MaybeExists[DataverseURL] | None:
         """
         Check if a given URL is under a dataverse install
@@ -56,6 +58,9 @@ class FeatureDetectResolver:
                 if version_data.get("status") == "OK" and "version" in version_data.get(
                     "data", {}
                 ):
+                    log.debug(
+                        f"Detected dataverse installation at {installation} via 200 response to {api_url}"
+                    )
                     return MaybeExists(DataverseURL(installation, url))
             except:
                 pass
@@ -63,7 +68,7 @@ class FeatureDetectResolver:
         return None
 
     async def is_gitlab(
-        self, session: aiohttp.ClientSession, question: URL
+        self, session: aiohttp.ClientSession, question: URL, log: Logger
     ) -> MaybeExists[GitLabURL] | None:
         # A lot of GitLab APIs seem to require auth to hit, including the version API
         # So instead, we hit the OpenID Connect Well Known Endpoint (https://docs.gitlab.com/ee/integration/openid_connect_provider.html#settings-discovery)
@@ -82,12 +87,15 @@ class FeatureDetectResolver:
             return None
 
         if "https://gitlab.org/claims/groups/owner" in data.get("claims_supported", {}):
+            log.debug(
+                f"Found GitLab installation at {installation} by looking for `claims_supported` in {openid_config_url}"
+            )
             return MaybeExists(GitLabURL(installation, question))
         else:
             return None
 
     async def resolve(
-        self, question: URL
+        self, question: URL, log: Logger
     ) -> Exists[Git] | MaybeExists[DataverseURL] | MaybeExists[GitLabURL] | None:
         if question.scheme not in ("http", "https"):
             return None
@@ -96,7 +104,7 @@ class FeatureDetectResolver:
 
         async with aiohttp.ClientSession() as session:
             for g in detectors:
-                maybe_answer = await g(session, question)
+                maybe_answer = await g(session, question, log)
                 if maybe_answer is not None:
                     return maybe_answer
 

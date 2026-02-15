@@ -77,6 +77,6 @@ from repoproviders.resolvers.doi import Doi, DoiResolver
         ),
     ),
 )
-async def test_doi(url, expected):
+async def test_doi(url, expected, log):
     doi = DoiResolver()
-    assert await doi.resolve(URL(url)) == expected
+    assert await doi.resolve(URL(url), log) == expected

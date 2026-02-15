@@ -1,5 +1,6 @@
 import os
 import shutil
+from logging import Logger
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from zipfile import ZipFile
@@ -11,7 +12,7 @@ from ..utils import download_file
 
 
 class ZenodoFetcher:
-    async def fetch(self, repo: ZenodoDataset, output_dir: Path):
+    async def fetch(self, repo: ZenodoDataset, output_dir: Path, log: Logger):
         files_url = repo.installationUrl / "api/records" / repo.recordId / "files"
 
         async with aiohttp.ClientSession() as session:

@@ -1,3 +1,5 @@
+from logging import Logger
+
 import pytest
 
 from repoproviders.resolvers.base import DoesNotExist, Exists, MaybeExists
@@ -58,12 +60,12 @@ from repoproviders.resolvers.git import Git, ImmutableGit, ImmutableGitResolver
         ),
     ),
 )
-async def test_immutable_git(question, expected):
+async def test_immutable_git(question, expected, log):
     ig = ImmutableGitResolver()
-    assert await ig.resolve(question) == expected
+    assert await ig.resolve(question, log) == expected
 
 
-async def test_immutable_git_HEAD():
+async def test_immutable_git_HEAD(log: Logger):
     """
     Extra test to test resolving HEAD, making sure it's the same as resolving "main".
 
@@ -72,10 +74,10 @@ async def test_immutable_git_HEAD():
     ig = ImmutableGitResolver()
     assert (
         await ig.resolve(
-            Git("https://github.com/jupyterhub/zero-to-jupyterhub-k8s", "HEAD")
+            Git("https://github.com/jupyterhub/zero-to-jupyterhub-k8s", "HEAD"), log
         )
     ) == (
         await ig.resolve(
-            Git("https://github.com/jupyterhub/zero-to-jupyterhub-k8s", "main")
+            Git("https://github.com/jupyterhub/zero-to-jupyterhub-k8s", "main"), log
         )
     )

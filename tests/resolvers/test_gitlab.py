@@ -129,6 +129,6 @@ from repoproviders.resolvers.repos import GitLabURL
         ),
     ),
 )
-async def test_gitlab(url, expected):
+async def test_gitlab(url, expected, log):
     gl = GitLabResolver()
-    assert await gl.resolve(url) == expected
+    assert await gl.resolve(url, log) == expected
