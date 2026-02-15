@@ -15,7 +15,7 @@ from repoproviders.resolvers.base import DoesNotExist
     [
         (
             (
-                "https://open.canada.ca/data/en/dataset/53e5a3c2-9d66-4e7a-9f02-380585b3c11f"
+                "https://open.canada.ca/data/en/dataset/53e5a3c2-9d66-4e7a-9f02-380585b3c11f",
             ),
             {
                 "guide-orientation-2019.html": "099af21f2d7c5093ecf090adf89eb78e",
