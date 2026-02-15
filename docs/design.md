@@ -41,4 +41,4 @@ the design decisions in repoproviders resolvers better.
 when writing, but at runtime too. Resolvers and Fetchers indicate what type of
 things they can resolve or fetch via types. How sure a resolver is that something
 exists is also denoted by types. We can stick to fairly new versions of python,
-and rely on types wherever possible
+and rely on types wherever possible.
