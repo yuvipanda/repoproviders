@@ -32,4 +32,6 @@ class CKANFetcher:
                 # FIXME: Do we support folder structures?
                 file_path = file_name
 
-                await download_file(session, file_download_url, output_dir / file_path)
+                await download_file(
+                    session, file_download_url, output_dir / file_path, log
+                )
