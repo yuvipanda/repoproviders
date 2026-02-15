@@ -1,13 +1,14 @@
 import inspect
 import types
 import typing
-from logging import Logger
+from logging import Logger, getLogger
 from pathlib import Path
-from typing import Any
+from typing import Optional
 
 from repoproviders.fetchers.hydroshare import HydroshareFetcher
 from repoproviders.fetchers.rclone import GoogleDriveFolderFetcher
 from repoproviders.fetchers.zenodo import ZenodoFetcher
+from repoproviders.resolvers.base import Repo
 
 from .base import SupportsFetch
 from .dataverse import DataverseFetcher
@@ -36,7 +37,10 @@ for R in ALL_FETCHERS:
             FETCHER_BY_TYPE[t] = R
 
 
-async def fetch(question: Any, output_dir: Path, log: Logger):
+async def fetch(question: Repo, output_dir: Path, log: Optional[Logger] = None):
+    if log is None:
+        # Use default named logger
+        log = getLogger("repoproviders")
     fetcher = FETCHER_BY_TYPE[type(question)]
 
     await fetcher.fetch(question, output_dir, log)

@@ -1,8 +1,8 @@
 import inspect
 import types
 import typing
-from logging import Logger
-from typing import Any
+from logging import Logger, getLogger
+from typing import Any, Optional
 
 from yarl import URL
 
@@ -57,10 +57,14 @@ for R in ALL_RESOLVERS:
 
 
 async def resolve(
-    question: str | Any, recursive: bool, log: Logger
+    question: str | Any, recursive: bool, log: Optional[Logger] = None
 ) -> list[Exists | MaybeExists | DoesNotExist] | None:
     if isinstance(question, str):
         question = URL(question)
+
+    if log is None:
+        # Use default named logger
+        log = getLogger("repoproviders")
 
     answers: list[Exists | MaybeExists | DoesNotExist] = []
     resp = None
