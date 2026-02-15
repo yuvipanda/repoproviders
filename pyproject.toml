@@ -154,15 +154,12 @@ check = "mypy src/repoproviders"
 description = """Build or serve the documentation."""
 python = "3.12"
 dependencies = [
-    "pydata_sphinx_theme ~=0.16",
-    "myst-parser ~=4.0",
-    "Sphinx ~=8.0",
-    "sphinx-autobuild ==2024.10.3"
+    "jupyter-book"
 ]
 
 [tool.hatch.envs.docs.scripts]
-build = ["sphinx-apidoc -o docs/api src/repoproviders", "sphinx-build {args:-W -b html docs docs/_build}"]
-serve = ["sphinx-apidoc -o docs/api src/repoproviders", "sphinx-autobuild docs --watch src/repoproviders {args:-b html docs/_build/serve}"]
+build = ["cd docs && jupyter book build docs --html"]
+serve = ["cd docs && jupyter book start docs"]
 
 [tool.hatch.envs.install]
 description = """Test the installation the package."""
