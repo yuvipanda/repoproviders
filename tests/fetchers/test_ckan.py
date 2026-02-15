@@ -15,11 +15,14 @@ from repoproviders.resolvers.base import DoesNotExist
     [
         (
             (
-                "https://open.canada.ca/data/en/dataset/53e5a3c2-9d66-4e7a-9f02-380585b3c11f",
+                # Don't forget this happened
+                "https://catalog.data.gov/dataset/cumulative-provisional-counts-of-deaths-by-sex-race-and-age",
             ),
             {
-                "guide-orientation-2019.html": "099af21f2d7c5093ecf090adf89eb78e",
-                "orientation-handbook-2019.html": "351bb4b2299bb1f5d27cf7a10458135f",
+                "rows.rdf": "30c4b07b6fa28835db5daca0e2d6174e",
+                "rows.csv": "48833a8e1e30ce06cc5a7562efa0b662",
+                "rows.xml": "990d83bff832d6dd08e40037c97fca45",
+                "rows.json": "5c76a18b6039ec5922e32b9bdc8bfde9",
             },
         )
     ],
