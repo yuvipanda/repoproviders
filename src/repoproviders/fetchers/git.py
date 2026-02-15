@@ -61,6 +61,6 @@ class GitHubActionArtifactFetcher:
             headers={"Authorization": f"Bearer {GITHUB_PUBLIC_PAT}"}
         ) as session:
             with NamedTemporaryFile() as temp_file:
-                await download_file(session, download_url, Path(temp_file.name))
+                await download_file(session, download_url, Path(temp_file.name), log)
                 compressed_file = ZipFile(temp_file.name)
                 compressed_file.extractall(output_dir)

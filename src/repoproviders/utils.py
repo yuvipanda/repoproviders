@@ -2,6 +2,7 @@ import asyncio
 import binascii
 import hashlib
 import json
+import time
 from base64 import standard_b64decode, urlsafe_b64encode
 from logging import Logger
 from pathlib import Path
@@ -58,27 +59,38 @@ def make_dir_hash(data: dict[str, str]) -> str:
     ).decode()
 
 
-async def download_file(session: aiohttp.ClientSession, url: URL, output_path: Path):
+async def download_file(
+    session: aiohttp.ClientSession, url: URL, output_path: Path, log: Logger
+):
     # Read in 4k chunks
     CHUNK_SIZE = 4 * 1024
+    start_time = time.monotonic()
     resp = await session.get(url)
 
     if resp.status == 200 and "Location" in resp.headers:
         # Some providers (lookin at you, data.caltech.edu) send a Location header
         # *but with a 200 status code*. This is invalid and bogus, yet we have to
         # honor it. Sigh
-        return await download_file(session, URL(resp.headers["Location"]), output_path)
+        log.debug(
+            "Got a Location header response but with 200 OK status code. Doing a manual redirect..."
+        )
+        return await download_file(
+            session, URL(resp.headers["Location"]), output_path, log
+        )
 
     resp.raise_for_status()
 
     if not output_path.parent.exists():
         # Leave the exist_ok=True here despite the check, to handle possible
         # race conditions in the future if we ever parallelize this
+        log.debug(f"Created directory {output_path.parent}")
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(output_path, "wb") as f:
         async for chunk in resp.content.iter_chunked(CHUNK_SIZE):
             f.write(chunk)
+        duration = time.monotonic() - start_time
+        log.debug(f"Downloaded {url} to {output_path} in {duration:0.02f}s")
 
 
 async def exec_process(

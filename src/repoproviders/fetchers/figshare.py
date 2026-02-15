@@ -26,6 +26,6 @@ class FigshareFetcher:
             headers={"Authorization": f"token {FIGSHARE_PUBLIC_TOKEN}"}
         ) as session:
             with NamedTemporaryFile() as temp_file:
-                await download_file(session, download_url, Path(temp_file.name))
+                await download_file(session, download_url, Path(temp_file.name), log)
                 compressed_file = ZipFile(temp_file.name)
                 compressed_file.extractall(output_dir)

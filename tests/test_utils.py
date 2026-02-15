@@ -3,6 +3,7 @@ import secrets
 import socket
 import sys
 import tempfile
+from logging import Logger
 from pathlib import Path
 
 import aiohttp
@@ -22,7 +23,7 @@ def random_port() -> int:
     return port
 
 
-async def test_download_file():
+async def test_download_file(log: Logger):
     port = random_port()
     with tempfile.TemporaryDirectory() as src, tempfile.TemporaryDirectory() as dest:
         test_file = Path(src) / secrets.token_hex(8)
@@ -41,7 +42,10 @@ async def test_download_file():
             dest_file = Path(dest) / secrets.token_hex(8) / secrets.token_hex(8)
             async with aiohttp.ClientSession() as session:
                 await download_file(
-                    session, URL(f"http://127.0.0.1:{port}/{test_file.name}"), dest_file
+                    session,
+                    URL(f"http://127.0.0.1:{port}/{test_file.name}"),
+                    dest_file,
+                    log,
                 )
 
             assert dest_file.exists()
