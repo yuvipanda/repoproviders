@@ -95,7 +95,7 @@ class FeatureDetectResolver:
             return None
 
     async def is_ckan(
-        self, session: aiohttp.ClientSession, question: URL
+        self, session: aiohttp.ClientSession, question: URL, log: Logger
     ) -> MaybeExists[CKANDataset] | None:
         # If there's no "/dataset/" it's not CKAN
         if "/dataset/" not in question.path:
@@ -130,8 +130,13 @@ class FeatureDetectResolver:
             return None
 
         data = await resp.json()
-        if "ckan_version" not in data.get("result", {}):
+        ckan_version = data.get("result", {}).get("ckan_version")
+        if not ckan_version:
             return None
+
+        log.debug(
+            f"Detected CKAN installation at {base_url} - found ckan_version={ckan_version} in {status_api_endpoint}"
+        )
 
         return MaybeExists(CKANDataset(base_url, dataset_id))
 
