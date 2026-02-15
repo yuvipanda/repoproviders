@@ -26,8 +26,8 @@ _Detect, resolve and fetch repositories of content_
 | Dataverse Repositories                | ✅       | ✅      |
 | Figshare                              | ✅       | ✅      |
 | Hydroshare                            | ✅       | ✅      |
+| CKAN                                  | ✅       | ✅      |
 | Mercurial                             | ❌       | ❌      |
-| CKAN                                  | ❌       | ❌      |
 | Software Heritage                     | ❌       | ❌      |
 | ZIP files over HTTP                   | ❌       | ❌      |
 | Codeberg Refs                         | ❌       | ❌      |

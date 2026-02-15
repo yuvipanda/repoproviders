@@ -21,8 +21,8 @@ and fetching them.
 | Dataverse Repositories                | ✅       | ✅      |
 | Figshare                              | ✅       | ✅      |
 | Hydroshare                            | ✅       | ✅      |
+| CKAN                                  | ✅       | ✅      |
 | Mercurial                             | ❌       | ❌      |
-| CKAN                                  | ❌       | ❌      |
 | Software Heritage                     | ❌       | ❌      |
 | ZIP files over HTTP                   | ❌       | ❌      |
 | Codeberg Refs                         | ❌       | ❌      |

@@ -1,3 +1,4 @@
+from logging import Logger
 from pathlib import Path
 
 import aiohttp
@@ -8,7 +9,7 @@ from ..utils import download_file
 
 
 class CKANFetcher:
-    async def fetch(self, repo: CKANDataset, output_dir: Path):
+    async def fetch(self, repo: CKANDataset, output_dir: Path, log: Logger):
         api_url = (repo.installationUrl / "api/3/action/package_show").with_query(
             id=repo.dataset_id
         )
@@ -19,7 +20,6 @@ class CKANFetcher:
             # FIXME: Handle this is not found correctly
             resp.raise_for_status()
             data = await resp.json()
-            print(data)
 
             resources = data["result"]["resources"]
 
