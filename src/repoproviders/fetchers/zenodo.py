@@ -32,9 +32,12 @@ class ZenodoFetcher:
                     download_url = entry["links"]["content"]
 
                     with NamedTemporaryFile() as temp_file:
-                        await download_file(session, download_url, Path(temp_file.name))
+                        await download_file(
+                            session, download_url, Path(temp_file.name), log
+                        )
                         compressed_file = ZipFile(temp_file.name)
                         compressed_file.extractall(output_dir)
+                        log.debug(f"Extracted {temp_file.name} to {output_dir}")
 
                         # If there's only one subdirectory, move its contents to the output directory
                         subdirs = list(output_dir.iterdir())
@@ -56,4 +59,6 @@ class ZenodoFetcher:
 
                 # Zenodo doesn't support directory structures,
                 # so we don't need to handle nesting https://support.zenodo.org/help/en-gb/1-upload-deposit/74-can-i-upload-folders-directories
-                await download_file(session, file_download_url, output_dir / file_name)
+                await download_file(
+                    session, file_download_url, output_dir / file_name, log
+                )

@@ -21,7 +21,7 @@ class HydroshareFetcher:
 
         async with aiohttp.ClientSession() as session:
             with NamedTemporaryFile() as temp_file:
-                await download_file(session, download_url, Path(temp_file.name))
+                await download_file(session, download_url, Path(temp_file.name), log)
                 compressed_file = ZipFile(temp_file.name)
                 # We want to only extract files from the data/contents
                 contents_path = f"{repo.resource_id}/data/contents/"
@@ -30,3 +30,4 @@ class HydroshareFetcher:
                         target_file_name = file_info.filename[len(contents_path) :]
                         file_info.filename = target_file_name
                         compressed_file.extract(file_info, output_dir)
+                        log.debug(f"Extracted {target_file_name} to {output_dir}")
