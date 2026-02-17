@@ -35,7 +35,8 @@ keywords = []
 # TODO: add dependencies
 dependencies = [
     "yarl",
-    "aiohttp"
+    "aiohttp",
+    "tenacity"
 ]
 
 [project.urls]

@@ -9,6 +9,7 @@ from repoproviders.resolvers.rclone import GoogleDriveFolder
 
 from .base import MaybeExists, Repo
 from .repos import (
+    SWHID,
     DataverseURL,
     Doi,
     FigshareInstallation,
@@ -149,6 +150,32 @@ class WellKnownProvidersResolver:
 
         return None
 
+    def detect_swhid(self, question: URL, log: Logger) -> SWHID | None:
+        # swhid URLs look like
+        # https://archive.softwareheritage.org/swh:1:dir:b9b37185441cd6f061a2475e968ad2fa554736ff;origin=https://github.com/jupyterhub/team-compass;visit=swh:1:snp:4530dc7a6dc7de0aa2459eb83ea727cdbf454c17;anchor=swh:1:rev:d08dd18aa50a9f2a5de1c22192d01a7262ccafcf
+        # SWHIDs look like swh:1:dir:b9b37185441cd6f061a2475e968ad2fa554736ff
+        # we want to support both!
+        if question.scheme == "swh":
+            swhid = str(question)
+        elif question.host == "archive.softwareheritage.org":
+            # Multiple SWHIDs are passed in separated by ; in the path, rather than as query strings
+            path_parts = question.path.strip("/").split(";")
+            if path_parts[0].startswith("swh:"):
+                swhid = path_parts[0]
+            else:
+                # Not a swhid URL
+                return None
+        else:
+            # Early exit as we aren't a swhid
+            return None
+
+        # swhid is seprated by colons and have 4 parts. First two we support are swh and version identifier 1
+        swhid_parts = swhid.split(":")
+        if len(swhid_parts) != 4 or swhid_parts[0] != "swh" or swhid_parts[1] != "1":
+            return None
+
+        return SWHID(int(swhid_parts[1]), swhid_parts[2], swhid_parts[3])
+
     async def resolve(
         self, question: URL | Doi, log: Logger
     ) -> MaybeExists[Repo] | None:
@@ -163,6 +190,7 @@ class WellKnownProvidersResolver:
             self.detect_figshare,
             self.detect_gitlab,
             self.detect_hydroshare,
+            self.detect_swhid,
         ]
 
         match question:

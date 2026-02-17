@@ -8,6 +8,7 @@ from typing import Optional
 from repoproviders.fetchers.ckan import CKANFetcher
 from repoproviders.fetchers.hydroshare import HydroshareFetcher
 from repoproviders.fetchers.rclone import GoogleDriveFolderFetcher
+from repoproviders.fetchers.swhid import SWHIDFetcher
 from repoproviders.fetchers.zenodo import ZenodoFetcher
 from repoproviders.resolvers.base import Repo
 
@@ -25,6 +26,7 @@ ALL_FETCHERS: list[SupportsFetch] = [
     GoogleDriveFolderFetcher(),
     HydroshareFetcher(),
     CKANFetcher(),
+    SWHIDFetcher(),
 ]
 
 FETCHER_BY_TYPE: dict[type, SupportsFetch] = {}
