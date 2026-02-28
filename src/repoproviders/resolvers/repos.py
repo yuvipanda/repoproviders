@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Literal
 
 from yarl import URL
 
@@ -210,3 +211,26 @@ class CKANDataset:
     dataset_id: str
 
     immutable = False
+
+
+@dataclass(frozen=True)
+class SWHID:
+    version: int
+    type: (
+        Literal["dir"]
+        | Literal["rev"]
+        | Literal["snp"]
+        | Literal["ori"]
+        | Literal["cnt"]
+        | Literal["rel"]
+    )
+    hash: str
+
+    immutable = True
+
+
+@dataclass(frozen=True)
+class SWHIDDirectory:
+    directory_hash: str
+
+    immutable = True
