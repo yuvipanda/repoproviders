@@ -13,6 +13,7 @@ from .repos import (
     Doi,
     FigshareInstallation,
     FigshareURL,
+    ForgejoURL,
     GistURL,
     GitHubURL,
     GitLabURL,
@@ -149,6 +150,12 @@ class WellKnownProvidersResolver:
 
         return None
 
+    def detect_codeberg(self, question: URL, log: Logger) -> ForgejoURL | None:
+        if question.host == "codeberg.org":
+            return ForgejoURL(question, URL("https://codeberg.org"))
+
+        return None
+
     async def resolve(
         self, question: URL | Doi, log: Logger
     ) -> MaybeExists[Repo] | None:
@@ -163,6 +170,7 @@ class WellKnownProvidersResolver:
             self.detect_figshare,
             self.detect_gitlab,
             self.detect_hydroshare,
+            self.detect_codeberg,
         ]
 
         match question:

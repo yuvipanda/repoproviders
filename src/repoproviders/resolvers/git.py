@@ -8,6 +8,7 @@ from repoproviders.utils import exec_process
 
 from .base import DoesNotExist, Exists, MaybeExists
 from .repos import (
+    ForgejoURL,
     GistURL,
     Git,
     GitHubActionArtifact,
@@ -133,6 +134,21 @@ class GitLabResolver:
         else:
             # This is not actually a valid GitLab URL we support
             return None
+
+
+class ForgejoURLResolver:
+    async def resolve(self, question: ForgejoURL, log: Logger) -> MaybeExists[Git]:
+        # FIXME: Support forgejo installations on a prefix
+
+        parts = [p for p in question.url.path.split("/") if p.strip() != ""]
+
+        if len(parts) == 2 and parts[0] not in ("explore", "user"):
+            return MaybeExists(Git(str(question.url), "HEAD"))
+        if len(parts) == 4 and parts[2] == "commit":
+            # Point to a specific commit https://codeberg.org/forgejo/forgejo/commit/df79ccf7d8b69f63b7cb66d340e26ce1e3e79c89
+            return MaybeExists(
+                Git(str(question.installation / parts[0] / parts[1]), parts[3])
+            )
 
 
 class ImmutableGitResolver:
