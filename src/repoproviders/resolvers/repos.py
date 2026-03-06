@@ -43,6 +43,19 @@ class GitHubURL:
 
 
 @dataclass(frozen=True)
+class ForgejoURL:
+    """
+    A Forgejo URL of any sort
+    """
+
+    installation: URL
+    url: URL
+
+    # URLs can point to whatever
+    immutable = False
+
+
+@dataclass(frozen=True)
 class GitHubPR:
     """
     A GitHub Pull Request
